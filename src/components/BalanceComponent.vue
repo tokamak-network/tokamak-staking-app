@@ -6,8 +6,8 @@
     </view>
      <view class="divider" />
     <view class="row">
-<text>{{rewards}}</text>
-<text>{{value}}</text>
+<text class="title">{{rewards}}</text>
+<text class="title">{{value}}</text>
 </view>
 </view>
 </template>
@@ -23,7 +23,7 @@ export default {
     border-width: 1;
     border-color: #ccd1d3;
     border-radius: 13;
-   height: 180px;
+   height: 170px;
   margin-bottom: 40;
 }
 .row {
@@ -34,10 +34,10 @@ export default {
 }
 .title {
     color: #8c8c8c;
-    font-size: 30px;  
+    font-size: 18px;  
 }
 .text {
-   font-size: 36px;
+   font-size: 40px;
   font-weight: 700;
   color: #555555; 
 }

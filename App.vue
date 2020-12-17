@@ -22,6 +22,8 @@ import HomeScreen from "@/screens/HomeScreen";
 import StakingScreen from "@/screens/StakingScreen";
 import PowertonScreen from "@/screens/PowertonScreen";
 import LoginScreen from "@/screens/LoginScreen";
+import Header from "./src/components/Header"
+
 import store from '@/store';
 Vue.prototype.$store = store;
 Vue.use(VueNativeBase);
@@ -31,7 +33,8 @@ const Drawer = createDrawerNavigator(
     Home: {screen: HomeScreen},
     Operators: {screen: OperatorsScreen},
     Staking: {screen: StakingScreen},
-    PowerTON: {screen: PowertonScreen}
+    PowerTON: {screen: PowertonScreen}, 
+    Header: {screen: Header}
   },
   {
     initialRouteName: "Home",
@@ -46,6 +49,7 @@ const AppNavigator = createAppContainer(
     {
       Login: {screen: LoginScreen},
       Drawer: {screen: Drawer},
+      Header: {screen: Header}
     },
     {
       initialRouteName: "Login",

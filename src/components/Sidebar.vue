@@ -3,6 +3,9 @@
    <view class="logo-container" >
         <image class="logo" :style="{width: 90, height: 58}" :source="require('../../assets/TokamakLogo.png')" />
       </view>
+       <view class="logo-container" :style="{paddingBottom: 40}" >
+        <image class="logo" :style="{width: 246, height: 30}" :source="require('../../assets/simple-staking-text.png')" />
+      </view>
   <view class="sidebar-item">
     <touchable-opacity :on-press="()=>handleListItemClick('Home')" :style="{alignItems: 'center', justifyContent: 'center',height: 50, width: 280, backgroundColor: '#DDDDDD'}">
       <text :style="{fontSize:20}">Home</text>
@@ -62,7 +65,9 @@ export default {
   height: 40px;
 }
 .logo-container {
-  padding-bottom: 40;
+  padding-bottom: 20;
+  display: flex;
+  flex-direction: column;
 }
 .sidebar-item {
   height: 50;

@@ -1,23 +1,51 @@
 <template>
     <view>
          <view class="logo-container" >
-        <image class="logo" :style="{width: 325, height: 48}" :source="require('../../assets/tokamak-staking-simple.png')" />
+           <nb-button
+          transparent
+          :onPress="openDrawer"
+          class="hamburger-button"
+        >
+          <nb-icon class="hamburger-icon" name="menu" style="fontSize: 48"/>
+        </nb-button>
+        <image class="logo" :style="{width: 162, height: 39}" :source="require('../../assets/logo-small.png')" />
       </view>
     </view>
 </template>
 <script>
+import React from 'react';
 export default {
-    
+    props: {
+     navigation: {
+      type: Object
+    },
+    openDrawer :{
+      type: Function
+    },
+    },
+    //  methods: {
+    //     openDrawer () {
+    //       console.log('hgh');
+    //         this.$emit('open');
+    //     }
+    // }
 }
 </script>
 <style scoped>
 .logo-container {
+  display: flex;
+  padding: 15px 5px 0px 5px;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 
 }
 .logo {
   display: flex;
+}
+
+.hamburger-icon {
+  color: #2a72e5;
+  margin-left: -5px;
 }
 </style>

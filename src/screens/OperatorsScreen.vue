@@ -2,7 +2,9 @@
     <view class="operator-layout">
        <header :openDrawer="openDr"/>
       <view class="operator-container">
-         <text>Operators</text>
+         <text class="page-title">Stake tokens now!!!</text>
+        <text class="page-text">Stake your TON to win Power TON and other rewards..</text>
+        
       </view>
     <footer/>
 
@@ -42,5 +44,17 @@ export default {
   display: flex;
   align-items: center;
   padding-top: 40;
+}
+.page-title {
+  font-size: 30px;
+  text-align: center;
+  color: #555555;
+  padding: 0px 40px;
+  font-weight: 700;
+}
+.page-text {
+  font-size: 20px;
+  text-align: center;
+  padding: 20px 40px;
 }
 </style>

@@ -4,14 +4,18 @@
          <view class="footer-row">
           <text class="footer-text">Terms</text>
           <text class="footer-text">Privacy Policy</text>
-          <text class="footer-text">About Us</text>
+          <text class="footer-text" :on-press="openURL">About Us</text>
          </view>
     </view>
 </template>
 <script>
-
+import { Linking } from 'react-native';
 export default {
-   
+  methods: {
+      openURL () {
+          Linking.openURL('https://tokamak.network/')
+      }
+  } 
 }
 </script>
 <style scoped>

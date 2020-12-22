@@ -5,6 +5,7 @@
             bar-style="dark-content"
         />
   <app-navigator></app-navigator>
+      <footer/>
 </root>
 </template>
 
@@ -20,9 +21,11 @@ import SidebarScreen from "./src/components/Sidebar";
 import OperatorsScreen from "@/screens/OperatorsScreen";
 import HomeScreen from "@/screens/HomeScreen";
 import StakingScreen from "@/screens/StakingScreen";
+import SelectedOperatorScreen from "@/screens/SelectedOperatorScreen";
 import PowertonScreen from "@/screens/PowertonScreen";
 import LoginScreen from "@/screens/LoginScreen";
 import Header from "./src/components/Header"
+import Footer from '@/components/Footer'
 
 import store from '@/store';
 Vue.prototype.$store = store;
@@ -34,7 +37,8 @@ const Drawer = createDrawerNavigator(
     Operators: {screen: OperatorsScreen},
     Staking: {screen: StakingScreen},
     PowerTON: {screen: PowertonScreen}, 
-    Header: {screen: Header}
+    // Header: {screen: Header},
+    // SelectedOperator : {screen: SelectedOperatorScreen},
   },
   {
     initialRouteName: "Home",
@@ -49,6 +53,7 @@ const AppNavigator = createAppContainer(
     {
       Login: {screen: LoginScreen},
       Drawer: {screen: Drawer},
+      SelectedOperator : {screen: SelectedOperatorScreen},
       Header: {screen: Header}
     },
     {
@@ -58,7 +63,7 @@ const AppNavigator = createAppContainer(
   )
 )
 export default {
-  components: { Root, AppNavigator },
+  components: { Root, AppNavigator, Footer },
 }
 </script>
 <style scoped>

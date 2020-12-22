@@ -1,33 +1,37 @@
 <template>
     <view class="operator-layout">
-       <header :openDrawer="openDr"/>
-      <view class="operator-container">
-         <text class="page-title">Stake tokens now!!!</text>
-        <text class="page-text">Stake your TON to win Power TON and other rewards..</text>
-        
+   <header :navigation="navigation" :back="false"/>
+         <view class="operator-container">
+         <text class="page-title">Select your favorite operator!!</text>
+        <text class="page-text">Select an operator to stake, unstake, or withdraw your tokens.</text>
+        <view v-for="operator in operators" :key="operator.name"> 
+          <operator-component :name="operator.name" :color="operator.color" :navigation="navigation"/>
+          </view>
       </view>
-    <footer/>
-
     </view>
 </template>
 <script>
 import Header from '../components/Header'
-import Footer from '@/components/Footer'
+import OperatorComponent from '@/components/OperatorComponent'
 export default {
     components: {
       'header': Header,
-       'footer': Footer,
+       'operator-component': OperatorComponent,
     },
+   data() {
+    return {
+      operators: [
+        {name:'tokamak1', color:'#b23756'},
+        {name:'DXM Corp', color:'#8948a2'},
+        {name:'DSRV', color:'#78eef2'}
+        ]
+    };
+  },
     props: {
     navigation: {
       type: Object
     }
   },
-    methods: {
-      openDr (){
-        this.navigation.openDrawer();
-      }
-    },
 }
 </script>
 <style scoped>
@@ -43,7 +47,7 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  padding-top: 40;
+  padding: 20px 20px;
 }
 .page-title {
   font-size: 30px;

@@ -1,30 +1,22 @@
 <template>
     <view class="staking-layout">
-      <header :openDrawer="openDr"/>
-        <view class="staking-container">
+   <header :navigation="navigation" :back="false"/>
+           <view class="staking-container">
          <text>Staking</text>
       </view>
-        <footer/>
     </view>
 </template>
 <script>
 import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 export default {
     components: {
       'header': Header,
-      'footer': Footer,
     },
     props: {
     navigation: {
       type: Object
     }
   },
-    methods: {
-      openDr (){
-         this.navigation.openDrawer();
-      }
-    }
 }
 </script>
 <style scoped>

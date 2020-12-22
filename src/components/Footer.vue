@@ -23,12 +23,7 @@ export default {
     display: flex;
     flex-direction: column;
     width: 100%;
-    /* justify-content: flex-end; */
-    /* flex: 1; */
-    /* align-self: stretch; */
-    /* position: relative; */
     align-items: center;
-    /* height: 40px; */
 }
 .footer-row {
     display: flex;
@@ -39,7 +34,7 @@ export default {
 }
 
 .footer-text {
-    font-size: 15px;
+    font-size: 11px;
      color: #2a72e5;
      padding: 10px 20px;
 }

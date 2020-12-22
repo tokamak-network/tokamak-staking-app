@@ -1,12 +1,17 @@
 <template>
     <view>
          <view class="logo-container" >
-           <nb-button
+           <nb-button v-if="!back"
           transparent
           :onPress="openDrawer"
-          class="hamburger-button"
-        >
+          class="hamburger-button">
           <nb-icon class="hamburger-icon" name="menu" style="fontSize: 48"/>
+        </nb-button>
+         <nb-button v-else
+          transparent 
+          :onPress="() => this.props.navigation.goBack()"
+           class="hamburger-button">
+          <nb-icon class="hamburger-icon" name="arrow-back" style="fontSize: 40"/>
         </nb-button>
         <image class="logo" :style="{width: 162, height: 39}" :source="require('../../assets/logo-small.png')" />
       </view>
@@ -19,16 +24,15 @@ export default {
      navigation: {
       type: Object
     },
-    openDrawer :{
-      type: Function
-    },
-    },
-    //  methods: {
-    //     openDrawer () {
-    //       console.log('hgh');
-    //         this.$emit('open');
-    //     }
-    // }
+    back: {
+      type: Boolean
+    }
+  },
+     methods: {
+        openDrawer () {
+          this.navigation.openDrawer();
+        }
+    }
 }
 </script>
 <style scoped>

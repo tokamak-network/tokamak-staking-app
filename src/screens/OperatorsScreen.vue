@@ -4,9 +4,11 @@
          <view class="operator-container">
          <text class="page-title">Select your favorite operator!!</text>
         <text class="page-text">Select an operator to stake, unstake, or withdraw your tokens.</text>
+          <scroll-view>
         <view v-for="operator in operators" :key="operator.name"> 
           <operator-component :name="operator.name" :color="operator.color" :navigation="navigation"/>
           </view>
+          </scroll-view>
       </view>
     </view>
 </template>

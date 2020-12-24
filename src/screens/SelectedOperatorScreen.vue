@@ -20,7 +20,7 @@
       </view>
       <view class="amount-container">
         <view class="amount-row">
-          <text class="info-title">Availablr Amount</text>
+          <text class="info-title">Available Amount</text>
           <text class="info-description">4598.24 TON</text>
         </view>
         <view
@@ -41,21 +41,22 @@
             <text class="info-description">TON</text>
           </view>
         </view>
-         <touchable-opacity :on-press="onPressButton">
-        <view class="button-stake">
-          <text class="opr" >Stake</text>
-        </view>
+         <touchable-opacity :on-press="onPressButton" :style="{width: 320, marginTop: 10}">
+           <button-main title="Stake"/>
          </touchable-opacity>
+        
       </view>
     </view>
   </view>
 </template>
 <script>
 import Header from "@/components/Header";
+import ButtonMain from "@/components/ButtonMain"
 import { Button} from 'react-native';
 export default {
   components: {
     header: Header,
+    'button-main':ButtonMain,
   },
   data() {
     return {
@@ -82,6 +83,7 @@ export default {
   },
   methods: {
     onPressButton() {
+      console.log('button pressed');
     },
   },
 };
@@ -148,7 +150,7 @@ export default {
   border-width: 1;
   border-color: #ccd1d3;
   border-radius: 13;
-  height: 230px;
+  height: 195px;
   padding: 15px;
   margin: 40px;
   display: flex;
@@ -185,17 +187,6 @@ export default {
   margin-right: 20px;
   align-items: center;
   color: #555555;
-  margin-right: 8px;
-}
-.button-stake {
-  background-color: #2a72e5;
-  color: #ffffff;
-  border-radius: 13px;
-  width: 150px;
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
+
 }
 </style>

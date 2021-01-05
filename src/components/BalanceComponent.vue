@@ -2,12 +2,12 @@
 <view class="balance-container">
     <view class="row" style="flex-direction: column">
         <text class="title">{{title}}</text>
-<text  class="text">{{balance}}</text>
+<text  class="text">{{balance.value}}{{balance.symbol}}</text>
     </view>
      <view class="divider" />
     <view class="row">
 <text class="title">{{rewards}}</text>
-<text class="title">{{value}}</text>
+<text class="title">{{value.value}}{{value.symbol}}</text>
 </view>
 </view>
 </template>

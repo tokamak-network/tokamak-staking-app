@@ -60,23 +60,10 @@
         class="value-container"
         :style="{ height: 50, flexDirection: 'row' }"
       >
-        <nb-picker
-          mode="dropdown"
-          class="dropdown"
-          :selectedValue="selectedOperator"
-          :onValueChange="onValueChange"
+        <text :style="{ fontSize: 17, marginTop: 4, color: '#555555' }" :onPress="handleBtnPress"
+          >Select an operator ▼</text
         >
-          <nb-item
-            v-for="(op, i) in operators"
-            :value="op.name"
-            :label="op.name"
-            :key="i"
-            class="dropdown-item"
-          />
-        </nb-picker>
-        <text :style="{ fontSize: 17, marginTop: 4, color: '#555555' }"
-          >Select an operator</text
-        >
+        <text class="selectedOperator">{{selectedOperator}}</text>
       </view>
       <touchable-opacity :on-press="delegate" :style="{ marginBottom: 15 }">
         <button-main title="Stake" />
@@ -133,23 +120,10 @@
         class="value-container"
         :style="{ height: 50, flexDirection: 'row' }"
       >
-        <nb-picker
-          mode="dropdown"
-          class="dropdown"
-          :selectedValue="selectedOperator"
-          :onValueChange="onValueChange"
+         <text :style="{ fontSize: 17, marginTop: 4, color: '#555555' }" :onPress="handleBtnPress"
+          >Select an operator ▼</text
         >
-          <nb-item
-            v-for="(op, i) in operators"
-            :value="op.name"
-            :label="op.name"
-            :key="i"
-            class="dropdown-item"
-          />
-        </nb-picker>
-        <text :style="{ fontSize: 17, marginTop: 4, color: '#555555' }"
-          >Select an operator</text
-        >
+        <text class="selectedOperator">{{selectedOperator}}</text>
       </view>
       <touchable-opacity :on-press="undelegate" :style="{ marginBottom: 15 }">
         <button-main title="Unstake" />
@@ -177,23 +151,10 @@
         class="value-container"
         :style="{ height: 50, flexDirection: 'row' }"
       >
-        <nb-picker
-          mode="dropdown"
-          class="dropdown"
-          :selectedValue="selectedOperator"
-          :onValueChange="onValueChange"
+         <text :style="{ fontSize: 17, marginTop: 4, color: '#555555' }" :onPress="handleBtnPress"
+          >Select an operator ▼</text
         >
-          <nb-item
-            v-for="(op, i) in operators"
-            :value="op.name"
-            :label="op.name"
-            :key="i"
-            class="dropdown-item"
-          />
-        </nb-picker>
-        <text :style="{ fontSize: 17, marginTop: 4, color: '#555555' }"
-          >Select an operator</text
-        >
+        <text class="selectedOperator">{{selectedOperator}}</text>
       </view>
       <touchable-opacity :on-press="withdraw" :style="{ marginBottom: 15 }">
         <button-main title="Withdraw" />
@@ -204,6 +165,7 @@
 
 <script>
 import ButtonMain from "@/components/ButtonMain";
+import { ActionSheet } from "native-base";
 
 export default {
   data() {
@@ -246,6 +208,23 @@ export default {
     },
     onValueChange (value) {
         this.selectedOperator = value;
+    },
+    handleBtnPress (){
+      const ops = this.operators.map(op => op.name);
+      ActionSheet.show(
+        {
+          options: ops,
+          title: "Select an operator"
+        },
+        buttonIndex => {
+          if (buttonIndex === undefined){
+            this.selectedOperator = this.selectedOperator;
+          }
+          else{
+            this.selectedOperator = ops[buttonIndex];
+          }
+        }
+      )
     }
   },
 };
@@ -351,5 +330,13 @@ export default {
   height: 10px;
   width: 70px;
   font-weight: bold;
+}
+.selectedOperator {
+  padding-top: 3px;
+  margin-left: 30px;
+  width: 100px;
+  font-weight: bold;
+    font-size: 18px;
+
 }
 </style>

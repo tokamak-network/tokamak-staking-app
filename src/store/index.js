@@ -6,7 +6,23 @@ Vue.use(Vuex);
 const initialState = {
     loading: false,
     signIn: false,
-    user: ''
+    user: '', 
+    TONbalance: {
+      value: 404.44, 
+      symbol: " TON"
+    }, 
+    powerTONbalance: {
+      value: 100, 
+      symbol: " Power"
+    },
+    stakedAmount: {
+      value: 6.77, 
+      symbol: " TON"
+    },
+    rewards: {
+      value: 30, 
+      symbol: " TON"
+    }
 }
 const getInitialState = () => initialState;
 

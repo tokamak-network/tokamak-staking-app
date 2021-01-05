@@ -4,7 +4,7 @@
     "slug": "tokamak-staking-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/TokamakLogoSquare.png",
     "splash": {
       "image": "./assets/TokamakLogo.png",
       "resizeMode": "contain",
@@ -22,7 +22,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/TokamakLogoSquare.png",
         "backgroundColor": "#FFFFFF"
       },
       "package": "tokamak.staking.app"

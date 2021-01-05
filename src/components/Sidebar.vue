@@ -6,6 +6,13 @@
        <view class="logo-container" :style="{paddingBottom: 40}" >
         <image class="logo" :style="{width: 246, height: 30}" :source="require('../../assets/simple-staking-text.png')" />
       </view>
+
+      <view class="account-info">
+        <text class="info-title">TON Balance</text>
+        <text class="ton-value">{{TONbalance.value}}{{TONbalance.symbol}}</text>
+         <text class="info-title">Power Balance</text>
+          <text class="powerton-value">{{powerTONbalance.value}}{{powerTONbalance.symbol}}</text>
+      </view>
   <view class="sidebar-item">
     <touchable-opacity :on-press="()=>handleListItemClick('Home')" :style="{alignItems: 'center', justifyContent: 'center',height: 50, width: 280, backgroundColor: '#DDDDDD'}">
       <text :style="{fontSize:20}">Home</text>
@@ -36,8 +43,13 @@
 <script>
 import React from 'react';
 import {Text} from 'react-native';
+import { store } from "@/store/index";
+import { mapState } from "vuex";
 
 export default {
+  computed: {
+    ...mapState(['TONbalance', 'powerTONbalance']),
+  },
      props: {
     navigation: {
       type: Object
@@ -75,5 +87,25 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.account-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+}
+.info-title {
+  font-size: 20px;
+  margin: 10px;
+}
+.ton-value {
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.powerton-value {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
 }
 </style>

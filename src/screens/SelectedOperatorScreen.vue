@@ -30,7 +30,7 @@
           <text class="info-title">Amount</text>
           <view class="input-text">
             <text-input
-              class="input"
+              class="value-input"
               v-model="text"
               placeholder="0.00"
               autocomplete="off"
@@ -176,17 +176,20 @@ export default {
   align-self: stretch;
   align-items: center;
   position: relative;
+  height: 25px;
 }
-.input {
+.value-input {
   text-align: right;
-  height: 20px;
+  height: 38px;
   font-size: 18px;
   width: 20px;
   overflow: hidden;
-  width: 80px;
+  width: 120px;
   margin-right: 20px;
   align-items: center;
   color: #555555;
+  margin-top: -5px;
+  margin-bottom: -9px;
 
 }
 </style>

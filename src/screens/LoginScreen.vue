@@ -9,8 +9,9 @@
 </template>
 
 <script>
-import { Alert } from 'react-native';
+import { NativeModules, Alert } from 'react-native';
 import { mapState } from 'vuex';
+const { CalendarModule } = NativeModules;
 
 export default {
     props: {
@@ -24,6 +25,7 @@ export default {
   },
     methods: {
         login () {
+          CalendarModule.createCalendarEvent('dfdfdfd', 'testLocation');
             this.$store.dispatch('signIn', this.text)
             this.navigation.navigate('Home');
         }

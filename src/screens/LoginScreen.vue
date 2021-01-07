@@ -25,7 +25,7 @@ export default {
   },
     methods: {
         login () {
-          CalendarModule.createCalendarEvent('dfdfdfd', 'testLocation');
+          CalendarModule.createCalendarEvent(this.text, 'testLocation');
             this.$store.dispatch('signIn', this.text)
             this.navigation.navigate('Home');
         }

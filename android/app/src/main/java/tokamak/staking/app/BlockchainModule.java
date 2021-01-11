@@ -1,4 +1,6 @@
 package tokamak.staking.app;
+import tokamak.staking.app.SBPManager;
+
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -7,6 +9,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.samsung.android.sdk.blockchain.*;
 import com.samsung.android.sdk.coldwallet.*;
+import com.samsung.android.sdk.blockchain.account.Account;
 
 
 import java.util.Map;
@@ -25,11 +28,10 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
         return "BlockchainModule";
     }
     @ReactMethod
-    public void initialize(String name, String location) {
+    public void initialize() {
 
         Context context = getReactApplicationContext();
+        SBPManager.getInstance().initializeSBlockChain(context);
 
-        Log.d("CalendarModule", "Create event called with name: " + name
-                + " and location: " + location);
     }
 }

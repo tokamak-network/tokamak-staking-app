@@ -11,7 +11,7 @@
 <script>
 import { NativeModules, Alert } from 'react-native';
 import { mapState } from 'vuex';
-const { CalendarModule } = NativeModules;
+const { BlockchainModule } = NativeModules;
 
 export default {
     props: {
@@ -25,7 +25,7 @@ export default {
   },
     methods: {
         login () {
-          CalendarModule.createCalendarEvent(this.text, 'testLocation');
+          BlockchainModule.initialize();
             this.$store.dispatch('signIn', this.text)
             this.navigation.navigate('Home');
         }

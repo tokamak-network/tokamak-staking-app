@@ -20,7 +20,7 @@ public class CalendarModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void createCalendarEvent(String name, String location) {
         Context context = getReactApplicationContext();
-        Toast.makeText(context, name, Toast.LENGTH_LONG).show();
+//        Toast.makeText(context, name, Toast.LENGTH_LONG).show();
         Log.d("CalendarModule", "Create event called with name: " + name
                 + " and location: " + location);
     }

@@ -212,7 +212,7 @@ dependencies {
     
     // web3j
     implementation 'org.web3j:core:4.2.0-android'
-    
+    implementation 'org.web3j:utils:4.2.0-android'
     // for check developer mode
     implementation 'org.ini4j:ini4j:0.5.4'
     

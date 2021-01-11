@@ -6,6 +6,9 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.samsung.android.sdk.blockchain.*;
+import com.samsung.android.sdk.blockchain.exception.AccountException;
+import com.samsung.android.sdk.blockchain.exception.RemoteClientException;
+import com.samsung.android.sdk.blockchain.exception.RootSeedChangedException;
 import com.samsung.android.sdk.coldwallet.*;
 
 import java.util.List;
@@ -53,7 +56,9 @@ import java.math.BigInteger;
 import java.util.concurrent.ExecutionException;
 
 public class SBPManager {
+//    public static EthereumAccount ethereumAccount;
     private static SBPManager INSTANCE;
+    private static EthereumAccount ethereumAccount;
     private SBlockchain SBlockchain;
     private HardwareWalletManager hardwareWalletManager;
     private AccountManager accountManager;
@@ -62,7 +67,7 @@ public class SBPManager {
     private HardwareWallet hardwareWallet;
     private CoinNetworkInfo coinNetworkInfo;
     private CoinService coinService;
-    private EthereumAccount ethereumAccount;
+//    private EthereumAccount ethereumAccount;
 
 
     private BigInteger ethereumGasPriceSlow = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(4)).toBigInteger();
@@ -87,16 +92,15 @@ public class SBPManager {
                     CoinType.ETH,
                     EthereumNetworkType.MAINNET,
                     rpcUrl);
-            connectToKeyStore(context);
+            setCoinNetworkInfo(coinNetworkInfo);
+            connectToKeyStore();
 
         } catch (SsdkUnsupportedException e) {
             Log.e("Tokamak App", "Could not initialize SBK.");
             Log.e("Tokamak App", "Error message: " + e.getMessage());
         }
     }
-    private void connectToKeyStore(Context context) {
-//        Toast.makeText(context, "connecting...", Toast.LENGTH_LONG).show();
-//        Toast.makeText(context, "connecting...", Toast.LENGTH_LONG).show();
+    private void connectToKeyStore() {
         hardwareWalletManager.connect(
                 HardwareWalletType.SAMSUNG,
                 false).setCallback(new ListenableFutureTask.Callback<HardwareWallet>() {
@@ -112,12 +116,11 @@ public class SBPManager {
                     @Override
                     public void run() {
                         Log.e("Tokamak App", "connected to the wallet.");
+                        setHardwareWallet(hardwareWalletManager.getConnectedHardwareWallet());
                         setAccountStatus();
                     }
                 });
-               
             }
-
             @Override
             public void onCancelled(@NotNull InterruptedException e) {
                 Log.e("Tokamak App", "couldn't connect to the wallet.");
@@ -128,10 +131,6 @@ public class SBPManager {
 
     private void setAccountStatus() {
         HardwareWallet connectedHardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
-        Boolean supportedCoinTypes = hardwareWalletManager.getConnectedHardwareWallet().isConnected();
-        String version = connectedHardwareWallet.getVersion();
-
-        Log.e("Tokamak App", version);
         List<Account> accounts =
                 accountManager
                         .getAccounts(
@@ -141,14 +140,53 @@ public class SBPManager {
                         );
 
         if (!accounts.isEmpty()) {
-            Log.e("Tokamak App", "reached account.");
-            ethereumAccount = (EthereumAccount) accounts.get(accounts.size() - 1);
+            Log.i("Tokamak App", "Account size: " + accounts.size());
+           EthereumAccount account = (EthereumAccount) accounts.get(0);
+           setEthereumAccount(account);
         }
         else {
+//            generateNewAccount();
             Log.e("Tokamak App", "account empty.");
         }
     }
+    public void generateNewAccount() {
+        Log.e("Tokamak App", "came to generate account");
+        HardwareWallet connectedHardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
+        Log.e("Tokamak App", String.valueOf(connectedHardwareWallet));
+        ListenableFutureTask.Callback<Account> generatingNewAccountCallback =
+                new ListenableFutureTask.Callback<Account>() {
+                    @Override
+                    public void onSuccess(Account account) {
+                        Log.i("Tokamak App", "success");
+                        Log.i("Tokamak App", "Generated account address: " + account.getAddress());
+                    }
 
+                    @Override
+                    public void onFailure(ExecutionException e) {
+
+                        Throwable cause = e.getCause();
+                        Log.i("Tokamak App fail", String.valueOf(cause));
+                        if (cause instanceof AccountException) {
+                            Log.i("Tokamak App", "AccountException");
+                        } else if (cause instanceof RootSeedChangedException) {
+                            Log.i("Tokamak App", "RootSeedChangedException");
+                        } else if (cause instanceof RemoteClientException) {
+                            Log.i("Tokamak App", "RemoteClientException");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(InterruptedException e) {
+
+                    }
+                };
+
+        accountManager
+                .generateNewAccount(
+                        connectedHardwareWallet,
+                        coinNetworkInfo
+                ).setCallback(generatingNewAccountCallback);
+    }
     public SBlockchain getSBlockchain() {
         return SBlockchain;
     }
@@ -171,6 +209,13 @@ public class SBPManager {
         this.hardwareWallet = hardwareWallet;
     }
 
+    public static EthereumAccount getEthereumAccount(){
+        return ethereumAccount;
+    }
+    public void setEthereumAccount(EthereumAccount ethereumAccount){
+        this.ethereumAccount = ethereumAccount;
+
+    }
     public  AccountManager getAccountManager() {
         return accountManager;
     }

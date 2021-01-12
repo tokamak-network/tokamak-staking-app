@@ -54,7 +54,6 @@ export default new Vuex.Store({
               (address) => {
                 context.commit('SET_USER', address);
               }
-            
             );
             context.commit('SIGN_IN', true);
             

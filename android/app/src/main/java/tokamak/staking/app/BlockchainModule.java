@@ -89,6 +89,8 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     @ReactMethod
     public void setupAccount (Callback callBack) {
 //        restoreAccs();
+//        generateNewAccount();
+        setAccountStatus();
 //        String address = getEthereumAccount().getAddress();
 //        callBack.invoke(address);
 //        Log.i("Tokamak App", "Account address: " + address);
@@ -103,13 +105,35 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                     CoinType.ETH,
                     EthereumNetworkType.MAINNET,
                     rpcUrl);
-            Log.e("Tokamak App", "coininfo" + coinNetworkInfo.toString());
+//            Log.e("Tokamak App", "coininfo" + coinNetworkInfo.toString());
             setCoinNetworkInfo(coinNetworkInfo);
-            connectToKeyStore();
+            ListenableFutureTask<HardwareWallet> connectionTask =
+                    mSBlockchain.getHardwareWalletManager().connect( HardwareWalletType.SAMSUNG, true);
+            connectionTask.setCallback(
+                    new ListenableFutureTask.Callback<HardwareWallet>() {
+                @Override
+                public void onSuccess(HardwareWallet hardwareWallet) {
+//                    Log.e("Tokamak App", "success");
+                    HardwareWallet mhardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
+//                Log.e("Tokamak App", "success wallet" + mhardwareWallet.toString());
+                    setHardwareWallet(mhardwareWallet);
+                }
+                @Override
+                public void onFailure(@NotNull ExecutionException e) {
+//                    Log.e("Tokamak App", "fail");
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onCancelled(@NotNull InterruptedException e) {
+//                    Log.e("Tokamak App", "cancelled");
+                    e.printStackTrace();
+                }
+            });
         }
         catch(SsdkUnsupportedException e) {
-            Log.e("Tokamak App", "Could not initialize SBK.");
-            Log.e("Tokamak App", "Error message: " + e.getMessage());
+//            Log.e("Tokamak App", "Could not initialize SBK.");
+//            Log.e("Tokamak App", "Error message: " + e.getMessage());
         }
 
     }
@@ -117,70 +141,53 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
         this.coinNetworkInfo = coinNetworkInfo;
     }
 
-    private void connectToKeyStore() {
-        Log.e("Tokamak App", "connectToKeyStore");
-        hardwareWalletManager.connect(
-                HardwareWalletType.SAMSUNG,
-                false).setCallback(new ListenableFutureTask.Callback<HardwareWallet>() {
-            @Override
-            public void onSuccess(HardwareWallet hardwareWallet) {
-                Log.e("Tokamak App", "success");
-                HardwareWallet mhardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
-//                Log.e("Tokamak App", "success wallet" + mhardwareWallet.toString());
-                setHardwareWallet(mhardwareWallet);
-            }
-            @Override
-            public void onFailure(@NotNull ExecutionException e) {
-                Log.e("Tokamak App", "fail");
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onCancelled(@NotNull InterruptedException e) {
-                Log.e("Tokamak App", "cancelled");
-                e.printStackTrace();
-            }
-        });
-    }
     private  void restoreAccs() {
-        Log.e("Tokamak App", "restore wallet" +hardwareWallet);
+        CoinNetworkInfo coinNetworkInfo = new CoinNetworkInfo(
+                CoinType.ETH,
+                EthereumNetworkType.MAINNET,
+                rpcUrl);
         ListenableFutureTask.Callback<Boolean> restoreAccountsCallback =
                 new ListenableFutureTask.Callback<Boolean>() {
                     @Override
                     public void onSuccess(Boolean result) {
-                        Log.e("Tokamak App", "success restore");
+                        if (result) {
+//                            Log.e("Tokamak App", "success restore");
+//                            setAccountStatus();
+                        }
+                        else {
+//                            Log.e("Tokamak App", "fail restore");
+                        }
                     }
 
                     @Override
                     public void onFailure(ExecutionException e) {
                         Throwable cause = e.getCause();
-
+                        Log.e("onFailure", cause.toString());
                         if (cause instanceof AccountException) {
-                            Log.e("Tokamak App", "restore AccountException");
+//                            Log.e("Tokamak App", "restore AccountException");
                         } else if (cause instanceof RootSeedChangedException) {
-                            Log.e("Tokamak App", "restore RootSeedChangedException");
+//                            Log.e("Tokamak App", "restore RootSeedChangedException");
                         } else if (cause instanceof RemoteClientException) {
-                            Log.e("Tokamak App", "restore RemoteClientException");
+//                            Log.e("Tokamak App", "restore RemoteClientException");
                         }
                     }
 
                     @Override
                     public void onCancelled(InterruptedException exception) {
-
+//                        Log.e("Tokamak App", "onCancelled");
                     }
                 };
 
-        accountManager
-                .restoreAccounts(
-                        hardwareWallet,
-                        false,
-                        coinNetworkInfo
+        accountManager.restoreAccounts(
+                hardwareWallet,
+                        true,
+                coinNetworkInfo
                 ).setCallback(restoreAccountsCallback);
     }
     private void setAccountStatus() {
         HardwareWallet connectedHardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
-        Log.e("Tokamak App", "came to account wallet" );
-        Log.e("Tokamak App", "ths is wallet" + connectedHardwareWallet);
+//        Log.e("Tokamak App", "came to account wallet" );
+//        Log.e("Tokamak App", "ths is wallet" + connectedHardwareWallet);
         List<Account> accounts =
                 accountManager
                         .getAccounts(
@@ -203,28 +210,28 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
         this.hardwareWallet = hardwareWallet;
     }
     public void generateNewAccount() {
-        Log.e("Tokamak App", "came to generate account");
-        Log.e("Tokamak App", "connected wallet " + hardwareWallet);
+//        Log.e("Tokamak App", "came to generate account");
+//        Log.e("Tokamak App", "connected wallet " + hardwareWallet);
 //        Log.e("Tokamak App", String.valueOf(connectedHardwareWallet));
         ListenableFutureTask.Callback<Account> generatingNewAccountCallback =
                 new ListenableFutureTask.Callback<Account>() {
                     @Override
                     public void onSuccess(Account account) {
-                        Log.i("Tokamak App", "Account success");
-                        Log.i("Tokamak App", "Generated account address: " + account.getAddress());
+//                        Log.i("Tokamak App", "Account success");
+//                        Log.i("Tokamak App", "Generated account address: " + account.getAddress());
                     }
 
                     @Override
                     public void onFailure(ExecutionException e) {
 
                         Throwable cause = e.getCause();
-                        Log.i("Tokamak App fail", String.valueOf(cause));
+//                        Log.i("Tokamak App fail", String.valueOf(cause));
                         if (cause instanceof AccountException) {
-                            Log.i("Tokamak App", "AccountException");
+//                            Log.i("Tokamak App", "AccountException");
                         } else if (cause instanceof RootSeedChangedException) {
-                            Log.i("Tokamak App", "RootSeedChangedException");
+//                            Log.i("Tokamak App", "RootSeedChangedException");
                         } else if (cause instanceof RemoteClientException) {
-                            Log.i("Tokamak App", "RemoteClientException");
+//                            Log.i("Tokamak App", "RemoteClientException");
                         }
                     }
 

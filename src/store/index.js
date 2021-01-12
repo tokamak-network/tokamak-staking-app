@@ -1,6 +1,9 @@
 import { cloneDeep } from 'lodash';
 import Vue from 'vue-native-core';
 import Vuex from 'vuex';
+import { NativeModules } from 'react-native';
+const { BlockchainModule } = NativeModules;
+
 Vue.use(Vuex);
 
 const initialState = {
@@ -46,9 +49,15 @@ export default new Vuex.Store({
         logout (context) {
             context.commit('SET_INITIAL_STATE');
           },
-          async signIn (context, user) {
+          async signIn (context) {
+            BlockchainModule.setupAccount(
+              (address) => {
+                context.commit('SET_USER', address);
+              }
+            
+            );
             context.commit('SIGN_IN', true);
-            context.commit('SET_USER', user);
+            
           }
     }, 
     getters:{

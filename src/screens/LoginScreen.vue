@@ -26,7 +26,7 @@ export default {
     methods: {
         login () {
           BlockchainModule.initialize();
-            this.$store.dispatch('signIn', this.text)
+            this.$store.dispatch('signIn')
             this.navigation.navigate('Home');
         }
     }

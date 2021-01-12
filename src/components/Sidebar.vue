@@ -12,6 +12,8 @@
         <text class="ton-value">{{TONbalance.value}}{{TONbalance.symbol}}</text>
          <text class="info-title">Power Balance</text>
           <text class="powerton-value">{{powerTONbalance.value}}{{powerTONbalance.symbol}}</text>
+           <text class="info-title">Account Address</text>
+          <text class="powerton-value">{{user.substring(0, 6) + '...' + user.substring(37, 42)}}</text>
       </view>
   <view class="sidebar-item">
     <touchable-opacity :on-press="()=>handleListItemClick('Home')" :style="{alignItems: 'center', justifyContent: 'center',height: 50, width: 280, backgroundColor: '#DDDDDD'}">
@@ -48,7 +50,7 @@ import { mapState } from "vuex";
 
 export default {
   computed: {
-    ...mapState(['TONbalance', 'powerTONbalance']),
+    ...mapState(['TONbalance', 'powerTONbalance', 'user']),
   },
      props: {
     navigation: {
@@ -92,7 +94,8 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px;
+  margin-left:20px;
+  margin-right: 20px
 }
 .info-title {
   font-size: 20px;
@@ -106,6 +109,6 @@ export default {
 .powerton-value {
   font-size: 20px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 </style>

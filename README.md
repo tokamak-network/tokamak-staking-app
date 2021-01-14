@@ -19,5 +19,6 @@ npx react-native start
 ```
 
 ## Run the project 
-``` npx react-native run-android
+``` 
+npx react-native run-android
 ```

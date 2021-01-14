@@ -4,7 +4,14 @@
             background-color="#d4d7da"
             bar-style="dark-content"
         />
-  <app-navigator></app-navigator>
+         <view 
+        v-if="!loaded"
+        :style="{flex: 1, justifyContent: 'center'}">
+        <activity-indicator size="large" color="#0000ff" />
+    </view>
+ 
+  <app-navigator v-else ></app-navigator>
+   
       <footer/>
 </root>
 </template>
@@ -26,8 +33,11 @@ import PowertonScreen from "@/screens/PowertonScreen";
 import LoginScreen from "@/screens/LoginScreen";
 import Header from "./src/components/Header"
 import Footer from '@/components/Footer'
-
+import { NativeModules, Alert } from 'react-native';
 import store from '@/store';
+import { mapState } from 'vuex';
+const { BlockchainModule } = NativeModules;
+
 Vue.prototype.$store = store;
 Vue.use(VueNativeBase);
 
@@ -64,6 +74,17 @@ const AppNavigator = createAppContainer(
 )
 export default {
   components: { Root, AppNavigator, Footer },
+    computed: {
+    ...mapState(['loaded']),
+  },
+  created () {
+    this.init();
+  },
+  methods: {
+    init () {
+      this.$store.dispatch('signIn')
+    }
+  }
 }
 </script>
 <style scoped>

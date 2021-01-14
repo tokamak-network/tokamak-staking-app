@@ -1,5 +1,5 @@
 <template>
-    <view class="login-container">
+   <view  class="login-container">
         <text-input
         :style="{height: 40, width: 100, borderColor: 'gray', borderWidth: 1}"
         v-model="text"
@@ -25,8 +25,8 @@ export default {
   },
     methods: {
         login () {
-          BlockchainModule.initialize();
-            this.$store.dispatch('signIn')
+
+            this.$store.dispatch('login')
             this.navigation.navigate('Home');
         }
     }

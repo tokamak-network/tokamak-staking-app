@@ -7,7 +7,7 @@ const { BlockchainModule } = NativeModules;
 Vue.use(Vuex);
 
 const initialState = {
-    loading: false,
+    loaded: false,
     signIn: false,
     user: '', 
     TONbalance: {
@@ -44,19 +44,29 @@ export default new Vuex.Store({
           SET_USER: (state, user) => {
             state.user = user;
           },
+          SET_LOADING: (state, loaded) => {
+            state.loaded = loaded;
+          }
     }, 
     actions: {
         logout (context) {
             context.commit('SET_INITIAL_STATE');
           },
           async signIn (context) {
-            BlockchainModule.setupAccount(
+            BlockchainModule.initialize();
+            setTimeout(() => {
+              context.commit ('SET_LOADING', true)
+            },15000)
+           
+            
+          },
+          login (context) {
+            context.commit('SIGN_IN', true);
+             BlockchainModule.setupAccount(
               (address) => {
                 context.commit('SET_USER', address);
               }
             );
-            context.commit('SIGN_IN', true);
-            
           }
     }, 
     getters:{

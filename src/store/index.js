@@ -11,8 +11,12 @@ const initialState = {
     signIn: false,
     user: '', 
     TONbalance: {
-      value: 404.44, 
+      value: 1, 
       symbol: " TON"
+    }, 
+    ETHbalance: {
+      value: 1, 
+      symbol: " ETH"
     }, 
     powerTONbalance: {
       value: 100, 
@@ -46,6 +50,9 @@ export default new Vuex.Store({
           },
           SET_LOADING: (state, loaded) => {
             state.loaded = loaded;
+          }, 
+          SET_ETHBALACE: (state, balance) => {
+            state.ETHbalance.value = balance;
           }
     }, 
     actions: {
@@ -63,8 +70,11 @@ export default new Vuex.Store({
           login (context) {
             context.commit('SIGN_IN', true);
              BlockchainModule.setupAccount(
-              (address) => {
+              (address, balance) => {
                 context.commit('SET_USER', address);
+                context.commit('SET_ETHBALACE', balance);
+                console.log(balance);
+                
               }
             );
           }

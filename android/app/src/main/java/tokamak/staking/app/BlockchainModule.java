@@ -56,9 +56,10 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     private HardwareWallet hardwareWallet;
     private CoinNetworkInfo coinNetworkInfo;
     private CoinService coinService;
+
 //    private EthereumAccount ethereumAccount;
 
-
+    private BigDecimal balanceInEther;
     private BigInteger ethereumGasPriceSlow = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(4)).toBigInteger();
     private BigInteger ethereumGasPriceNormal = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(10)).toBigInteger();
     private BigInteger ethereumGasPriceFast = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(20)).toBigInteger();
@@ -72,24 +73,20 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
         return "BlockchainModule";
     }
     @ReactMethod
-    public void initialize(Promise promise) {
+    public void initialize() {
         Context context = getReactApplicationContext();
         initis(context);
-
+        setCoinService();
     }
 
     @ReactMethod
     public void setupAccount (Callback callBack) {
-//        restoreAccs();
-//        generateNewAccount();
-//        setAccountStatus();
         String address = ethereumAccount.getAddress();
-        callBack.invoke(address);
-//        Log.i("Tokamak App", "Account address: " + address);
+//        BigDecimal balance = balanceInEther;
+        callBack.invoke(address, balanceInEther.floatValue());
     }
     public void initis(Context context) {
         try{
-//            loaded = false;
             mSBlockchain = new SBlockchain();
             mSBlockchain.initialize(context);
             accountManager = mSBlockchain.getAccountManager();
@@ -121,7 +118,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
             });
         }
         catch(SsdkUnsupportedException e) {
-//            Log.e("Tokamak App", "Error message: " + e.getMessage());
+            Log.e("Tokamak App", "Error message: " + e.getMessage());
         }
 
     }
@@ -173,7 +170,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                 ).setCallback(restoreAccountsCallback);
     }
     private void setAccountStatus() {
-        HardwareWallet connectedHardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
+//        HardwareWallet connectedHardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
 
         List<Account> accounts =
                 accountManager
@@ -188,6 +185,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
             Log.i("Tokamak App", "Account size: " + accounts.size());
             Log.i("Tokamak App", "Account size loaded: " + loaded);
             ethereumAccount = (EthereumAccount) accounts.get(0);
+            getBalance(ethereumAccount);
 
         }
         else {
@@ -199,34 +197,30 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
         this.hardwareWallet = hardwareWallet;
     }
     public void generateNewAccount() {
-//        Log.e("Tokamak App", "came to generate account");
-//        Log.e("Tokamak App", "connected wallet " + hardwareWallet);
-//        Log.e("Tokamak App", String.valueOf(connectedHardwareWallet));
         ListenableFutureTask.Callback<Account> generatingNewAccountCallback =
                 new ListenableFutureTask.Callback<Account>() {
                     @Override
                     public void onSuccess(Account account) {
-//                        Log.i("Tokamak App", "Account success");
-//                        Log.i("Tokamak App", "Generated account address: " + account.getAddress());
+                        ethereumAccount =  (EthereumAccount) account;
                     }
 
                     @Override
                     public void onFailure(ExecutionException e) {
 
                         Throwable cause = e.getCause();
-//                        Log.i("Tokamak App fail", String.valueOf(cause));
+                        Log.i("Tokamak App fail", String.valueOf(cause));
                         if (cause instanceof AccountException) {
-//                            Log.i("Tokamak App", "AccountException");
+                            Log.i("Tokamak App", "AccountException");
                         } else if (cause instanceof RootSeedChangedException) {
-//                            Log.i("Tokamak App", "RootSeedChangedException");
+                            Log.i("Tokamak App", "RootSeedChangedException");
                         } else if (cause instanceof RemoteClientException) {
-//                            Log.i("Tokamak App", "RemoteClientException");
+                            Log.i("Tokamak App", "RemoteClientException");
                         }
                     }
 
                     @Override
                     public void onCancelled(InterruptedException e) {
-
+                        Log.i("Tokamak App", "Account creation cancelled");
                     }
                 };
 
@@ -239,6 +233,34 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
         public void setEthereumAccount(EthereumAccount ethereumAccount){
         this.ethereumAccount = ethereumAccount;
     }
+
+public void setCoinService() {
+    Context context = getReactApplicationContext();
+    this.coinService = CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+
+}
+private void  getBalance (EthereumAccount account) {
+    Log.i("Tokamak App", "came to balance");
+    coinService.getBalance(account).setCallback(
+            new ListenableFutureTask.Callback<BigInteger>() {
+                @Override
+                public void onSuccess(BigInteger result) {
+                    //success
+                    Log.i("Tokamak App", "Balance" + result);
+                    balanceInEther = EthereumUtils.convertWeiToEth(result);
+                    Log.i("Tokamak App", "Balance" + balanceInEther);
+                }
+                @Override
+                public void onFailure(ExecutionException exception) {
+                    Log.i("Tokamak App", "Balance fail" + exception);
+                }
+                @Override
+                public void onCancelled(InterruptedException exception) {
+                    Log.i("Tokamak App", "Balance cancel" + exception);
+                    //cancelled
+                }
+            });
+}
 
     public void setLoaded (Boolean loading) {
         this.loaded = loading;

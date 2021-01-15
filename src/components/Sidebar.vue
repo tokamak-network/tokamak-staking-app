@@ -8,8 +8,10 @@
       </view>
 
       <view class="account-info">
+        <text class="info-title">ETH Balance</text>
+        <text class="ton-value">{{ETHbalance.value.toFixed(3)}}{{ETHbalance.symbol}}</text>
         <text class="info-title">TON Balance</text>
-        <text class="ton-value">{{TONbalance.value}}{{TONbalance.symbol}}</text>
+        <text class="ton-value">{{TONbalance.value.toFixed(3)}}{{TONbalance.symbol}}</text>
          <text class="info-title">Power Balance</text>
           <text class="powerton-value">{{powerTONbalance.value}}{{powerTONbalance.symbol}}</text>
            <text class="info-title">Account Address</text>
@@ -50,7 +52,7 @@ import { mapState } from "vuex";
 
 export default {
   computed: {
-    ...mapState(['TONbalance', 'powerTONbalance', 'user']),
+    ...mapState(['ETHbalance','TONbalance', 'powerTONbalance', 'user']),
   },
      props: {
     navigation: {
@@ -99,12 +101,12 @@ export default {
 }
 .info-title {
   font-size: 20px;
-  margin: 10px;
+  margin: 5px;
 }
 .ton-value {
   font-size: 30px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 23px;
 }
 .powerton-value {
   font-size: 20px;

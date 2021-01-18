@@ -64,6 +64,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     private BigInteger ethereumGasPriceNormal = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(10)).toBigInteger();
     private BigInteger ethereumGasPriceFast = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(20)).toBigInteger();
     public static String rpcUrl = "https://mainnet.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
+    public static  String rpcUrlRinkeby = "https://rinkeby.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
     BlockchainModule(ReactApplicationContext context) {
         super(context);
     }
@@ -76,13 +77,15 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     public void initialize() {
         Context context = getReactApplicationContext();
         initis(context);
-        setCoinService();
+
     }
 
     @ReactMethod
     public void setupAccount (Callback callBack) {
         String address = ethereumAccount.getAddress();
 //        BigDecimal balance = balanceInEther;
+
+        setCoinService();
         callBack.invoke(address, balanceInEther.floatValue());
     }
     public void initis(Context context) {
@@ -93,8 +96,8 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
             hardwareWalletManager = mSBlockchain.getHardwareWalletManager();
             coinNetworkInfo = new CoinNetworkInfo(
                     CoinType.ETH,
-                    EthereumNetworkType.MAINNET,
-                    rpcUrl);
+                    EthereumNetworkType.RINKEBY,
+                    rpcUrlRinkeby);
             setCoinNetworkInfo(coinNetworkInfo);
             ListenableFutureTask<HardwareWallet> connectionTask =
                     mSBlockchain.getHardwareWalletManager().connect( HardwareWalletType.SAMSUNG, true);
@@ -129,8 +132,8 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     private  void restoreAccs() {
         CoinNetworkInfo coinNetworkInfo = new CoinNetworkInfo(
                 CoinType.ETH,
-                EthereumNetworkType.MAINNET,
-                rpcUrl);
+                EthereumNetworkType.RINKEBY,
+                rpcUrlRinkeby);
         ListenableFutureTask.Callback<Boolean> restoreAccountsCallback =
                 new ListenableFutureTask.Callback<Boolean>() {
                     @Override
@@ -177,7 +180,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                         .getAccounts(
                                 hardwareWallet.getWalletId(),
                                 CoinType.ETH,
-                                EthereumNetworkType.MAINNET
+                                EthereumNetworkType.RINKEBY
                         );
 
         if (!accounts.isEmpty()) {
@@ -201,7 +204,8 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                 new ListenableFutureTask.Callback<Account>() {
                     @Override
                     public void onSuccess(Account account) {
-                        ethereumAccount =  (EthereumAccount) account;
+//                        ethereumAccount =  (EthereumAccount) account;
+                        setAccountStatus();
                     }
 
                     @Override
@@ -211,6 +215,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                         Log.i("Tokamak App fail", String.valueOf(cause));
                         if (cause instanceof AccountException) {
                             Log.i("Tokamak App", "AccountException");
+                            setAccountStatus();
                         } else if (cause instanceof RootSeedChangedException) {
                             Log.i("Tokamak App", "RootSeedChangedException");
                         } else if (cause instanceof RemoteClientException) {

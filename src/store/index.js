@@ -9,7 +9,7 @@ Vue.use(Vuex);
 const initialState = {
     loaded: false,
     signIn: false,
-    user: '', 
+    user: '0x660DE9AE5Dd7C8dE4C5c9A8dAB64AF706a9F8a57', 
     TONbalance: {
       value: 1, 
       symbol: " TON"
@@ -60,7 +60,7 @@ export default new Vuex.Store({
             context.commit('SET_INITIAL_STATE');
           },
           async signIn (context) {
-            BlockchainModule.initialize();
+            // BlockchainModule.initialize();
             setTimeout(() => {
               context.commit ('SET_LOADING', true)
             },15000)
@@ -69,14 +69,14 @@ export default new Vuex.Store({
           },
           login (context) {
             context.commit('SIGN_IN', true);
-             BlockchainModule.setupAccount(
-              (address, balance) => {
-                context.commit('SET_USER', address);
-                context.commit('SET_ETHBALACE', balance);
-                console.log(balance);
+            //  BlockchainModule.setupAccount(
+            //   (address, balance) => {
+            //     context.commit('SET_USER', address);
+            //     context.commit('SET_ETHBALACE', balance);
+            //     console.log(balance);
                 
-              }
-            );
+            //   }
+            // );
           }
     }, 
     getters:{

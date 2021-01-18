@@ -44,7 +44,7 @@ public class MainApplication extends Application implements ReactApplication {
       List<ReactPackage> packages = new PackageList(this).getPackages();
       packages.add(new ModuleRegistryAdapter(mModuleRegistryProvider));
       packages.add(new MyAppPackage());
-      packages.add(new BlockchainPackage());
+      // packages.add(new BlockchainPackage());
       return packages;
     }
 

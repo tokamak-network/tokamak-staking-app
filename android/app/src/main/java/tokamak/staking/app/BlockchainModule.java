@@ -8,6 +8,8 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.samsung.android.sdk.blockchain.*;
+import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumFeeInfo;
+import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumTokenInfo;
 import com.samsung.android.sdk.blockchain.wallet.HardwareWallet;
 import com.samsung.android.sdk.coldwallet.*;
 import com.samsung.android.sdk.blockchain.account.Account;
@@ -27,6 +29,7 @@ import com.samsung.android.sdk.blockchain.network.EthereumNetworkType;
 import com.samsung.android.sdk.blockchain.exception.AccountException;
 import com.samsung.android.sdk.blockchain.exception.RemoteClientException;
 import com.samsung.android.sdk.blockchain.exception.RootSeedChangedException;
+import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumService;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -56,15 +59,21 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     private HardwareWallet hardwareWallet;
     private CoinNetworkInfo coinNetworkInfo;
     private CoinService coinService;
-
+private EthereumService etherService;
 //    private EthereumAccount ethereumAccount;
+    private EthereumTokenInfo TONtokenInfo;
+    private EthereumTokenInfo WTonInfo;
 
     private BigDecimal balanceInEther;
+    private BigDecimal balanceInTON;
+
     private BigInteger ethereumGasPriceSlow = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(4)).toBigInteger();
     private BigInteger ethereumGasPriceNormal = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(10)).toBigInteger();
     private BigInteger ethereumGasPriceFast = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(20)).toBigInteger();
     public static String rpcUrl = "https://mainnet.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
     public static  String rpcUrlRinkeby = "https://rinkeby.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
+    public static String tonAddress = "0x3734E35231abE68818996dC07Be6a8889202DEe9";
+    public static  String wtonAddress = "0x9985d94ee25a1eB0459696667f071ECE121ACce6";
     BlockchainModule(ReactApplicationContext context) {
         super(context);
     }
@@ -77,7 +86,9 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     public void initialize() {
         Context context = getReactApplicationContext();
         initis(context);
-
+        setCoinService();
+        getTokenInfo(tonAddress);
+        getTokenInfo(wtonAddress);
     }
 
     @ReactMethod
@@ -85,8 +96,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
         String address = ethereumAccount.getAddress();
 //        BigDecimal balance = balanceInEther;
 
-        setCoinService();
-        callBack.invoke(address, balanceInEther.floatValue());
+        callBack.invoke(address, balanceInEther.floatValue(), balanceInTON.floatValue());
     }
     public void initis(Context context) {
         try{
@@ -108,6 +118,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                     hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
 //                    HardwareWallet mhardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
                     setHardwareWallet(hardwareWallet);
+
                     restoreAccs();
                 }
                 @Override
@@ -141,6 +152,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                         if (result) {
                             Log.e("Tokamak App", "success restore");
                             setAccountStatus();
+
                         }
                         else {
                              Log.e("Tokamak App", "fail restore");
@@ -188,7 +200,10 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
             Log.i("Tokamak App", "Account size: " + accounts.size());
             Log.i("Tokamak App", "Account size loaded: " + loaded);
             ethereumAccount = (EthereumAccount) accounts.get(0);
+            addTokenAddress(ethereumAccount, tonAddress, "TON");
+            addTokenAddress(ethereumAccount, wtonAddress, "WTON");
             getBalance(ethereumAccount);
+//            getTokenBalance(ethereumAccount);
 
         }
         else {
@@ -241,12 +256,12 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
 
 public void setCoinService() {
     Context context = getReactApplicationContext();
-    this.coinService = CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+    this.etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
 
 }
 private void  getBalance (EthereumAccount account) {
     Log.i("Tokamak App", "came to balance");
-    coinService.getBalance(account).setCallback(
+    etherService.getBalance(account).setCallback(
             new ListenableFutureTask.Callback<BigInteger>() {
                 @Override
                 public void onSuccess(BigInteger result) {
@@ -267,6 +282,90 @@ private void  getBalance (EthereumAccount account) {
             });
 }
 
+public void getTokenInfo (String address) {
+
+    etherService.getTokenInfo(address).setCallback(
+            new ListenableFutureTask.Callback<EthereumTokenInfo>() {
+                @Override
+                public void onSuccess(EthereumTokenInfo result) {
+                    Log.e("Tokamak App", "token success" + result);
+                    switch (result.getSymbol()) {
+                        case "TON":
+                            TONtokenInfo = result;
+                            break;
+                        case "WTON":
+                            WTonInfo = result;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                @Override
+                public void onFailure(ExecutionException exception) {
+                    Log.e("Tokamak App", "token fail" + exception);
+                }
+                @Override
+                public void onCancelled(InterruptedException exception) {
+                    Log.e("Tokamak App", "token cancel" + exception);
+                }
+            });
+}
+
+public void addTokenAddress (EthereumAccount account, String address, String symbol) {
+    etherService.addTokenAddress(
+            account,
+            address)
+            .setCallback(new ListenableFutureTask.Callback<EthereumAccount>() {
+                @Override
+                public void onSuccess(final EthereumAccount account) {
+                    //success
+                    Log.e("Tokamak App", "addTokenAddress" + account);
+                    ethereumAccount = account;
+                    getTokenBalance(ethereumAccount, symbol);
+                }
+                @Override
+                public void onFailure(ExecutionException exception) {
+                    //failure
+                    Log.e("Tokamak App", "addTokenAddress" + exception);
+                }
+                @Override
+                public void onCancelled(InterruptedException exception) {
+                    Log.e("Tokamak App", "addTokenAddress" + exception);
+                    //cancelled
+                }
+            });
+}
+
+public void getTokenBalance (EthereumAccount account, String symbol) {
+    etherService.getTokenBalance(account).setCallback(
+            new ListenableFutureTask.Callback<BigInteger>() {
+                @Override
+                public void onSuccess(BigInteger result) {
+                    if (symbol == "TON") {
+                        BigDecimal convertedTokenBalance = new BigDecimal(result).
+                                divide(BigDecimal.TEN.pow(TONtokenInfo.getDecimals()));
+                        balanceInTON = convertedTokenBalance;
+                        Log.i("Tokamak App", "TON Balance" + convertedTokenBalance);
+                    }
+                    if (symbol == "WTON") {
+                        BigDecimal convertedTokenBalance = new BigDecimal(result).
+                                divide(BigDecimal.TEN.pow(TONtokenInfo.getDecimals()));
+                        Log.i("Tokamak App", "Power Balance" + convertedTokenBalance);
+                    }
+                    //success
+
+                }
+                @Override
+                public void onFailure(ExecutionException exception) {
+                    Log.i("Tokamak App", "Token Balance fail" + exception);
+                }
+                @Override
+                public void onCancelled(InterruptedException exception) {
+                    Log.i("Tokamak App", "Token Balance cancel" + exception);
+                    //cancelled
+                }
+            });
+}
     public void setLoaded (Boolean loading) {
         this.loaded = loading;
     }

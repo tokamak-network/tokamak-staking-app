@@ -53,6 +53,9 @@ export default new Vuex.Store({
           }, 
           SET_ETHBALACE: (state, balance) => {
             state.ETHbalance.value = balance;
+          },
+          SET_TONBALACE: (state, balance) => {
+            state.TONbalance.value = balance;
           }
     }, 
     actions: {
@@ -70,10 +73,11 @@ export default new Vuex.Store({
           login (context) {
             context.commit('SIGN_IN', true);
              BlockchainModule.setupAccount(
-              (address, balance) => {
+              (address, ETHbalance, TONbalance) => {
                 context.commit('SET_USER', address);
-                context.commit('SET_ETHBALACE', balance);
-                console.log(balance);
+                context.commit('SET_ETHBALACE', ETHbalance);
+                context.commit('SET_TONBALACE', TONbalance)
+                // console.log(balance);
                 
               }
             );

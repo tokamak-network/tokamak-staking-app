@@ -1,28 +1,21 @@
 package tokamak.staking.app;
 
 import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.samsung.android.sdk.blockchain.*;
-import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumFeeInfo;
 import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumTokenInfo;
 import com.samsung.android.sdk.blockchain.wallet.HardwareWallet;
-import com.samsung.android.sdk.coldwallet.*;
 import com.samsung.android.sdk.blockchain.account.Account;
 import com.samsung.android.sdk.blockchain.account.ethereum.EthereumAccount;
 import com.samsung.android.sdk.blockchain.ListenableFutureTask;
 import com.samsung.android.sdk.blockchain.SBlockchain;
 import com.samsung.android.sdk.blockchain.account.AccountManager;
 import com.samsung.android.sdk.blockchain.coinservice.CoinNetworkInfo;
-import com.samsung.android.sdk.blockchain.coinservice.CoinService;
 import com.samsung.android.sdk.blockchain.coinservice.CoinServiceFactory;
 import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumUtils;
 import com.samsung.android.sdk.blockchain.exception.SsdkUnsupportedException;
-import com.samsung.android.sdk.blockchain.wallet.HardwareWallet;
 import com.samsung.android.sdk.blockchain.wallet.HardwareWalletManager;
 import com.samsung.android.sdk.blockchain.wallet.HardwareWalletType;
 import com.samsung.android.sdk.blockchain.network.EthereumNetworkType;
@@ -34,36 +27,35 @@ import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumService;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
-
-import android.os.Handler;
-import android.os.Looper;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import android.util.Log;
 import android.content.Context;
 
+import org.unimodules.core.Promise;
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Address;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.Type;
+import org.web3j.abi.datatypes.Uint;
 import org.jetbrains.annotations.NotNull;
-import org.web3j.abi.datatypes.Bool;
+
 
 public class BlockchainModule  extends ReactContextBaseJavaModule{
-//    private SBPManager mSBPManager = SBPManager.getInstance();
-//    EthereumAccount account = mSBPManager.getInstance().getEthereumAccount();
-//        private Handler handler = new Handler();
     private  EthereumAccount ethereumAccount;
     private SBlockchain mSBlockchain;
     private HardwareWalletManager hardwareWalletManager;
     private AccountManager accountManager;
     private Boolean loaded;
-//    private Handler handler = new Handler();
     private HardwareWallet hardwareWallet;
     private CoinNetworkInfo coinNetworkInfo;
-    private CoinService coinService;
-private EthereumService etherService;
-//    private EthereumAccount ethereumAccount;
+    private EthereumService etherService;
     private EthereumTokenInfo TONtokenInfo;
     private EthereumTokenInfo WTonInfo;
-
     private BigDecimal balanceInEther;
     private BigDecimal balanceInTON;
 
@@ -74,6 +66,7 @@ private EthereumService etherService;
     public static  String rpcUrlRinkeby = "https://rinkeby.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
     public static String tonAddress = "0x3734E35231abE68818996dC07Be6a8889202DEe9";
     public static  String wtonAddress = "0x9985d94ee25a1eB0459696667f071ECE121ACce6";
+    public String results;
     BlockchainModule(ReactApplicationContext context) {
         super(context);
     }
@@ -97,6 +90,16 @@ private EthereumService etherService;
 //        BigDecimal balance = balanceInEther;
 
         callBack.invoke(address, balanceInEther.floatValue(), balanceInTON.floatValue());
+    }
+//
+//    @ReactMethod
+//    public void callContract (Callback callBack) {
+//        callMethod(ethereumAccount);
+//        callBack.invoke(results);
+//    }
+    @ReactMethod
+    public void  reactprint (String hello) {
+        Log.e("Tokamak App", "hello message: " + hello);
     }
     public void initis(Context context) {
         try{
@@ -335,7 +338,6 @@ public void addTokenAddress (EthereumAccount account, String address, String sym
                 }
             });
 }
-
 public void getTokenBalance (EthereumAccount account, String symbol) {
     etherService.getTokenBalance(account).setCallback(
             new ListenableFutureTask.Callback<BigInteger>() {
@@ -352,8 +354,6 @@ public void getTokenBalance (EthereumAccount account, String symbol) {
                                 divide(BigDecimal.TEN.pow(TONtokenInfo.getDecimals()));
                         Log.i("Tokamak App", "Power Balance" + convertedTokenBalance);
                     }
-                    //success
-
                 }
                 @Override
                 public void onFailure(ExecutionException exception) {
@@ -362,10 +362,53 @@ public void getTokenBalance (EthereumAccount account, String symbol) {
                 @Override
                 public void onCancelled(InterruptedException exception) {
                     Log.i("Tokamak App", "Token Balance cancel" + exception);
-                    //cancelled
                 }
             });
 }
+
+@ReactMethod
+public void callMethod (String method, String contractAddress, Callback callBack) {
+
+        String encodedFunction = getEncodedFunction(method);
+    etherService
+            .callSmartContractFunction(
+                    ethereumAccount,
+                    tonAddress,
+                    encodedFunction
+            )
+            .setCallback(new ListenableFutureTask.Callback<String>() {
+                @Override
+                public void onSuccess(String result) {
+                   results = result;
+                    Log.i("Tokamak App", "call method" + results);
+                    callBack.invoke(result);
+                    //success
+                }
+                @Override
+                public void onFailure(ExecutionException exception) {
+                    //failure
+                    Log.i("Tokamak App", "call method result" );
+                }
+                @Override
+                public void onCancelled(InterruptedException exception) {
+                    //cancelled
+                    Log.i("Tokamak App", "call method cancelled");
+                }
+            });
+
+}
+
+@NotNull
+public String getEncodedFunction(String method){
+    List<Type> inputParameters = Arrays.asList(new Address(ethereumAccount.getAddress()));
+    List outputParameters = Arrays.asList(
+            new TypeReference<Uint>() {
+            }
+    );
+    Function transferFunction = new Function(method, inputParameters, outputParameters);
+    return FunctionEncoder.encode(transferFunction);
+}
+
     public void setLoaded (Boolean loading) {
         this.loaded = loading;
     }
@@ -373,7 +416,7 @@ public void getTokenBalance (EthereumAccount account, String symbol) {
     public Boolean getLoaded () {
         return loaded;
     }
-        public EthereumAccount getEthereumAccount(){
+    public EthereumAccount getEthereumAccount(){
         return ethereumAccount;
     }
 

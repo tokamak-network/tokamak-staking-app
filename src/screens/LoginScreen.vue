@@ -1,10 +1,12 @@
 <template>
    <view  class="login-container">
-        <text-input
-        :style="{height: 40, width: 100, borderColor: 'gray', borderWidth: 1}"
-        v-model="text"
-      />
-        <button :on-press="login" title="Login" />
+              <image class="logo" :style="{width: 235, height: 82, margin: 50}" :source="require('../../assets/logo.png')" />
+   <touchable-opacity
+            class="button-login"
+            :on-press="() => login()"
+          >
+            <text class="button-name">Connect Wallet</text>
+          </touchable-opacity>
     </view>
 </template>
 
@@ -34,9 +36,24 @@ export default {
 </script>
 <style scoped>
 .login-container {
+  background-color: #2a72e5;
     display: flex;
     justify-content: center;
     align-items: center;
     flex: 1;
+}
+.button-login {
+width: 130;
+height: 35;
+border-width: 1;
+    border-color: #ccd1d3;
+    border-radius: 13;
+     display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.button-name {
+  color: #ffffff;
 }
 </style>

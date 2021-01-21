@@ -166,6 +166,8 @@
 <script>
 import ButtonMain from "@/components/ButtonMain";
 import { ActionSheet } from "native-base";
+import { NativeModules } from "react-native";
+const { BlockchainModule } = NativeModules;
 
 export default {
   data() {
@@ -189,9 +191,11 @@ export default {
       this.activeTab = tab;
     },
     delegate() {
+      BlockchainModule.callContract();
       console.log("delegate");
     },
     undelegate() {
+      BlockchainModule.reactprint("lakmi");
       console.log("undelegate");
     },
     redelegate() {

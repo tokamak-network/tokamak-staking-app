@@ -1,45 +1,47 @@
 <template>
-<view class="balance-container">
+  <view class="balance-container">
     <view class="row" style="flex-direction: column">
-        <text class="title">{{title}}</text>
-<text  class="text">{{balance.value.toFixed(3)}}{{balance.symbol}}</text>
+      <text class="title">{{ title }}</text>
+      <text class="text"
+        >{{ balance.value.toFixed(3) }}{{ balance.symbol }}</text
+      >
     </view>
-     <view class="divider" />
+    <view class="divider" />
     <view class="row">
-<text class="title">{{rewards}}</text>
-<text class="title">{{value.value.toFixed(3)}}{{value.symbol}}</text>
-</view>
-</view>
+      <text class="title">{{ rewards }}</text>
+      <text class="title">{{ value.value.toFixed(3) }}{{ value.symbol }}</text>
+    </view>
+  </view>
 </template>
 <script>
 export default {
-   props: ['title', 'balance', 'rewards', 'value']
-}
+  props: ["title", "balance", "rewards", "value"],
+};
 </script>
 <style scoped>
 .balance-container {
-    width: 290;
-    background-color: #e2e8eb;
-    border-width: 1;
-    border-color: #ccd1d3;
-    border-radius: 13;
-   height: 170px;
+  width: 290;
+  background-color: #e2e8eb;
+  border-width: 1;
+  border-color: #ccd1d3;
+  border-radius: 13;
+  height: 170px;
   margin-bottom: 40;
 }
 .row {
-    margin: 15px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+  margin: 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 .title {
-    color: #8c8c8c;
-    font-size: 18px;  
+  color: #8c8c8c;
+  font-size: 18px;
 }
 .text {
-   font-size: 40px;
+  font-size: 40px;
   font-weight: 700;
-  color: #555555; 
+  color: #555555;
 }
 .divider {
   width: 100%;

@@ -62,6 +62,9 @@ export default {
     methods: {
             handleListItemClick(dataObj) {
       this.navigation.navigate(dataObj);
+      if ( dataObj === 'Login') {
+         this.$store.dispatch('logout')
+      }
     }
         }
 }

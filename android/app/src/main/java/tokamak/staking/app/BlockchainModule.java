@@ -367,7 +367,7 @@ public void getTokenBalance (EthereumAccount account, String symbol) {
 }
 
 @ReactMethod
-public void callMethod (String method, String contractAddress, Callback callBack) {
+public void callMethod (String method, Callback callBack) {
 
         String encodedFunction = getEncodedFunction(method);
     etherService

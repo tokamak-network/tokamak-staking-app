@@ -1,5 +1,6 @@
 import { registerRootComponent } from 'expo';
-
+import './shim.js'
+import crypto from 'crypto'
 import App from './App';
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);

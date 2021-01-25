@@ -168,6 +168,10 @@ import ButtonMain from "@/components/ButtonMain";
 import { ActionSheet } from "native-base";
 import { NativeModules } from "react-native";
 const { BlockchainModule } = NativeModules;
+import { createCurrency } from "@makerdao/currency";
+
+const _TON = createCurrency("TON");
+const _WTON = createCurrency("WTON");
 
 export default {
   data() {

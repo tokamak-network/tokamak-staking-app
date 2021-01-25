@@ -9,7 +9,7 @@
 
       <view class="account-info">
         <text class="info-title">ETH Balance</text>
-        <text class="ton-value">{{ETHbalance.value.toFixed(3)}}{{ETHbalance.symbol}}</text>
+        <text class="ton-value">{{ethBalance | currencyAmount}}</text>
         <text class="info-title">TON Balance</text>
         <text class="ton-value">{{TONbalance.value.toFixed(3)}}{{TONbalance.symbol}}</text>
          <text class="info-title">Power Balance</text>
@@ -52,7 +52,10 @@ import { mapState } from "vuex";
 
 export default {
   computed: {
-    ...mapState(['ETHbalance','TONbalance', 'powerTONbalance', 'user']),
+    ...mapState(['ethBalance','TONbalance', 'powerTONbalance', 'user']),
+    currencyAmount () {
+      return amount => this.$options.filters.currencyAmount(amount);
+    },
   },
      props: {
     navigation: {

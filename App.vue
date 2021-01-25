@@ -47,6 +47,8 @@ import Footer from "@/components/Footer";
 import { NativeModules, Alert } from "react-native";
 import store from "@/store";
 import { mapState } from "vuex";
+
+
 const { BlockchainModule } = NativeModules;
 
 Vue.prototype.$store = store;

@@ -1,10 +1,13 @@
 <template>
   <view class="home-layout">
-    <header :navigation="navigation" :back="false" />
     <view class="home-container">
-      <text class="page-title">Stake tokens now!!!</text>
+      <image class="home-container-logo" :source="require('../../assets/sub-logo.png')" />
+      <text class="page-title">Tokamak Network</text>
       <text class="page-text"
-        >Stake your TON to win Power TON and other rewards..</text
+        >Stake your TON to earn Power TON</text
+      >
+      <text class="page-text" :style="{marginBottom: 30}"
+        >and other rewards</text
       >
       <balance-component
         title="Your TON Balance"
@@ -59,16 +62,28 @@ export default {
   align-items: center;
   padding: 20px 20px;
 }
+
+.home-container-logo {
+  width: 170px;
+  height: 60px;
+  margin-top: 40px;
+  margin-bottom: 25px;
+}
+
 .page-title {
-  font-size: 30px;
+  font-size: 24px;
   text-align: center;
-  color: #555555;
+  color: #3e495c;
   padding: 0px 40px;
   font-weight: 700;
+  margin-bottom: 5px;
 }
 .page-text {
-  font-size: 20px;
+  font-size: 12px;
   text-align: center;
-  padding: 20px 40px;
+  color: #86929d;
+}
+.home-balance-component {
+  margin-bottom: 20px;
 }
 </style>

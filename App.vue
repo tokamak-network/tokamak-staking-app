@@ -12,7 +12,7 @@
  
   <app-navigator v-else ></app-navigator>
    
-      <footer/>
+      <NavBar/>
 </root>
 </template>
 
@@ -32,7 +32,7 @@ import SelectedOperatorScreen from "@/screens/SelectedOperatorScreen";
 import PowertonScreen from "@/screens/PowertonScreen";
 import LoginScreen from "@/screens/LoginScreen";
 import Header from "./src/components/Header"
-import Footer from '@/components/Footer'
+import NavBar from "./src/components/NavBar"
 import { NativeModules, Alert } from 'react-native';
 import store from '@/store';
 import { mapState } from 'vuex';
@@ -64,7 +64,7 @@ const AppNavigator = createAppContainer(
       Login: {screen: LoginScreen},
       Drawer: {screen: Drawer},
       SelectedOperator : {screen: SelectedOperatorScreen},
-      Header: {screen: Header}
+      NavBar: {screen: NavBar}
     },
     {
       initialRouteName: "Login",
@@ -73,7 +73,7 @@ const AppNavigator = createAppContainer(
   )
 )
 export default {
-  components: { Root, AppNavigator, Footer },
+  components: { Root, AppNavigator, NavBar },
     computed: {
     ...mapState(['loaded']),
   },

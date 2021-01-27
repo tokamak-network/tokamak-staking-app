@@ -26,6 +26,7 @@ import com.samsung.android.sdk.blockchain.exception.RootSeedChangedException;
 import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumService;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
@@ -39,14 +40,22 @@ import android.content.Context;
 
 //import org.unimodules.core.Promise;
 import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
+import org.web3j.abi.datatypes.Array;
+import org.web3j.abi.datatypes.Bool;
+import org.web3j.abi.datatypes.Bytes;
+import org.web3j.abi.datatypes.DynamicArray;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.Uint;
 import org.jetbrains.annotations.NotNull;
+import org.web3j.abi.datatypes.generated.Bytes32;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.core.methods.response.EthBlockNumber;
@@ -121,6 +130,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                         BigInteger.valueOf(blockNumber)), false).send().getBlock();
         promise.resolve(ethBlock.getTimestamp().intValue());
     }
+
     @ReactMethod
     public void initis( Callback callBack) {
         Context context = getReactApplicationContext();
@@ -308,94 +318,12 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                     }
                 });
     }
-
-//    public void getTokenInfo (String address) {
-//
-//        etherService.getTokenInfo(address).setCallback(
-//                new ListenableFutureTask.Callback<EthereumTokenInfo>() {
-//                    @Override
-//                    public void onSuccess(EthereumTokenInfo result) {
-//                        Log.e("Tokamak App", "token success" + result);
-//                        switch (result.getSymbol()) {
-//                            case "TON":
-//                                TONtokenInfo = result;
-//                                break;
-//                            case "WTON":
-//                                WTonInfo = result;
-//                                break;
-//                            default:
-//                                break;
-//                        }
-//                    }
-//                    @Override
-//                    public void onFailure(ExecutionException exception) {
-//                        Log.e("Tokamak App", "token fail" + exception);
-//                    }
-//                    @Override
-//                    public void onCancelled(InterruptedException exception) {
-//                        Log.e("Tokamak App", "token cancel" + exception);
-//                    }
-//                });
-//    }
-
-//    public void addTokenAddress (EthereumAccount account, String address, String symbol) {
-//        etherService.addTokenAddress(
-//                account,
-//                address)
-//                .setCallback(new ListenableFutureTask.Callback<EthereumAccount>() {
-//                    @Override
-//                    public void onSuccess(final EthereumAccount account) {
-//                        //success
-//                        Log.e("Tokamak App", "addTokenAddress" + account);
-//                        ethereumAccount = account;
-//                        getTokenBalance(ethereumAccount, symbol);
-//                    }
-//                    @Override
-//                    public void onFailure(ExecutionException exception) {
-//                        //failure
-//                        Log.e("Tokamak App", "addTokenAddress" + exception);
-//                    }
-//                    @Override
-//                    public void onCancelled(InterruptedException exception) {
-//                        Log.e("Tokamak App", "addTokenAddress" + exception);
-//                        //cancelled
-//                    }
-//                });
-//    }
-//    public void getTokenBalance (EthereumAccount account, String symbol) {
-//        etherService.getTokenBalance(account).setCallback(
-//                new ListenableFutureTask.Callback<BigInteger>() {
-//                    @Override
-//                    public void onSuccess(BigInteger result) {
-//                        if (symbol == "TON") {
-//                            BigDecimal convertedTokenBalance = new BigDecimal(result).
-//                                    divide(BigDecimal.TEN.pow(TONtokenInfo.getDecimals()));
-//                            balanceInTON = convertedTokenBalance;
-//                            Log.i("Tokamak App", "TON Balance" + convertedTokenBalance);
-//                        }
-//                        if (symbol == "WTON") {
-//                            BigDecimal convertedTokenBalance = new BigDecimal(result).
-//                                    divide(BigDecimal.TEN.pow(TONtokenInfo.getDecimals()));
-//                            Log.i("Tokamak App", "Power Balance" + convertedTokenBalance);
-//                        }
-//                    }
-//                    @Override
-//                    public void onFailure(ExecutionException exception) {
-//                        Log.i("Tokamak App", "Token Balance fail" + exception);
-//                    }
-//                    @Override
-//                    public void onCancelled(InterruptedException exception) {
-//                        Log.i("Tokamak App", "Token Balance cancel" + exception);
-//                    }
-//                });
-//    }
-
     @ReactMethod
-    public void callMethod (String method, String address, Promise promise) {
-        EthereumAccount account = getEthereumAccount();
+    private void callSmartFunc (String method, String address, String input1, String input2, String input3, Promise promise){
+        Log.i("Tokamak App", "callSmartFunc came"+ method );
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
-        String encodedFunction = getEncodedFunction(method);
+        String encodedFunction = getEncodedFunc(method, input1, input2, input3);
         etherService
                 .callSmartContractFunction(
                         ethereumAccount,
@@ -406,16 +334,14 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                     @Override
                     public void onSuccess(String result) {
                         results = result;
-
-                        String checksumAddress = etherService.convertToChecksumAddress(result.substring(0,2) + result.substring(26));
-                        Log.i("Tokamak App", "call method" + checksumAddress);
-                        promise.resolve(checksumAddress);
+                        Log.i("Tokamak App", "callSmartMethod called" + result);
+                        promise.resolve(result);
                         //success
                     }
                     @Override
                     public void onFailure(ExecutionException exception) {
                         //failure
-                        Log.i("Tokamak App", "call method failed" );
+                        Log.i("Tokamak App", "callSmartMethod failed" );
                     }
                     @Override
                     public void onCancelled(InterruptedException exception) {
@@ -423,18 +349,122 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                         Log.i("Tokamak App", "call method cancelled");
                     }
                 });
+    }
 
+        @ReactMethod
+        private void  callSmartMethod (String method, String address, String input1, String input2 ,Promise promise ){
+            Log.i("Tokamak App", "call method came" );
+            Context context = getReactApplicationContext();
+            EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+            String encodedFunction = getFunction(method, input1, input2);
+            etherService
+                    .callSmartContractFunction(
+                            ethereumAccount,
+                            address,
+                            encodedFunction
+                    )
+                    .setCallback(new ListenableFutureTask.Callback<String>() {
+                        @Override
+                        public void onSuccess(String result) {
+                            results = result;
+                            Log.i("Tokamak App", "callSmartMethod called" + result);
+                            promise.resolve(result);
+                            //success
+                        }
+                        @Override
+                        public void onFailure(ExecutionException exception) {
+                            //failure
+                            Log.i("Tokamak App", "callSmartMethod failed" );
+                        }
+                        @Override
+                        public void onCancelled(InterruptedException exception) {
+                            //cancelled
+                            Log.i("Tokamak App", "call method cancelled");
+                        }
+                    });
+        }
+    @ReactMethod
+    private void callMethod (String method, String address, String user, Promise promise) {
+        Context context = getReactApplicationContext();
+        EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+        String encodedFunction = getEncodedFunction(method, user);
+        etherService
+                .callSmartContractFunction(
+                        ethereumAccount,
+                        address,
+                        encodedFunction
+                )
+                .setCallback(new ListenableFutureTask.Callback<String>() {
+                    @Override
+                    public void onSuccess(String result) {
+                        results = result;
+                        Log.i("Tokamak App", "call method called" + method);
+                        promise.resolve(result);
+                        //success
+                    }
+                    @Override
+                    public void onFailure(ExecutionException exception) {
+                        //failure
+                        Log.i("Tokamak App", "call method failed" + method);
+                    }
+                    @Override
+                    public void onCancelled(InterruptedException exception) {
+                        //cancelled
+                        Log.i("Tokamak App", "call method cancelled");
+                    }
+                });
+    }
+    @NotNull
+    public  String getEncodedFunc(String method, String input1, String input2, String input3){
+        List<Type> inputParameters = Arrays.asList(new Address(input1),new Address(input2), new Uint(new BigInteger(input3)));
+        List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
+        );
+        Function transferFunction = new Function(method, inputParameters, outputParameters);
+        Log.i("Tokamak App", "came to address");
+        return FunctionEncoder.encode(transferFunction);
     }
 
     @NotNull
-    public String getEncodedFunction(String method){
-        List<Type> inputParameters = Arrays.asList();
-        List outputParameters = Arrays.asList(
-                new TypeReference<Uint>() {
-                }
-        );
-        Function transferFunction = new Function(method, inputParameters, outputParameters);
-        return FunctionEncoder.encode(transferFunction);
+    public String getFunction (String method, String input1, String input2) {
+
+        if (input1.length() != 1 && input1.charAt(1) == 'x'){
+            List<Type> inputParameters = Arrays.asList(new Address(input1),new Address(input2));
+            List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
+            );
+            Function transferFunction = new Function(method, inputParameters, outputParameters);
+            Log.i("Tokamak App", "came to address");
+            return FunctionEncoder.encode(transferFunction);
+        }
+        else {
+            Log.i("Tokamak App", "came to uint");
+            List<Type> inputParameters = Arrays.asList(new Uint(new BigInteger(input1)),new Uint(new BigInteger(input2)) );
+            List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
+            );
+            Function transferFunction = new Function(method, inputParameters, outputParameters);
+
+            return FunctionEncoder.encode(transferFunction);
+        }
+    }
+    @NotNull
+    public String getEncodedFunction(String method, String user){
+        if (user.equals("0")){
+            List<Type> inputParameters = Arrays.asList();
+            List outputParameters = Arrays.asList(
+                    new TypeReference<Uint>() {
+                    }
+            );
+            Function transferFunction = new Function(method, inputParameters, outputParameters);
+            return FunctionEncoder.encode(transferFunction);
+        }
+       else {
+            List<Type> inputParameters = Arrays.asList(new Address(user));
+            List outputParameters = Arrays.asList(
+                    new TypeReference<Uint>() {
+                    }
+            );
+            Function transferFunction = new Function(method, inputParameters, outputParameters);
+            return FunctionEncoder.encode(transferFunction);
+        }
     }
 
     public void setLoaded (Boolean loading) {

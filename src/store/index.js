@@ -242,11 +242,11 @@ export default new Vuex.Store({
       const DepositManager = context.state.DepositManager;
       const SeigManager = context.state.SeigManager;
       const l2Registry = context.state.Layer2Registry;
-      const tot = await BlockchainModule.callMethod("tot", SeigManager, "0");
+      const tot = await BlockchainModule.callMethod("tot", SeigManager, "");
       const Tot = toChecksumAddress(tot.substring(0, 2) + tot.substring(26));
       const [tonTotalSup, totTotalSup, tonBalanceWTON] = await Promise.all([
-        BlockchainModule.callMethod("totalSupply", TON, "0"),
-        BlockchainModule.callMethod("totalSupply", Tot, "0"),
+        BlockchainModule.callMethod("totalSupply", TON, ""),
+        BlockchainModule.callMethod("totalSupply", Tot, ""),
         BlockchainModule.callMethod("balanceOf", TON, WTON),
       ]);
       const tonTotalSupply = bigInt(parseInt(tonTotalSup)).toString();
@@ -276,14 +276,14 @@ export default new Vuex.Store({
           const Coinage = toChecksumAddress(
             coinage.substring(0, 2) + coinage.substring(26)
           );
-          const [op, currentFork] = await Promise.all([
-            BlockchainModule.callMethod("operator", layer2, "0"),
-            BlockchainModule.callMethod("currentFork", layer2, "0"),
+          const [op, currentForks] = await Promise.all([
+            BlockchainModule.callMethod("operator", layer2, ""),
+            BlockchainModule.callMethod("currentFork", layer2, ""),
           ]);
           const operator = toChecksumAddress(
             op.substring(0, 2) + op.substring(26)
           );
-          const currentForkNumber = bigInt(parseInt(currentFork)).toString();
+          const currentForkNumber = bigInt(parseInt(currentForks)).toString();
           
           const getRecentCommit = async (operator, layer2) => {
             const commitTransactions = [];
@@ -468,8 +468,210 @@ export default new Vuex.Store({
         };
 
         const getExpectedSeigs = async () => {
-          
+          const [
+            isRateNegative,
+            ispaused,
+            lastSeig,
+            unpaused,
+            pausedblk,
+          ] = await Promise.all([
+            BlockchainModule.callMethod('isCommissionRateNegative', SeigManager, layer2),
+            BlockchainModule.callMethod('paused', SeigManager, ""),
+            BlockchainModule.callMethod('lastSeigBlock', SeigManager, ""), 
+            BlockchainModule.callMethod('unpausedBlock', SeigManager, ""),
+            BlockchainModule.callMethod('pausedBlock', SeigManager, ""),
+          ]); 
+          const isCommissionRateNegative = bigInt(parseInt(isRateNegative)).toString() === "" ? false : true;
+           const paused =   bigInt(parseInt(ispaused)).toString() === "" ? false : true;
+           const lastSeigBlock =  bigInt(parseInt(lastSeig)).toString();
+           const unpausedBlock = bigInt(parseInt(unpaused)).toString();
+           const pausedBlock = bigInt(parseInt(pausedblk)).toString();
+         
+           let [
+            seigPerBlk,
+            commissionRte,
+            prevTotTotalSup,
+            prevTotBal,
+            prevCoinageTotalSup,
+            prevCoinageOperatorBal,
+            prevCoinageUserBal,
+          ] = await Promise.all([
+            BlockchainModule.callMethod('seigPerBlock', SeigManager, ""),
+            BlockchainModule.callMethod('commissionRates', SeigManager,layer2),
+            BlockchainModule.callMethod('totalSupply', Tot, ""),
+            BlockchainModule.callMethod('balanceOf', Tot, layer2),
+            BlockchainModule.callMethod('totalSupply', Coinage, ""),
+            BlockchainModule.callMethod('balanceOf', Coinage, operator),
+            BlockchainModule.callMethod('balanceOf', Coinage, user),
+          ]);
+         
+          const seigPerBlock = _WTON( bigInt(parseInt(seigPerBlk)).toString(), WTON_UNIT);
+           const commissionRate = _WTON(bigInt(parseInt(commissionRte)).toString(), WTON_UNIT);
+           const prevTotTotalSupply = _WTON(bigInt(parseInt(prevTotTotalSup)).toString(), WTON_UNIT);
+          const prevTotBalance = _WTON( bigInt(parseInt(prevTotBal)).toString(), WTON_UNIT);
+          const prevCoinageTotalSupply =  _WTON( bigInt(parseInt(prevCoinageTotalSup)).toString(), WTON_UNIT);
+          const  prevCoinageOperatorBalance = _WTON( bigInt(parseInt(prevCoinageOperatorBal)).toString(), WTON_UNIT);
+           const prevCoinageUserBalance =  _WTON(bigInt(parseInt(prevCoinageUserBal)).toString(), WTON_UNIT); 
+           const prevCoinageUsersBalance = prevCoinageTotalSupply.minus(prevCoinageOperatorBalance);
+           
+           function calcNumSeigBlocks () {
+            if (paused) return 0;
+
+            const span = blockNumber - lastSeigBlock + 1; // + 1 for new block
+           
+            if (unpausedBlock < lastSeigBlock) {
+              return span;
+            }
+
+            return span - (unpausedBlock - pausedBlock);
+          }
+          function increaseTot () {
+            const maxSeig = seigPerBlock.times(calcNumSeigBlocks());
+            const tos = _WTON(tonTotalSupply, TON_UNIT)
+              .plus(_WTON(totTotalSupply, WTON_UNIT))
+              .minus(_WTON(tonBalanceOfWTON, TON_UNIT));
+
+            const stakedSeigs = maxSeig.times(prevTotTotalSupply).div(tos);
+           return stakedSeigs;
+          }
+
+          const stakedSeigs = increaseTot();
+            let layer2Seigs, operatorSeigs, usersSeigs;
+            if (prevTotTotalSupply.isEqual(_WTON('0'))) {
+              layer2Seigs = _WTON('0', WTON_UNIT);
+            } else {
+              layer2Seigs = stakedSeigs.times(prevTotBalance).div(prevTotTotalSupply);
+            }
+
+            if (prevCoinageTotalSupply.isEqual(_WTON('0'))) {
+              operatorSeigs = _WTON('0', WTON_UNIT);
+              usersSeigs = _WTON('0', WTON_UNIT);
+            } else {
+              operatorSeigs = layer2Seigs.times(prevCoinageOperatorBalance).div(prevCoinageTotalSupply);
+              usersSeigs = layer2Seigs.times(prevCoinageUsersBalance).div(prevCoinageTotalSupply);
+            }
+            function _calcSeigsDistribution () {
+              let operatorSeigsWithCommissionRate = operatorSeigs;
+              let usersSeigsWithCommissionRate = usersSeigs;
+
+              if (commissionRate.toFixed(WTON_UNIT) === '0') {
+                return {
+                  operatorSeigsWithCommissionRate,
+                  usersSeigsWithCommissionRate,
+                };
+              }
+
+              if (!isCommissionRateNegative) {
+                const commissionFromUsers = usersSeigs.times(commissionRate);
+
+                operatorSeigsWithCommissionRate = operatorSeigsWithCommissionRate.plus(commissionFromUsers);
+                usersSeigsWithCommissionRate = usersSeigsWithCommissionRate.minus(commissionFromUsers);
+                return {
+                  operatorSeigsWithCommissionRate,
+                  usersSeigsWithCommissionRate,
+                };
+              }
+
+              if (prevCoinageTotalSupply.toFixed(WTON_UNIT) === '0' ||
+                prevCoinageOperatorBalance.toFixed(WTON_UNIT) === '0') {
+                return {
+                  operatorSeigsWithCommissionRate,
+                  usersSeigsWithCommissionRate,
+                };
+              }
+
+              const commissionFromOperator = operatorSeigs.times(commissionRate);
+
+              operatorSeigsWithCommissionRate = operatorSeigsWithCommissionRate.minus(commissionFromOperator);
+              usersSeigsWithCommissionRate = usersSeigsWithCommissionRate.plus(commissionFromOperator);
+
+              return {
+                operatorSeigsWithCommissionRate,
+                usersSeigsWithCommissionRate,
+              };
+            }
+            const {
+              operatorSeigsWithCommissionRate,
+              usersSeigsWithCommissionRate,
+            } = _calcSeigsDistribution();
+            let userSeigsWithCommissionRate;
+            if (prevCoinageUsersBalance.isEqual(_WTON('0', WTON_UNIT))) {
+              userSeigsWithCommissionRate = _WTON('0', WTON_UNIT);
+            } else {
+              userSeigsWithCommissionRate = usersSeigsWithCommissionRate.times(prevCoinageUserBalance).div(prevCoinageUsersBalance);
+            }
+
+            return {
+              operatorSeigs: operatorSeigsWithCommissionRate,
+              userSeigs: userSeigsWithCommissionRate,
+              layer2Seigs: layer2Seigs,
+            }; 
         }
+        let [
+          currentfork,
+          firstEpoch,
+          // totalDeposit,
+          // selfDeposit,
+          // userDeposit,
+          // totalStaked,
+          // selfStaked,
+          // userStaked,
+          // pendingRequests,
+          // seigs, // operatorSeigs, userSeigs, layer2Seigs
+          // isCommissionRateNegative,
+          // commissionRate,
+          // powerTONSeigRate,
+          // daoSeigRate,
+          // relativeSeigRate,
+          // delayedCommissionRateNegative,
+          // delayedCommissionRate,
+          // delayedCommissionBlock,
+          // withdrawalDelay,
+          // globalWithdrawalDelay,
+          // minimumAmount,
+        ] = await Promise.all([
+          BlockchainModule.callMethod("forks", layer2, currentForkNumber.toString()),
+          BlockchainModule.callSmartMethod(
+            "getEpoch",
+            layer2,
+            "0",
+            "0"
+          )
+          // getDeposit(),
+          // getDeposit(operator),
+          // getDeposit(user),
+          // Coinage.methods.totalSupply().call(),
+          // Coinage.methods.balanceOf(operator).call(),
+          // Coinage.methods.balanceOf(user).call(null, blockNumber),
+          // getPendingRequests(),
+          // getExpectedSeigs(),
+          // SeigManager.methods.isCommissionRateNegative(layer2).call(),
+          // SeigManager.methods.commissionRates(layer2).call(),
+          // SeigManager.methods.powerTONSeigRate().call(),
+          // SeigManager.methods.daoSeigRate().call(),
+          // SeigManager.methods.relativeSeigRate().call(),
+          // SeigManager.methods.delayedCommissionRateNegative(layer2).call(),
+          // SeigManager.methods.delayedCommissionRate(layer2).call(),
+          // SeigManager.methods.delayedCommissionBlock(layer2).call(),
+          // DepositManager.methods.withdrawalDelay(layer2).call(),
+          // DepositManager.methods.globalWithdrawalDelay().call(),
+          // SeigManager.methods.minimumAmount().call(),
+        ]);
+        currentFork = {};
+        currentFork.forkedBlock = bigInt( parseInt("0x" + currentfork.substring(2, 66))).toString();
+        currentFork.firstEpoch = bigInt( parseInt("0x" + currentfork.substring(66, 130))).toString();
+        currentFork.lastEpoch = bigInt( parseInt("0x" + currentfork.substring(130, 194))).toString();
+        currentFork.firstBlock = bigInt( parseInt("0x" + currentfork.substring(194, 258))).toString();
+        currentFork.lastBlock = bigInt( parseInt("0x" + currentfork.substring(258, 322))).toString();
+        currentFork.lastFinalizedEpoch = bigInt( parseInt("0x" + currentfork.substring(322, 386))).toString();
+        currentFork.lastFinalizedBlock = bigInt( parseInt("0x" + currentfork.substring(386, 450))).toString();
+        currentFork.timestamp = bigInt( parseInt("0x" + currentfork.substring(450, 514))).toString();
+        currentFork.firstEnterEpoch = bigInt( parseInt("0x" + currentfork.substring(514, 578))).toString();
+        currentFork.lastEnterEpoch = bigInt( parseInt("0x" + currentfork.substring(578, 642))).toString();
+        currentFork.nextBlockToRebase = bigInt( parseInt("0x" + currentfork.substring(642, 706))).toString();
+        currentFork.rebased = bigInt( parseInt("0x" + currentfork.substring(706,770))).toString();
+
+        console.log(firstEpoch);
         })
       );
 

@@ -447,7 +447,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     }
     @NotNull
     public String getEncodedFunction(String method, String user){
-        if (user.equals("0")){
+        if (user.equals("")){
             List<Type> inputParameters = Arrays.asList();
             List outputParameters = Arrays.asList(
                     new TypeReference<Uint>() {
@@ -456,13 +456,23 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
             Function transferFunction = new Function(method, inputParameters, outputParameters);
             return FunctionEncoder.encode(transferFunction);
         }
+       else if(user.length() != 1 && user.charAt(1) == 'x'){
+
+                List<Type> inputParameters = Arrays.asList(new Address(user));
+                List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
+                );
+                Function transferFunction = new Function(method, inputParameters, outputParameters);
+                Log.i("Tokamak App", "came to address");
+                return FunctionEncoder.encode(transferFunction);
+        }
        else {
-            List<Type> inputParameters = Arrays.asList(new Address(user));
-            List outputParameters = Arrays.asList(
-                    new TypeReference<Uint>() {
-                    }
+
+            Log.i("Tokamak App", "came to uint");
+            List<Type> inputParameters = Arrays.asList(new Uint(new BigInteger(user)));
+            List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
             );
             Function transferFunction = new Function(method, inputParameters, outputParameters);
+
             return FunctionEncoder.encode(transferFunction);
         }
     }

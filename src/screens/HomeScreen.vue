@@ -8,15 +8,15 @@
       >
       <balance-component
         title="Your TON Balance"
-        :balance=TONbalance
+        :balance="currencyAmount(tonBalance)"
         rewards="Power TON Balance"
-        :value=powerTONbalance
+        :value="currencyAmount(power)"
       />
       <balance-component
         title="Total Staked Amount"
-        :balance=stakedAmount
+        :balance="currencyAmount(tonBalance)"
         rewards="Expected Rewards"
-        :value=rewards
+        :value="currencyAmount(tonBalance)"
       />
     </view>
   </view>
@@ -30,7 +30,10 @@ import Vue from "vue-native-core";
 
 export default {
   computed: {
-    ...mapState(['TONbalance', 'powerTONbalance', 'stakedAmount', 'rewards']),
+    ...mapState(['tonBalance', 'power', 'stakedAmount', 'rewards']),
+     currencyAmount () {
+      return amount => this.$options.filters.currencyAmount(amount);
+    },
   },
   components: {
     header: Header,

@@ -11,9 +11,9 @@
         <text class="info-title">ETH Balance</text>
         <text class="ton-value">{{ethBalance | currencyAmount}}</text>
         <text class="info-title">TON Balance</text>
-        <text class="ton-value">{{TONbalance.value.toFixed(3)}}{{TONbalance.symbol}}</text>
+        <text class="ton-value">{{tonBalance | currencyAmount}}</text>
          <text class="info-title">Power Balance</text>
-          <text class="powerton-value">{{powerTONbalance.value}}{{powerTONbalance.symbol}}</text>
+          <text class="powerton-value">{{power | currencyAmount}}</text>
            <text class="info-title">Account Address</text>
           <text class="powerton-value">{{user.substring(0, 6) + '...' + user.substring(37, 42)}}</text>
       </view>
@@ -52,7 +52,7 @@ import { mapState } from "vuex";
 
 export default {
   computed: {
-    ...mapState(['ethBalance','TONbalance', 'powerTONbalance', 'user']),
+    ...mapState(['ethBalance','tonBalance', 'power', 'user']),
     currencyAmount () {
       return amount => this.$options.filters.currencyAmount(amount);
     },
@@ -87,7 +87,7 @@ export default {
   height: 40px;
 }
 .logo-container {
-  padding-bottom: 20;
+  padding-bottom: 10;
   display: flex;
   flex-direction: column;
 }

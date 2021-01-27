@@ -5,6 +5,14 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableNativeArray;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeArray;
+import com.facebook.react.bridge.WritableNativeMap;
+import com.google.gson.Gson;
 import com.samsung.android.sdk.blockchain.*;
 import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumTokenInfo;
 import com.samsung.android.sdk.blockchain.wallet.HardwareWallet;
@@ -29,6 +37,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
@@ -39,6 +48,8 @@ import android.util.Log;
 import android.content.Context;
 
 //import org.unimodules.core.Promise;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
@@ -55,7 +66,11 @@ import org.web3j.abi.datatypes.generated.Bytes32;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.DefaultBlockParameterNumber;
+import org.web3j.protocol.core.methods.request.EthFilter;
+import org.web3j.protocol.core.methods.request.Filter;
 import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.protocol.core.methods.response.EthLog;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.core.methods.response.EthBlockNumber;
@@ -130,7 +145,45 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                         BigInteger.valueOf(blockNumber)), false).send().getBlock();
         promise.resolve(ethBlock.getTimestamp().intValue());
     }
+    @ReactMethod
+    public void getPastEvents (String address, String encoded, Promise promise) throws ExecutionException, InterruptedException, JSONException {
+        Gson g = new Gson();
+        EthFilter filter = new EthFilter(DefaultBlockParameterName.EARLIEST,  DefaultBlockParameterName.LATEST, address );
+        filter.addSingleTopic(encoded);
+        EthLog ethLog = web3.ethGetLogs(filter).sendAsync().get();
+        Log.e("Tokamak App", "getPastEvents" + ethLog.getLogs() );
+        WritableArray array = new WritableNativeArray();
+        for (Object logs: ethLog.getLogs()){
+            JSONObject jo = new JSONObject(g.toJson(logs));
+            WritableMap wm = convertJsonToMap(jo);
+            array.pushMap(wm);
+        }
+        promise.resolve(array);
+    }
 
+    private static WritableMap convertJsonToMap(JSONObject jsonObject) throws JSONException {
+        WritableMap map = new WritableNativeMap();
+
+        Iterator<String> iterator = jsonObject.keys();
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            Object value = jsonObject.get(key);
+            if (value instanceof JSONObject) {
+                map.putMap(key, convertJsonToMap((JSONObject) value));
+            } else if (value instanceof Boolean) {
+                map.putBoolean(key, (Boolean) value);
+            } else if (value instanceof Integer) {
+                map.putInt(key, (Integer) value);
+            } else if (value instanceof Double) {
+                map.putDouble(key, (Double) value);
+            } else if (value instanceof String) {
+                map.putString(key, (String) value);
+            } else {
+                map.putString(key, value.toString());
+            }
+        }
+        return map;
+    }
     @ReactMethod
     public void initis( Callback callBack) {
         Context context = getReactApplicationContext();
@@ -294,7 +347,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
 
     }
     @ReactMethod
-    private void  getBalance (Callback callBack) {
+    private void  getBalance (Promise promise) {
         EthereumAccount account = getEthereumAccount();
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
@@ -305,7 +358,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                     public void onSuccess(BigInteger result) {
                         balanceInEther = EthereumUtils.convertWeiToEth(result);
                         Log.i("Tokamak App", "Balance" + balanceInEther);
-                        callBack.invoke(balanceInEther.floatValue());
+                        promise.resolve(balanceInEther.floatValue());
                     }
                     @Override
                     public void onFailure(ExecutionException exception) {
@@ -462,7 +515,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                 List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
                 );
                 Function transferFunction = new Function(method, inputParameters, outputParameters);
-                Log.i("Tokamak App", "came to address");
+                Log.i("Tokamak App", "came to address " + method);
                 return FunctionEncoder.encode(transferFunction);
         }
        else {

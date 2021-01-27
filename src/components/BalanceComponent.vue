@@ -3,13 +3,13 @@
     <view class="row" style="flex-direction: column">
       <text class="title">{{ title }}</text>
       <text class="text"
-        >{{ balance.value.toFixed(3) }}{{ balance.symbol }}</text
+        >{{ balance}}</text
       >
     </view>
     <view class="divider" />
     <view class="row">
       <text class="title">{{ rewards }}</text>
-      <text class="title">{{ value.value.toFixed(3) }}{{ value.symbol }}</text>
+      <text class="title">{{ value }}</text>
     </view>
   </view>
 </template>

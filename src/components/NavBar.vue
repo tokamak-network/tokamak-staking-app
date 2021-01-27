@@ -2,27 +2,26 @@
 <view>
     <ImageBackground :source=Bg class="nav-bg">
       <touchable-opacity class="nav-menu" :on-press="()=>handleListItemClick('Home')">
-      <image :source=HomeIcon class="nav-icon" style="margin-left: 5"/>
-      <text class="nav-text" :style="{marginLeft: 5}">Home</text>
+      <image :source="activeTab === 'Home' ? HomeIcon : HomeIconInactive" class="nav-icon" style="margin-left: 5"/>
+      <text class="nav-text" :class="{selected: activeTab === 'Home'}" :style="{marginLeft: 5}">Home</text>
       </touchable-opacity>
       <touchable-opacity class="nav-menu" :on-press="()=>handleListItemClick('Operators')">
-      <image :source=HomeIcon class="nav-icon"/>
+      <image :source="activeTab === 'Operators' ? OperateIcon : OperateIconInactive" class="nav-icon"/>
       <text class="nav-text">Operators</text>
       </touchable-opacity>
-      <touchable-opacity>
-      <text class="nav-text">Operators</text>
+      <touchable-opacity class="nav-menu staking" :on-press="()=>handleListItemClick('Staking')">
+        <image :source="activeTab === 'Staking' ? StakingIcon : StakingIconInactive" class="nav-staking" />
+      <text class="nav-text nav-text-staking">Staking</text>
     </touchable-opacity>
       <touchable-opacity class="nav-menu" :on-press="()=>handleListItemClick('PowerTON')">
-      <image :source=HomeIcon class="nav-icon"/>
+      <image :source="activeTab === 'PowerTON' ? TonIcon : TonIconInactive" class="nav-icon"/>
       <text class="nav-text">Power TON</text>
       </touchable-opacity>
-      <touchable-opacity class="nav-menu">
-      <image :source=HomeIcon class="nav-icon"/>
+      <touchable-opacity class="nav-menu" :on-press="()=>handleListItemClick('Account')">
+      <image :source="activeTab === 'Account' ? AccountIcon : AccountIconInactive" class="nav-icon"/>
       <text class="nav-text">Account</text>
       </touchable-opacity>
     </ImageBackground>
-    <Image :source=StakingIcon class="nav-staking" />
-    
     </view>
 </template>
 
@@ -33,7 +32,15 @@ import { mapState } from "vuex";
 
 import Bg from "../../assets/nav-bar-bg.png"
 import HomeIcon from "../../assets/toolbar-icon-home-active.png"
-import StakingIcon from "../../assets/toolbar-icon-staking-inactive.png"
+import OperateIcon from "../../assets/toolbar-icon-operators-active.png"
+import StakingIcon from "../../assets/toolbar-icon-staking-active.png"
+import TonIcon from "../../assets/toolbar-icon-power-active.png"
+import AccountIcon from "../../assets/toolbar-icon-accoung-active.png"
+import HomeIconInactive from "../../assets/toolbar-icon-home-inactive.png"
+import OperateIconInactive from "../../assets/toolbar-icon-operators-inactive.png"
+import StakingIconInactive from "../../assets/toolbar-icon-staking-inactive.png"
+import TonIconInactive from "../../assets/toolbar-icon-power-inactive.png"
+import AccountIconInactive from "../../assets/toolbar-icon-accoung-inactive.png"
 
 export default {
   data() {
@@ -41,7 +48,15 @@ export default {
       Bg,
       HomeIcon,
       StakingIcon,
-      isActive: false
+      OperateIcon,
+      TonIcon,
+      AccountIcon,
+      HomeIconInactive,
+      OperateIconInactive,
+      StakingIconInactive,
+      TonIconInactive,
+      AccountIconInactive,
+      activeTab: "Home"
     }
   },
   props: {
@@ -51,7 +66,9 @@ export default {
   },
   methods: {
     handleListItemClick(dataObj) {
-      this.navigation.navigate(dataObj);
+      this.activeTab = dataObj
+      console.log(this.activeTab)
+      // this.navigation.navigate(dataObj);
     }
   }
 }
@@ -89,10 +106,22 @@ export default {
 
 .nav-staking {
   position: absolute;
+  left: 7.5px;
   bottom: 30px;
-  display: flex;
-  align-self: center;
   width: 64px;
   height: 64px;
+}
+
+.staking {
+  justify-content: flex-end;
+  padding-bottom: 6px;
+}
+
+.nav-text-staking {
+  left: 1px;
+}
+
+.selected {
+  color: black;
 }
 </style>

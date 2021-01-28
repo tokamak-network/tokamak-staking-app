@@ -165,7 +165,7 @@ export default new Vuex.Store({
   },
   actions: {
     logout(context) {
-      context.commit("SIGN_IN", false);
+      context.commit('SET_INITIAL_STATE');
     },
     async signIn(context) {
       BlockchainModule.initis((init) => {
@@ -201,8 +201,8 @@ export default new Vuex.Store({
       const transactions = await getTransactions(user);
       
       await Promise.all([
-        await context.dispatch("setManagers", managers),
-      await context.dispatch("setOperatorsWithRegistry", operators),
+         context.dispatch("setManagers", managers),
+       context.dispatch("setOperatorsWithRegistry", operators),
         context.dispatch('setTransactionsAndPendingTransactions', transactions),
         context.dispatch("setOperators", blockNumber),
         context.dispatch('setBalance'),
@@ -213,7 +213,7 @@ export default new Vuex.Store({
       ]).catch((err) => {
         // after logout, error can be happened
       });
-      context.commit("SET_LOADING", true);
+    
     },
     login(context) {
       context.commit("SIGN_IN", true);
@@ -742,8 +742,8 @@ export default new Vuex.Store({
         new BN(totalStakedAmount),
         new BN(tos),
         new BN(pseigRate)
-      );
-      const notWithdrawableRequests = filterNotWithdrawableRequests(pendingRequests);
+         );
+        const notWithdrawableRequests = filterNotWithdrawableRequests(pendingRequests);
           const withdrawableRequests = filterWithdrawableRequests(pendingRequests);
           const userNotWithdrawable = getUserNotWithdrawable(notWithdrawableRequests);
           const userWithdrawable = getUserWithdrawable(withdrawableRequests);
@@ -759,6 +759,7 @@ export default new Vuex.Store({
 
           operatorFromLayer2.userDeposit = _WTON(userDeposit, WTON_UNIT);
           operatorFromLayer2.userStaked = _WTON(userStaked, WTON_UNIT);
+          console.log( operatorFromLayer2.userStaked);
           operatorFromLayer2.userSeigs = _WTON(seigniorage, WTON_UNIT);
           // operatorFromLayer2.userSeigs
           //   = operator.toLowerCase() === user.toLowerCase() ? seigs.operatorSeigs : _WTON(seigniorage, WTON_UNIT);
@@ -782,10 +783,11 @@ export default new Vuex.Store({
           operatorFromLayer2.withdrawalDelay = withdrawalDelay;
           operatorFromLayer2.globalWithdrawalDelay = globalWithdrawalDelay;
           operatorFromLayer2.minimumAmount = minimumAmount;
+          return operatorFromLayer2;
         })
       );
-context.commit('SET_OPERATORS', operatorsFromLayer2);
-    
+      context.commit('SET_OPERATORS', operatorsFromLayer2);
+    context.commit("SET_LOADING", true);
     },
     async setBalance (context) {
       const user = context.state.user;
@@ -878,5 +880,53 @@ context.commit('SET_OPERATORS', operatorsFromLayer2);
     },
   },
 
-  getters: {},
+  getters: {initialState: (state) => {
+    return isEqual(state, initialState);
+  },
+  operatorsStaked: state => {
+    if (state.operators && state.operators.length > 0) {
+      return state.operators.filter(operator => parseInt(operator.userStaked) > 0);
+    }
+    else return [];
+  },
+  operatorByLayer2: (state) => (layer2) => {
+    return cloneDeep(state.operators.find(operator => operator.layer2.toLowerCase() === layer2.toLowerCase()));
+  },
+  userTotalDeposit: (state) => {
+    const initialAmount = _WTON.ray('0');
+    const reducer = (amount, operator) => amount.add(operator.userDeposit);
+
+    return state.operators.reduce(reducer, initialAmount);
+  },
+  userTotalStaked: (state) => {
+    const initialAmount = _WTON.ray('0');
+    const reducer = (amount, operator) => amount;
+   
+    return state.operators.reduce(reducer, initialAmount);
+  },
+  userTotalSeigs: (state) => {
+    const initialAmount = _WTON.ray('0');
+    const reducer = (amount, operator) => amount.add(operator.userSeigs);
+
+    return state.operators.reduce(reducer, initialAmount);
+  },
+  userTotalNotWithdrawable: (state) => {
+    const initialAmount = _WTON.ray('0');
+    const reducer = (amount, operator) => amount.add(operator.userNotWithdrawable);
+
+    return state.operators.reduce(reducer, initialAmount);
+  },
+  userTotalWithdrawable: (state) => {
+    const initialAmount = _WTON.ray('0');
+    const reducer = (amount, operator) => amount.add(operator.userWithdrawable);
+
+    return state.operators.reduce(reducer, initialAmount);
+  },
+  userTotalReward: (_, getters) => {
+    return getters.userTotalStaked
+      .add(getters.userTotalWithdrawable)
+      .add(getters.userTotalNotWithdrawable);
+    // .sub(getters.userTotalDeposit);
+  },
+},
 });

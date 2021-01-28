@@ -16,13 +16,13 @@
         title="Total Staked Amount"
         :balance="currencyAmount(tonBalance)"
         rewards="Expected Rewards"
-        :value="currencyAmount(tonBalance)"
+        :value="currencyAmount(userTotalSeigs)"
       />
     </view>
   </view>
 </template>
 <script>
-import { mapState } from "vuex";
+import { mapState,mapGetters } from "vuex";
 import { store } from "@/store/index";
 import Header from "@/components/Header";
 import BalanceComponent from "@/components/BalanceComponent";
@@ -31,6 +31,10 @@ import Vue from "vue-native-core";
 export default {
   computed: {
     ...mapState(['tonBalance', 'power', 'stakedAmount', 'rewards']),
+    ...mapGetters([
+      'userTotalStaked',
+      'userTotalSeigs',
+    ]),
      currencyAmount () {
       return amount => this.$options.filters.currencyAmount(amount);
     },

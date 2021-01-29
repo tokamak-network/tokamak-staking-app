@@ -5,29 +5,27 @@
          <text class="page-title">Select your favorite operator!!</text>
         <text class="page-text">Select an operator to stake, unstake, or withdraw your tokens.</text>
           <scroll-view>
-        <view v-for="operator in operators" :key="operator.name"> 
-          <operator-component :name="operator.name" :color="operator.color" :navigation="navigation"/>
+        <view v-for="(operator, index) in operators" :key="index"> 
+          <operator-component :layer2="operator.layer2" :navigation="navigation"/>
           </view>
           </scroll-view>
       </view>
     </view>
 </template>
 <script>
-import Header from '../components/Header'
-import OperatorComponent from '@/components/OperatorComponent'
+import Header from '../components/Header';
+import OperatorComponent from '@/components/OperatorComponent';
+import { mapState } from 'vuex';
+
 export default {
     components: {
       'header': Header,
        'operator-component': OperatorComponent,
     },
-   data() {
-    return {
-      operators: [
-        {name:'tokamak1', color:'#b23756'},
-        {name:'DXM Corp', color:'#8948a2'},
-        {name:'DSRV', color:'#78eef2'}
-        ]
-    };
+    computed: {
+    ...mapState([
+      'operators',
+    ]),
   },
     props: {
     navigation: {

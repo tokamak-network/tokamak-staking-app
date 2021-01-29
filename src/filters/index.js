@@ -22,7 +22,7 @@ export function hexSlicer (address = '') {
 // Note: Despite Unix timestamps being UTC-based, this function creates a moment object in local mode.
 // (https://momentjs.com/docs/#/parsing/unix-timestamp/)
 export function formattedTimestamp (timestamp) {
-  return moment.unix(timestamp).format('LLL');
+  return moment.unix(timestamp).format('L');
 }
 
 export function fromNow (timestamp, suffix) {

@@ -17,27 +17,23 @@
     </view>
     <view class="table-content-container">
       <scroll-view>
-        <view class="list-row" v-for="winner in winners" :key="winner.round">
+        <view class="list-row" v-for="round in rounds" :key="round.index">
           <view class="list-item" :style="{ width: '15%' }">
             <text>{{
-              winner.round
+             round.index
             }}</text>
              
           </view>
           <view  class="list-item" :style="{ width: '30%' }">
             <text>{{
-              winner.winner
+              round.winner | hexSlicer
             }}</text>
           </view>
           <view class="list-item" :style="{ width: '25%' }">
-            <text>{{
-              winner.reward
-            }}</text>
+            <text>{{ round.reward | currencyAmount }}</text>
           </view>
           <view class="list-item" :style="{ width: '30%' }">
-            <text>{{
-              winner.date
-            }}</text>
+            <text>{{ round.timestamp|formattedTimestamp}}</text>
           </view>
          
         </view>
@@ -47,193 +43,19 @@
 </template>
 <script>
 import React from "react";
+import { mapState } from 'vuex';
 import { View, Text } from "react-native";
 export default {
-  data() {
-    return {
-      winners: [
-        {
-          round: 29,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 28,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 27,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 26,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 25,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 24,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 23,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 22,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 21,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 20,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 19,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 18,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 17,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 16,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 15,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 14,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 13,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 12,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 11,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 10,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 9,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 8,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 7,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 6,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 5,
-          winner: "0xe300...1327",
-          reward: "30,868.54",
-          date: "18/12/2020",
-        },
-        {
-          round: 4,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 3,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 2,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 1,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-        {
-          round: 0,
-          winner: "0x36f9...3E44",
-          reward: "32,580.62",
-          date: "18/12/2020",
-        },
-      ],
-    };
+ computed: {
+    ...mapState([
+      'rounds',
+    ]),
+    toExplorer () {
+      return (type, param) => this.$options.filters.toExplorer(type, param);
+    },
+    formattedTimestamp () {
+      return timestamp => this.$options.filters.formattedTimestamp(timestamp);
+    },
   },
   methods: {
     getFlatListRenderItem(item) {

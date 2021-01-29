@@ -1,9 +1,9 @@
 <template>
 <view class="operator-container">
-  <touchable-opacity :on-press="selectOperator">
+  <touchable-opacity  :on-press="() => selectOperator(operator.layer2)">
  <view class="row" style="flex-direction: row">
-        <text class="title">{{name}}</text>
-        <view class="avatar" :style="{backgroundColor: color}">
+        <text class="title">{{operator.name }}</text>
+        <view class="avatar" :style="{backgroundColor: operator.color }">
           <text class="opr">O P R</text>
         </view>
     </view>
@@ -11,23 +11,36 @@
 </view>
 </template>
 <script>
+import { mapState, mapGetters } from 'vuex';
+import { getConfig } from '../../config.js';
+
 export default {
      props: {
-       name: {
-         type: String
-       },
-       color: {
-         type: String
-       },
+       layer2: {
+      required: true,
+      type: String,
+    },
        navigation: {
       type: Object
     },
      },
+     computed: {
+    ...mapState([
+      'user',
+      'DepositManager',
+    ]),
+    ...mapGetters([
+      'operatorByLayer2',
+    ]),
+    operator () {
+      return this.operatorByLayer2(this.layer2);
+    },
+   
+  },
      methods: {
-       selectOperator () {
-         const nName = this.name;
-         const nColor = this.color;
-         this.navigation.push('SelectedOperator', {name:nName, color: nColor} );
+       selectOperator (operator) {
+        const nlayer2 = operator.toLowerCase();
+         this.navigation.push('SelectedOperator', {layer2: nlayer2} );
        }
      }
 }

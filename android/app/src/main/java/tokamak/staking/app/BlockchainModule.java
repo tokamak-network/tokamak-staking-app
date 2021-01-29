@@ -1,5 +1,6 @@
 package tokamak.staking.app;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -14,7 +15,9 @@ import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.google.gson.Gson;
 import com.samsung.android.sdk.blockchain.*;
+import com.samsung.android.sdk.blockchain.coinservice.TransactionResult;
 import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumTokenInfo;
+import com.samsung.android.sdk.blockchain.exception.AvailabilityException;
 import com.samsung.android.sdk.blockchain.wallet.HardwareWallet;
 import com.samsung.android.sdk.blockchain.account.Account;
 import com.samsung.android.sdk.blockchain.account.ethereum.EthereumAccount;
@@ -23,6 +26,7 @@ import com.samsung.android.sdk.blockchain.SBlockchain;
 import com.samsung.android.sdk.blockchain.account.AccountManager;
 import com.samsung.android.sdk.blockchain.coinservice.CoinNetworkInfo;
 import com.samsung.android.sdk.blockchain.coinservice.CoinServiceFactory;
+import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumFeeInfo;
 import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumUtils;
 import com.samsung.android.sdk.blockchain.exception.SsdkUnsupportedException;
 import com.samsung.android.sdk.blockchain.wallet.HardwareWalletManager;
@@ -48,6 +52,8 @@ import android.util.Log;
 import android.content.Context;
 
 //import org.unimodules.core.Promise;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.web3j.abi.FunctionEncoder;
@@ -56,13 +62,17 @@ import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Array;
 import org.web3j.abi.datatypes.Bool;
-import org.web3j.abi.datatypes.Bytes;
+import org.web3j.abi.datatypes.BytesType;
 import org.web3j.abi.datatypes.DynamicArray;
+import org.web3j.abi.datatypes.DynamicBytes;
+import org.web3j.abi.datatypes.generated.AbiTypes;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.Uint;
 import org.jetbrains.annotations.NotNull;
+import org.web3j.abi.datatypes.generated.Bytes16;
 import org.web3j.abi.datatypes.generated.Bytes32;
+import org.web3j.abi.datatypes.generated.Bytes8;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
@@ -75,6 +85,10 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.core.methods.response.EthBlockNumber;
 import org.web3j.protocol.core.methods.response.EthBlock;
+import org.web3j.utils.Bytes;
+import org.web3j.utils.Numeric;
+
+import jnr.ffi.StructLayout;
 
 public class BlockchainModule  extends ReactContextBaseJavaModule{
     public  EthereumAccount ethereumAccount;
@@ -343,11 +357,33 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     public void setCoinService() {
         Context context = getReactApplicationContext();
         this.etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+    }
 
+    private void getFeeInfo (){
+        Context context = getReactApplicationContext();
+        EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+        etherService.getFeeInfo().setCallback(
+                new ListenableFutureTask.Callback<EthereumFeeInfo>() {
+                    @Override
+                    public void onSuccess(EthereumFeeInfo ethereumFeeInfo) {
+                        Log.i("Tokamak App", "fee info" + ethereumFeeInfo);
+                    }
 
+                    @Override
+                    public void onFailure(@NotNull ExecutionException e) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NotNull InterruptedException e) {
+
+                    }
+                }
+        );
     }
     @ReactMethod
     private void  getBalance (Promise promise) {
+        getFeeInfo();
         EthereumAccount account = getEthereumAccount();
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
@@ -371,6 +407,114 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                     }
                 });
     }
+    @ReactMethod
+    private void approveAndCall (String toContractAddress, String function, String input1, String input2, String input3, Promise promise) throws DecoderException {
+        hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
+        Context context = getReactApplicationContext();
+        EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+        String encodedFunction = convertFunction(function, input1, input2, input3);
+        Log.i("Tokamak App", "sendSmartContractTransaction" + ethereumGasPriceSlow);
+        try{
+        etherService
+                .sendSmartContractTransaction(
+                        hardwareWallet,
+                        ethereumAccount,
+                        toContractAddress,
+                        EthereumUtils.convertGweiToWei(new BigDecimal(10)),
+                        new BigInteger(String.valueOf(735458)),
+                        encodedFunction,
+                        null,
+                        null  // nonce
+                )
+                .setCallback(
+                        new ListenableFutureTask.Callback<TransactionResult>() {
+                            @Override
+                            public void onSuccess(TransactionResult result) {
+                                //success
+                             WritableMap infoMap = Arguments.createMap();
+                                infoMap.putString("hash", result.getHash());
+                                infoMap.putInt("code", result.getError().getCode());
+                                promise.resolve(infoMap);
+                            }
+                            @Override
+                            public void onFailure(ExecutionException exception) {
+                                Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                            }
+                            @Override
+                            public void onCancelled(InterruptedException exception) {
+                                Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                            }
+                        });
+    } catch (AvailabilityException e) {
+        //handle exception
+    } }
+
+    @NotNull
+    public String convertFunction (String method, String input1, String input2, String input3) throws DecoderException {
+
+        byte[] bytes = Hex.decodeHex(input3.toCharArray());
+        Log.i("Tokamak App", "gasPrice" + bytes);
+       List<Type> inputParameters = Arrays.asList(new Address(input1), new Uint(new BigInteger(input2)), new DynamicBytes( bytes) );
+        List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
+        );
+        Function transferFunction = new Function(method, inputParameters, outputParameters);
+
+        return FunctionEncoder.encode(transferFunction);
+    }
+
+    @ReactMethod
+    private void requestWithdrawal (String toContractAddress, String function, String input1, String input2, Promise promise) throws DecoderException {
+        hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
+        Context context = getReactApplicationContext();
+        EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+        String encodedFunction = convertFunctionWithdrawal(function, input1, input2);
+        Log.i("Tokamak App", "sendSmartContractTransaction" + ethereumGasPriceSlow);
+        try{
+            etherService
+                    .sendSmartContractTransaction(
+                            hardwareWallet,
+                            ethereumAccount,
+                            toContractAddress,
+                            EthereumUtils.convertGweiToWei(new BigDecimal(10)),
+                            new BigInteger(String.valueOf(735458)),
+                            encodedFunction,
+                            null,
+                            null  // nonce
+                    )
+                    .setCallback(
+                            new ListenableFutureTask.Callback<TransactionResult>() {
+                                @Override
+                                public void onSuccess(TransactionResult result) {
+                                    //success
+                                    WritableMap infoMap = Arguments.createMap();
+                                    infoMap.putString("hash", result.getHash());
+                                    infoMap.putInt("code", result.getError().getCode());
+                                    promise.resolve(infoMap);
+                                }
+                                @Override
+                                public void onFailure(ExecutionException exception) {
+                                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                                }
+                                @Override
+                                public void onCancelled(InterruptedException exception) {
+                                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                                }
+                            });
+        } catch (AvailabilityException e) {
+            //handle exception
+        } }
+
+    @NotNull
+    public String convertFunctionWithdrawal (String method, String input1, String input2) throws DecoderException {
+
+        List<Type> inputParameters = Arrays.asList(new Address(input1), new Uint(new BigInteger(input2)));
+        List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
+        );
+        Function transferFunction = new Function(method, inputParameters, outputParameters);
+
+        return FunctionEncoder.encode(transferFunction);
+    }
+
     @ReactMethod
     private void callSmartFunc (String method, String address, String input1, String input2, String input3, Promise promise){
         Log.i("Tokamak App", "callSmartFunc came"+ method );

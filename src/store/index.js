@@ -35,7 +35,8 @@ const initialState = {
   user: "",
   blockNumber: 0,
   blockTimestamp: 0,
-
+  transactions: [],
+  pendingTransactions: [],
   // contract of managers
   TON: {},
   WTON: {},
@@ -119,6 +120,24 @@ export default new Vuex.Store({
     },
     SET_TRANSACTIONS: (state, transactions) => {
       state.transactions = transactions;
+    },
+    ADD_TRANSACTION: (state, newTransaction) => {
+      if (!state.transactions.find(transaction => transaction.transactionHash === newTransaction.transactionHash)) {
+        state.transactions.push(newTransaction);
+      }
+    },
+    SET_PENDING_TRANSACTIONS: (state, pendingTransactions) => {
+      state.pendingTransactions = pendingTransactions;
+    },
+    ADD_PENDING_TRANSACTION: (state, newPendingTransaction) => {
+      if (!state.pendingTransactions.find(pendingTransaction => pendingTransaction.transactionHash === newPendingTransaction.transactionHash)) {
+        state.pendingTransactions.push(newPendingTransaction);
+      }
+      setPendingTransactions(state.pendingTransactions);
+    },
+    DELETE_PENDING_TRANSACTION: (state, minedTransaction) => {
+      state.pendingTransactions.splice(state.pendingTransactions.map(pendingTransaction => pendingTransaction.transactionHash).indexOf(minedTransaction.transactionHash), 1);
+      setPendingTransactions(state.pendingTransactions);
     },
     SET_MANAGERS: (state, managers) => {
       for (const [name, contract] of Object.entries(managers)) {
@@ -442,20 +461,23 @@ export default new Vuex.Store({
           };
          const getPendingRequests = async () => {
           const numPendingRequests = await BlockchainModule.callSmartMethod('numPendingRequests', DepositManager, layer2, user);
+        
           if (parseInt(numPendingRequests) === 0) {
             return [];
           }
-          let requestIndex = await BlockchainModule.callSmartMethod('withdrawalRequestIndex', DepositManager, layer2, user );
-          const index = bigInt(parseInt(requestIndex)).toString();
+          const requestIndex = await BlockchainModule.callSmartMethod('withdrawalRequestIndex', DepositManager, layer2, user );
+        
+          let index = parseInt(requestIndex);
+         
           const pendingRequests = [];
           for (const _ of range(numPendingRequests)) {
-            const req = await BlockchainModule.callSmartFunc('withdrawalRequest', DepositManager, layer2, user, index )
+            const req = await BlockchainModule.callSmartFunc('withdrawalRequest', DepositManager, layer2, user, bigInt(parseInt(requestIndex)).toString() )
             const request = {}; 
             request.withdrawableBlockNumber =  bigInt(parseInt("0x" + req.substring(2, 66))).toString();
             request.amount = bigInt(parseInt("0x" + req.substring(66, 130))).toString();
             request.processed = bigInt(parseInt("0x" + req.substring(130, 194))).toString();
             pendingRequests.push(request);
-            requestIndex++;
+            index++;
           }
           return Promise.all(pendingRequests);
          }
@@ -745,9 +767,11 @@ export default new Vuex.Store({
          );
         const notWithdrawableRequests = filterNotWithdrawableRequests(pendingRequests);
           const withdrawableRequests = filterWithdrawableRequests(pendingRequests);
+
           const userNotWithdrawable = getUserNotWithdrawable(notWithdrawableRequests);
           const userWithdrawable = getUserWithdrawable(withdrawableRequests);
           operatorFromLayer2.address = operator;
+          console.log(userNotWithdrawable);
           // operatorFromLayer2.lastFinalizedAt = lastFinalizedAt;
           operatorFromLayer2.lastFinalizedAt = (lastFinalized[0]==='0') ? lastFinalizedAt : lastFinalized[0];
           operatorFromLayer2.finalizeCount = lastFinalized[1];
@@ -759,7 +783,6 @@ export default new Vuex.Store({
 
           operatorFromLayer2.userDeposit = _WTON(userDeposit, WTON_UNIT);
           operatorFromLayer2.userStaked = _WTON(userStaked, WTON_UNIT);
-          console.log( operatorFromLayer2.userStaked);
           operatorFromLayer2.userSeigs = _WTON(seigniorage, WTON_UNIT);
           // operatorFromLayer2.userSeigs
           //   = operator.toLowerCase() === user.toLowerCase() ? seigs.operatorSeigs : _WTON(seigniorage, WTON_UNIT);
@@ -830,7 +853,7 @@ export default new Vuex.Store({
       ]);
       currentRound = {},
       currentRound.startTime = bigInt(parseInt("0x" + round.substring(2, 66))).toString();
-      currentRound.endTime = bigInt(parseInt("0x" + round.substring(66,130))).toString();
+      currentRound.endTime = parseInt("0x" + round.substring(66,130));
      currentRound.winner = "0x" + round.substring(218,258)
      const balance = bigInt(parseInt(bal)).toString();
      const totalDeposits = bigInt(parseInt(totDeposits)).toString();
@@ -846,6 +869,7 @@ export default new Vuex.Store({
     } else {
       currentRound.winningProbability = '0.00%';
     }
+    console.log(currentRound);
     context.commit('SET_CURRENT_ROUND', currentRound);
      
     },
@@ -900,8 +924,8 @@ export default new Vuex.Store({
   },
   userTotalStaked: (state) => {
     const initialAmount = _WTON.ray('0');
-    const reducer = (amount, operator) => amount;
-   
+    const reducer = (amount, operator) => amount.add(operator.userStaked);
+
     return state.operators.reduce(reducer, initialAmount);
   },
   userTotalSeigs: (state) => {

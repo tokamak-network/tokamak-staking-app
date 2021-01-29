@@ -15,7 +15,7 @@
          <text class="info-title">Power Balance</text>
           <text class="powerton-value">{{power | currencyAmount}}</text>
            <text class="info-title">Account Address</text>
-          <text class="powerton-value">{{user.substring(0, 6) + '...' + user.substring(37, 42)}}</text>
+          <text class="powerton-value">{{user| hexSlicer}}</text>
       </view>
   <view class="sidebar-item">
     <touchable-opacity :on-press="()=>handleListItemClick('Home')" :style="{alignItems: 'center', justifyContent: 'center',height: 50, width: 280, backgroundColor: '#DDDDDD'}">
@@ -65,7 +65,7 @@ export default {
     methods: {
             handleListItemClick(dataObj) {
       this.navigation.navigate(dataObj);
-      if ( dataObj === 'Login') {
+      if ( dataObj === 'Logout') {
          this.$store.dispatch('logout')
       }
     }

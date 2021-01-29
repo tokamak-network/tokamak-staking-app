@@ -31,7 +31,7 @@
 
     <view v-if="activeTab === 'Stake'">
       <view class="value-container">
-        <text class="total-balance">Balance: 99.67 TON</text>
+        <text class="total-balance">TON Balance: {{ currencyAmount(tonBalance) }}</text>
         <view class="main-row">
           <text-input
             class="input"
@@ -76,7 +76,7 @@
           >Re-stake Amount:</text
         >
         <text :style="{ fontSize: 16, marginTop: 4, color: '#555555', marginRight: 10, width:60, textAlign: 'right' }"
-          >67.77</text
+          >{{selectedOperator===""?"":currencyAmount(operator.userNotWithdrawable).toString().replace("TON", "")}}</text
         >
         <image
             class="logo"
@@ -91,7 +91,7 @@
     </view>
     <view v-if="activeTab === 'Unstake'">
       <view class="value-container">
-        <text class="total-balance">Balance: 232.23 TON</text>
+        <text class="total-balance">{{selectedOperator===""?"":currencyAmount(operator.userStaked)}}</text>
         <view class="main-row">
           <text-input
             class="input"
@@ -138,7 +138,11 @@
           >Withdrawable Amount:</text
         >
         <text :style="{ fontSize: 16, marginTop: 4, color: '#555555', marginRight: 10, width:90, textAlign: 'right' }"
-          >55353467.77</text
+          > {{
+           selectedOperator===""?"": currencyAmount(operator.userWithdrawable)
+              .toString()
+              .replace("TON", "")
+          }}</text
         > 
         <image
             class="logo"
@@ -164,12 +168,17 @@
 </template>
 
 <script>
+import { ToastAndroid } from "react-native";
+
 import ButtonMain from "@/components/ButtonMain";
 import { ActionSheet } from "native-base";
 import { NativeModules } from "react-native";
 const { BlockchainModule } = NativeModules;
 import { createCurrency } from "@makerdao/currency";
+import { BN, padLeft } from 'web3-utils';
+import { range } from 'lodash';
 
+import { mapState, mapGetters } from 'vuex';
 const _TON = createCurrency("TON");
 const _WTON = createCurrency("WTON");
 
@@ -177,30 +186,167 @@ export default {
   data() {
     return {
       activeTab: "Stake",
-      amountToDelegate: "",
-      amountToUndelegate: "",
-      selectedOperator: "tokamak1",
-      operators: [
-        { name: "tokamak1", color: "#b23756" },
-        { name: "DXM Corp", color: "#8948a2" },
-        { name: "DSRV", color: "#78eef2" },
-      ],
+       layer2: '',
+      selectedOperator: '',
+      amount: '',
+      amountToDelegate: '',
+      amountToUndelegate: '',
+      index: 0,
     };
   },
   components: {
     "button-main": ButtonMain,
   },
+  computed: {
+    ...mapState([
+      'operators',
+      'tonBalance',
+      'web3',
+      'blockNumber',
+      'user',
+      'TON',
+      'WTON',
+      'DepositManager',
+      'SeigManager',
+    ]),
+    ...mapGetters(['operatorByLayer2']),
+    operator () {
+      console.log(this.operatorByLayer2(this.layer2));
+      return this.operatorByLayer2(this.layer2);
+    },
+    currencyAmount () {
+      return (amount) => this.$options.filters.currencyAmount(amount);
+    },
+    notWithdrawableMessage () {
+      return (withdrawableBlockNumber) =>
+        `You have to wait for ${withdrawableBlockNumber -
+          this.blockNumber} blocks to withdraw all the tokens.`;
+    },
+
+    withdrawableRequests () {
+      return this.operator.withdrawalRequests.length;
+    },
+    redelegatableRequests () {
+      return this.operator.withdrawalRequests.length - this.index;
+    },
+    redelegatableAmount () {
+      let amount = new BN(0);
+      for (const i of range(this.redelegatableRequests)) {
+        amount = amount.add(new BN(this.operator.withdrawalRequests[i].amount));
+      }
+      return _WTON(amount.toString(), 'ray');
+    },
+    disableButton () {
+      return false;
+    },
+    minimumAmount () {
+      return this.SeigManager.methods.minimumAmount().call();
+    },
+    operatorMinimumAmount () {
+      const operatorDeposit = this.operator.selfDeposit;
+      const minimumAmount = this.operator.minimumAmount;
+      const lessThan = operatorDeposit < minimumAmount;
+      if (this.user !== this.operator.address) {
+        return lessThan;
+      } else {
+        return false;
+      }
+    },
+  },
   methods: {
     changeTab(tab) {
       this.activeTab = tab;
     },
-    delegate() {
-      BlockchainModule.callContract();
-      console.log("delegate");
+    async delegate() {
+     if (
+        this.amountToDelegate === "" ||
+        parseFloat(this.amountToDelegate) === 0
+      ) {
+        return alert("Please check your TON amount.");
+      }
+      if (_TON(this.amountToDelegate).gt(this.tonBalance)) {
+        return alert("Please check your TON amount.");
+      }
+      const amount = _TON(this.amountToDelegate).toFixed("wei");
+      const data = this.getData();
+      const status = await BlockchainModule.sendSmartContractTransaction(
+        this.TON,
+        "approveAndCall",
+        this.WTON,
+        amount,
+        data
+      );
+      if (status.code === 0) {
+        this.index = 0;
+        ToastAndroid.show("Transaction Successful", ToastAndroid.SHORT);
+        const transaction = {
+          from: this.user,
+            type: 'Withdrawn',
+            amount: amount,
+            transactionHash: status.hash,
+            target: this.operator.layer2,
+        }
+        //  this.$store.dispatch('addPendingTransaction', transaction);
+           this.$store.dispatch('setBalance');
+            this.$store.dispatch('setOperators');
+          this.amountToDelegate = '';
+      } else {
+        ToastAndroid.show("Transaction Unsuccessful", ToastAndroid.SHORT);
+      }
     },
-    undelegate() {
-      BlockchainModule.reactprint("lakmi");
-      console.log("undelegate");
+     marshalString(str) {
+      if (str.slice(0, 2) === "0x") return str;
+      return str;
+    },
+    unmarshalString(str) {
+      if (str.slice(0, 2) === "0x") return str.slice(2);
+      return str;
+    },
+    getData() {
+  console.log(this.operator);
+      const data = this.marshalString(
+      
+        [this.DepositManager, this.operator.layer2]
+          .map(this.unmarshalString)
+          .map((str) => padLeft(str, 64))
+          .join("")
+      );
+      return data;
+    },
+    async undelegate() {
+      if (
+        this.amountToUndelegate === '' ||
+        parseFloat(this.amountToUndelegate) === 0
+      ) {
+        return alert('Please check input amount.');
+      }
+      if (_WTON(this.amountToUndelegate).gt(this.operator.userStaked)) {
+        return alert('Please check your TON amount.');
+      }
+      const amount = _WTON(this.amountToUndelegate).toFixed('ray');
+      const status = await BlockchainModule.requestWithdrawal(
+        this.DepositManager,
+        "requestWithdrawal",
+       this.operator.layer2,
+        amount,
+      );
+      if (status.code === 0) {
+        this.index = 0;
+        ToastAndroid.show("Transaction Successful", ToastAndroid.SHORT);
+        const transaction = {
+          from: this.user,
+            type: 'Withdrawn',
+            amount: amount,
+            transactionHash: status.hash,
+            target: this.operator.layer2,
+        }
+        //  this.$store.dispatch('addPendingTransaction', transaction);
+           this.$store.dispatch('setBalance');
+            this.$store.dispatch('setOperators');
+          this.amountToUndelegate = '';
+      } else {
+        ToastAndroid.show("Transaction Unsuccessful", ToastAndroid.SHORT);
+      }
     },
     redelegate() {
       console.log("redelegate");
@@ -209,10 +355,22 @@ export default {
       console.log("withdraw");
     },
     setAvailableAmountToDelegate() {
-      this.amountToDelegate = "99.67";
+      const tonAmount = this.tonBalance.toBigNumber().toString();
+      const index = tonAmount.indexOf('.');
+      if (index === -1) {
+        this.amountToDelegate = tonAmount + '.00';
+      } else {
+        this.amountToDelegate = tonAmount;
+      }
     },
-    setAvailableAmountToUndelegate () {
-        this.amountToUndelegate = "232.23"
+    setAvailableAmountToUndelegate () {  
+      const tonAmount = this.operator.userStaked.toBigNumber().toString();
+      const index = tonAmount.indexOf('.');
+      if (index === -1) {
+        this.amountToUndelegate = tonAmount + '.00';
+      } else {
+        this.amountToUndelegate = tonAmount;
+      }
     },
     onValueChange (value) {
         this.selectedOperator = value;
@@ -225,12 +383,13 @@ export default {
           title: "Select an operator"
         },
         buttonIndex => {
-          if (buttonIndex === undefined){
-            this.selectedOperator = this.selectedOperator;
-          }
-          else{
-            this.selectedOperator = ops[buttonIndex];
-          }
+           const operator = this.operators.find(
+        (operator) => operator.name ===  ops[buttonIndex]
+      );
+      const root = operator.layer2;
+      this.layer2 = root;
+          this.selectedOperator = ops[buttonIndex];
+          console.log(ops[buttonIndex]);
         }
       )
     }

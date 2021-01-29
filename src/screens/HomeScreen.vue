@@ -14,9 +14,9 @@
       />
       <balance-component
         title="Total Staked Amount"
-        :balance="currencyAmount(tonBalance)"
+        :balance="currencyAmount(userTotalStaked)"
         rewards="Expected Rewards"
-        :value="currencyAmount(userTotalSeigs)"
+        :value="expectedRewards()"
       />
     </view>
   </view>
@@ -48,7 +48,14 @@ export default {
       type: Object,
     },
   },
-  methods: {},
+  created () {
+    setInterval(() => this.expectedRewards(), 1000);
+  },
+  methods: {
+    expectedRewards () {
+      return this.currencyAmount(this.userTotalSeigs);
+    },
+  },
 };
 </script>
 <style scoped>

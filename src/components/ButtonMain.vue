@@ -10,20 +10,18 @@ export default {
 </script>
 <style scoped>
 .button-stake {
-  background-color: #2a72e5;
-  color: #ffffff;
-  border-radius: 13px;
-  width: 100%;
+  width: 280px;
   height: 40px;
+  border-radius: 4px;
+  background-color: #257eee;
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-weight: 700;
+  justify-content: center;
 }
 
 .text {
-   color: white;
-  font-size: 20px;
-  font-weight: 700;  
+  color: white;
+  font-size: 14px;
+  font-weight: 500;  
 }
 </style>

@@ -1,25 +1,25 @@
 <template>
-<view>
+  <view>
     <ImageBackground :source=Bg class="nav-bg">
       <touchable-opacity class="nav-menu" :on-press="()=>handleListItemClick('Home')">
       <image :source="activeTab === 'Home' ? HomeIcon : HomeIconInactive" class="nav-icon" style="margin-left: 5"/>
-      <text class="nav-text" :class="{selected: activeTab === 'Home'}" :style="{marginLeft: 5}">Home</text>
+      <text  :class="{selected: activeTab === 'Home', 'nav-text': activeTab !== 'Home' }" :style="{marginLeft: 5}">Home</text>
       </touchable-opacity>
       <touchable-opacity class="nav-menu" :on-press="()=>handleListItemClick('Operators')">
       <image :source="activeTab === 'Operators' ? OperateIcon : OperateIconInactive" class="nav-icon"/>
-      <text class="nav-text">Operators</text>
+      <text  :class="{selected: activeTab === 'Operators', 'nav-text': activeTab !== 'Operators'}">Operators</text>
       </touchable-opacity>
       <touchable-opacity class="nav-menu staking" :on-press="()=>handleListItemClick('Staking')">
         <image :source="activeTab === 'Staking' ? StakingIcon : StakingIconInactive" class="nav-staking" />
-      <text class="nav-text nav-text-staking">Staking</text>
+      <text class="nav-text-staking" :class="{selected: activeTab === 'Staking', 'nav-text': activeTab !== 'Staking'}">Staking</text>
     </touchable-opacity>
       <touchable-opacity class="nav-menu" :on-press="()=>handleListItemClick('PowerTON')">
       <image :source="activeTab === 'PowerTON' ? TonIcon : TonIconInactive" class="nav-icon"/>
-      <text class="nav-text">Power TON</text>
+      <text :class="{selected: activeTab === 'PowerTON', 'nav-text': activeTab !== 'PowerTON'}">PowerTON</text>
       </touchable-opacity>
       <touchable-opacity class="nav-menu" :on-press="()=>handleListItemClick('Account')">
       <image :source="activeTab === 'Account' ? AccountIcon : AccountIconInactive" class="nav-icon"/>
-      <text class="nav-text">Account</text>
+      <text  :class="{selected: activeTab === 'Account', 'nav-text': activeTab !== 'Account'}">Account</text>
       </touchable-opacity>
     </ImageBackground>
     </view>
@@ -62,25 +62,26 @@ export default {
   props: {
     navigation: {
       type: Object
-    }
+    },
   },
   methods: {
     handleListItemClick(dataObj) {
       this.activeTab = dataObj
-      console.log(this.activeTab)
-      // this.navigation.navigate(dataObj);
+      console.log(this.navigation)
+      // this.navigation.navigation(dataObj)
     }
-  }
+  },
 }
 </script>
 
 <style>
 .nav-bg {
-  width: 375px;
+  width: 375;
   height: 65px;
   display: flex;
   flex-direction: row;
-  margin-left: -7px
+  margin-left: -7px;
+  align-self: stretch;
 }
 
 .nav-menu {
@@ -122,6 +123,8 @@ export default {
 }
 
 .selected {
-  color: black;
+  font-size: 10px;
+  color: #ffffff;
+  opacity: 1;
 }
 </style>

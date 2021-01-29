@@ -6,7 +6,7 @@
       <text class="page-text"
         >Stake your TON to earn Power TON</text
       >
-      <text class="page-text" :style="{marginBottom: 30}"
+      <text class="page-text" :style="{marginBottom: 30}" 
         >and other rewards</text
       >
       <balance-component
@@ -27,24 +27,23 @@
 <script>
 import { mapState } from "vuex";
 import { store } from "@/store/index";
-import Header from "@/components/Header";
 import BalanceComponent from "@/components/BalanceComponent";
 import Vue from "vue-native-core";
+import NavBar from "@/components/NavBar"
 
 export default {
   computed: {
     ...mapState(['TONbalance', 'powerTONbalance', 'stakedAmount', 'rewards']),
   },
   components: {
-    header: Header,
     "balance-component": BalanceComponent,
+"nav-bar": NavBar
   },
   props: {
     navigation: {
       type: Object,
     },
-  },
-  methods: {},
+  }
 };
 </script>
 <style scoped>

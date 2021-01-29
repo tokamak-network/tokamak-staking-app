@@ -1,22 +1,74 @@
 <template>
-<view class="operator-container">
-  <touchable-opacity :on-press="selectOperator">
- <view class="row" style="flex-direction: row">
-        <text class="title">{{name}}</text>
-        <view class="avatar" :style="{backgroundColor: color}">
-          <text class="opr">O P R</text>
-        </view>
+  <view class="operator-wrap">
+<touchable-opacity :on-press="selectOperator">
+
+  <view class="operator-container">
+    <image class="operator-img" :source="name === 'tokamak1' ? tokamak : name === 'DXM Corp' ? dxm : dsrv">
+    </image>
+    <view class="operator-text-container">
+    <text class="operator-title">{{name}}</text>
+    <text :class="{'selected': pressed === true, 'operator-content': pressed !== true}">{{pressed === false ? content : 'More Information'}}</text>
     </view>
+  </view>
   </touchable-opacity>
-</view>
+   <view 
+        v-if="pressed"
+        class="operator-detail">
+     <view class="divider" />
+       <view class="operator-detail-container">
+       <view class="operator-detail-text">
+         <text class="operator-detail-title">Commission Rate</text>
+         <text class="operator-detail-content">2.5%</text>
+       </view>
+       <view class="operator-detail-text">
+         <text class="operator-detail-title">Most recent Commit</text>
+         <text class="operator-detail-content">a day ago</text>
+       </view>
+       <view class="operator-detail-text">
+         <text class="operator-detail-title">My Staked</text>
+         <text class="operator-detail-content">5,664.34TON</text>
+       </view>
+      <view class="divider" />
+      <view class="operator-detail-text">
+         <text class="operator-detail-title">Available Amount</text>
+         <text class="operator-detail-content">4,598.24TON</text>
+       </view>
+       <text-input
+        class="operator-detail-input"
+      />
+      <button-main title="Stake"/>
+       </view> 
+       
+    </view>
+  </view>
+    
 </template>
 <script>
+import ButtonMain from "@/components/ButtonMain"
+import tokamak from "../../assets/tokamak.png"
+import dxm from "../../assets/dxm.png"
+import dsrv from "../../assets/dsrv.png"
+
 export default {
+  data() {
+    return {
+      tokamak,
+      dxm,
+      dsrv,
+      pressed: false
+    }
+  },
+  components: {
+'button-main': ButtonMain
+  },
      props: {
        name: {
          type: String
        },
-       color: {
+       content: {
+         type: String
+       },
+       Image: {
          type: String
        },
        navigation: {
@@ -25,57 +77,74 @@ export default {
      },
      methods: {
        selectOperator () {
-         const nName = this.name;
-         const nColor = this.color;
-         this.navigation.push('SelectedOperator', {name:nName, color: nColor} );
-       }
+         this.pressed = !this.pressed
+        //  this.navigation.push('SelectedOperator', {name: "tokamak"} );
+       },
      }
 }
 </script>
 <style scoped>
+.operator-wrap {
+  display: flex;
+   flex-direction: column;
+   width: 320px;
+   padding: 15px 61px 15px 15px;
+   border-width: 1;
+   border-color: #e7ebf2;
+   border-radius: 1px;
+   background-color: #FFFFFF;
+   margin-bottom: 15px;
+}
 .operator-container {
    display: flex;
-    width: 350;
-    background-color: #e2e8eb;
-    border-width: 1;
-    border-color: #ccd1d3;
-    border-radius: 13;
-  margin-bottom: 20;
-  padding: 10px;
+   flex-direction: row;
 }
-.row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  align-self: stretch;
-  align-items: center;
-  position: relative;
+.operator-img {
+  width: 35px;
+  height: 35px;
+  margin-right: 18px;
 }
-.title {
-    color: #8c8c8c;
-    font-size: 18px;  
+.operator-title {
+  font-size: 17px;
+  font-weight: 900;
+  color: #131315
 }
-.text {
-   font-size: 40px;
-  font-weight: 700;
-  color: #555555; 
+.operator-content {
+  font-size: 11px;
+  color: #86929d
 }
-.avatar {
+.selected {
+  font-size: 11px;
+  color: #2a72e5;
+  margin-bottom: 16px;
+}
+.divider {
+  width: 280px;
+  height: 1px;
+  background-color: #e7ebf2;
+  margin-bottom: 15px;
+}
+.operator-detail {
   display: flex;
-  width: 65px;
-  height: 65px;
-  font-size: 30px;
-   font-weight: 700;
-  background-color: #555555;
-  border-radius: 50;
-  justify-content: center;
-  align-self: stretch;
-  align-items: center;
-  position: relative;
+  align-self: center;
 }
-.opr{
-  color: white;
-  font-size: 20px;
-  font-weight: 600;
+.operator-detail-text {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 35px;
+}
+.operator-detail-input {
+  width: 280px;
+  height: 36px;
+  border-width: 1px;
+  border-radius: 1px;
+  border-color: #dfe4ee;
+  margin-bottom: 15px;
+}
+.operator-detail-btn {
+  width: 280px;
+  height: 40px;
+  border-radius: 4px;
 }
 </style>

@@ -63,7 +63,7 @@ export default new Vuex.Store({
             // BlockchainModule.initialize();
             setTimeout(() => {
               context.commit ('SET_LOADING', true)
-            },15000)
+            },15)
            
             
           },

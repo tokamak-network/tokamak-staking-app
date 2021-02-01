@@ -244,7 +244,7 @@ export default {
 <style scoped>
 .winner-table-container {
   width: 90%;
-  height: 520;
+  height: 460px;
 }
 .table-header-container {
   display: flex;

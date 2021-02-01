@@ -5,7 +5,7 @@
         class="button-comp"
         :on-press="() => changeTab('Stake')"
       >
-        <text class="button-name" :class="{ selected: activeTab === 'Stake' }"
+        <text :class="{selected: activeTab === 'Stake', 'button-name': activeTab !== 'Stake'}"
           >Stake</text
         >
       </touchable-opacity>
@@ -13,7 +13,7 @@
         class="button-comp"
         :on-press="() => changeTab('Unstake')"
       >
-        <text class="button-name" :class="{ selected: activeTab === 'Unstake' }"
+        <text :class="{selected: activeTab === 'Unstake', 'button-name': activeTab !== 'Unstake'}"
           >Unstake</text
         >
       </touchable-opacity>
@@ -22,8 +22,7 @@
         :on-press="() => changeTab('Withdraw')"
       >
         <text
-          class="button-name"
-          :class="{ selected: activeTab === 'Withdraw' }"
+          :class="{selected: activeTab === 'Withdraw', 'button-name': activeTab !== 'Withdraw'}"
           >Withdraw</text
         >
       </touchable-opacity>
@@ -231,24 +230,11 @@ export default {
 </script>
 <style scoped>
 .staking-component-container {
-  width: 90%;
-  background-color: #e2e8eb;
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-top: 20px;
-  height: 400px;
-  border-width: 1;
-  border-color: #ccd1d3;
-  border-radius: 13;
-  align-self: stretch;
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 10px;
+  width: 320px;
+  background-color: #ffffff;
 }
 .value-container {
-  width: 300px;
-  height: 80px;
+  width: 320px;
   display: flex;
   padding: 10px;
   border-width: 1;
@@ -258,11 +244,16 @@ export default {
   margin-bottom: 15px;
 }
 .button-container {
-  /* width: 100%; */
+  width: 320px;
+  height: 36px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   margin-bottom: 25px;
+  border-width: 1px;
+  border-color: #e7ebf2;
+  border-radius: 6px;
+  padding: 3px;
 }
 .button-comp {
   display: flex;
@@ -271,15 +262,20 @@ export default {
   align-self: stretch;
   align-items: center;
   position: relative;
+  color: #818992;
 }
 .button-name {
-  display: flex;
-  font-size: 18px;
-  font-weight: bold;
+  color: #818992;
 }
 
 .selected {
-  opacity: 0.5;
+  width: 100%;
+  text-align: center;
+  padding-top: 5px;
+  height: 30px;
+  border-radius: 5px;
+  color: #ffffff;
+  background-color: #2a72e5;
 }
 .total-balance {
   display: flex;

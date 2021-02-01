@@ -45,7 +45,7 @@ Vue.use(VueNativeBase);
 
 const BottomTabNavigator = createBottomTabNavigator(
   {
-   Home: {screen: HomeScreen},
+    Home: {screen: HomeScreen},
     Operators: {screen: OperatorsScreen},
     Staking: {screen: StakingScreen},
     PowerTON: {screen: PowertonScreen}, 
@@ -83,10 +83,6 @@ export default {
 }
 </script>
 <style scoped>
-.test {
-  margin-left: -8px;
-  margin-right: -8px;
-}
 .statusBar {
   background-color: #d4d7da;
   height: 35px;

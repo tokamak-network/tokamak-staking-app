@@ -64,8 +64,8 @@ export default {
 }
 
 .home-container-logo {
-  width: 170px;
-  height: 60px;
+  width: 47.2%;
+  height: 9.4%;
   margin-top: 40px;
   margin-bottom: 25px;
 }

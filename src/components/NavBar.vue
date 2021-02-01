@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view class="nav">
     <ImageBackground :source=Bg class="nav-bg">
       <touchable-opacity class="nav-menu" :on-press="()=>handleListItemClick('Home')">
       <image :source="activeTab === 'Home' ? HomeIcon : HomeIconInactive" class="nav-icon" style="margin-left: 5"/>
@@ -67,7 +67,6 @@ export default {
   methods: {
     handleListItemClick(dataObj) {
       this.activeTab = dataObj
-      console.log(this.navigation)
       this.navigation.navigate(dataObj)
     }
   },
@@ -75,6 +74,10 @@ export default {
 </script>
 
 <style>
+.nav {
+  margin-left: -7px;
+  margin-right: -7px;
+}
 .nav-bg {
   width: 100%;
   height: 65px;

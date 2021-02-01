@@ -1,14 +1,20 @@
 <template>
-  <view class="operator-wrap">
-<touchable-opacity :on-press="selectOperator">
-
+  <view class="operator-wrap" >
+  <touchable-opacity :on-press="pressed === false ? openOperator : null">
   <view class="operator-container">
     <image class="operator-img" :source="name === 'tokamak1' ? tokamak : name === 'DXM Corp' ? dxm : dsrv">
     </image>
     <view class="operator-text-container">
     <text class="operator-title">{{name}}</text>
-    <text :class="{'selected': pressed === true, 'operator-content': pressed !== true}">{{pressed === false ? content : 'More Information'}}</text>
+    <touchable-opacity :on-press="pressed === true ? openInformation : openOperator">
+    <text :class="{'selected': pressed === true, 'operator-content': pressed !== true}">{{pressed === false ? content : 'More Information'}}>
+    </text>
+      </touchable-opacity>
     </view>
+    <touchable-opacity v-if="pressed === true" :on-press="closeOperator">
+      <image class="operator-img-close" :source="pressed === true ? CloseIcon : null" onP>
+      </image>
+    </touchable-opacity>
   </view>
   </touchable-opacity>
    <view 
@@ -38,16 +44,15 @@
       />
       <button-main title="Stake"/>
        </view> 
-       
     </view>
   </view>
-    
 </template>
 <script>
 import ButtonMain from "@/components/ButtonMain"
 import tokamak from "../../assets/tokamak.png"
 import dxm from "../../assets/dxm.png"
 import dsrv from "../../assets/dsrv.png"
+import CloseIcon from "../../assets/icon-close.png"
 
 export default {
   data() {
@@ -55,7 +60,9 @@ export default {
       tokamak,
       dxm,
       dsrv,
-      pressed: false
+      CloseIcon,
+      pressed: false,
+      opendNow: null
     }
   },
   components: {
@@ -76,10 +83,18 @@ export default {
     },
      },
      methods: {
-       selectOperator () {
-         this.pressed = !this.pressed
+       openOperator () {
+         console.log("openoperator")
+         this.pressed = true
         //  this.navigation.push('SelectedOperator', {name: "tokamak"} );
        },
+       closeOperator () {
+         console.log("closeoperator")
+         this.pressed = false
+       },
+       openInformation () {
+         console.log("openInfo")
+       }
      }
 }
 </script>
@@ -103,6 +118,12 @@ export default {
   width: 35px;
   height: 35px;
   margin-right: 18px;
+}
+.operator-img-close {
+  width: 24px;
+  height: 24px;
+  align-self: flex-start;
+  margin-left: 118px;
 }
 .operator-title {
   font-size: 17px;

@@ -74,7 +74,7 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 20px 20px;
+  /* padding: 20px 20px; */
 }
 .home-container-logo {
   width: 170px;

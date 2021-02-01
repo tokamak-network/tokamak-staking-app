@@ -46,6 +46,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-self: center;
+  height: 87%;
 }
 .page-container {
   margin-bottom: 20px;

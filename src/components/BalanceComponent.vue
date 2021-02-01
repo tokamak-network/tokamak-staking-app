@@ -23,7 +23,7 @@ export default {
 </script>
 <style scoped>
 .balance-container {
-    width: 95%;
+    width: 88.9%;
     height: 146px;
     background-color: #FFFFFF;
     border-width: 1;

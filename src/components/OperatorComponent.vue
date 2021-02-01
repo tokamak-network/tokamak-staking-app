@@ -12,7 +12,7 @@
       </touchable-opacity>
     </view>
     <touchable-opacity v-if="pressed === true" :on-press="closeOperator">
-      <image class="operator-img-close" :source="pressed === true ? CloseIcon : null" onP>
+      <image class="operator-img-close" :source="pressed === true ? CloseIcon : null">
       </image>
     </touchable-opacity>
   </view>

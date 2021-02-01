@@ -6,12 +6,12 @@
             <text class="text">{{balance.value.toFixed(3)}}</text>
             <text class="text-symbol">{{balance.symbol}}</text>
         </view>
-    </view>
+    </view> 
      <view class="divider" />
     <view class="row">
     <view class="row-bottom">
-        <text class="reward">{{rewards}}</text>
-        <text class="value">{{value.value.toFixed(3)}}{{value.symbol}}</text>
+        <text class="row-text">{{rewards}}</text>
+        <text class="row-text">{{value.value.toFixed(3)}}{{value.symbol}}</text>
     </view>
 </view>
 </view>
@@ -23,15 +23,15 @@ export default {
 </script>
 <style scoped>
 .balance-container {
-    width: 80%;
-    height: 146px;
+    width: 88.9%;
+    height: 22.8%;
     background-color: #FFFFFF;
     border-width: 1;
     border-color: #ccd1d3;
     border-radius: 10px;
     display: flex;
     padding: 20px 20px 15px 20px;
-    margin-bottom: 20px;
+    margin-bottom: 3.1%;
 }
 .row {
     display: flex;
@@ -41,7 +41,7 @@ export default {
 .title {
     text-align: center;
     color: #86929d;
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .text-container {
@@ -60,8 +60,8 @@ export default {
     padding-bottom: 5px;
 }
 .divider {
-  width: 280px;
-  height: 1px;
+  width: 100%;
+  height: 0.2%;
   background-color: #e7ebf2;
   margin-top: 20px;
   margin-bottom: 15px;
@@ -73,6 +73,11 @@ export default {
     justify-content: space-between;
     font-size: 11px;
     color: #86929d;
+}
+
+.row-text {
+    font-size: 11px;
+
 }
 
 </style>

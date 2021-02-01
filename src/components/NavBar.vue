@@ -66,6 +66,7 @@ export default {
   },
   methods: {
     handleListItemClick(dataObj) {
+      console.log(dataObj)
       this.activeTab = dataObj
       this.navigation.navigate(dataObj)
     }

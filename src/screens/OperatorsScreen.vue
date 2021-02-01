@@ -10,10 +10,7 @@
           <view v-for="operator in operators" :key="operator.name"> 
             <operator-component :name="operator.name" :content="operator.content" :navigation="navigation"/>
           </view>
-
         </scroll-view>
-        
-
         </view>
     </view>
 </template>
@@ -29,7 +26,7 @@ export default {
    data() {
     return {
       operators: [
-        {name:'tokamak1', content: "Commission Rate 2.5% , 20 hours ago"},
+        {name:'Tokamak1', content: "Commission Rate 2.5% , 20 hours ago"},
         {name:'DXM Corp', content: "Commission Rate 0% , 2 day ago"},
         {name:'DSRV', content: "Commission Rate 0% , 2 day ago"}
         ],
@@ -47,25 +44,24 @@ export default {
 .operator-layout {
   display: flex;
   flex-direction: column;
-  padding-top: 30px
+  padding-top: 4.7%
 }
 
 .operator-scroll  {
   display: flex;
   flex-direction: column;
-  align-self: center;
 }
 
 .page-container {
-  margin-bottom: 20px;
+  margin-bottom: 3.9%;
 }
 
 .page-title {
   font-size: 24px;
   text-align: center;
-  font-weight: 900;
+  font-weight: bold;
   color: #3e495c;
-  margin-bottom: 5px;
+  margin-bottom: 0.8%;
 }
 .page-text {
   font-size: 12px;

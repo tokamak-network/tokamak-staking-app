@@ -66,7 +66,7 @@ export default {
   width: 47.2%;
   height: 9.4%;
   margin-top: 40px;
-  margin-bottom: 25px;
+  margin-bottom: 3.9%;
 }
 
 .page-title {
@@ -75,14 +75,11 @@ export default {
   color: #3e495c;
   padding: 0px 40px;
   font-weight: 700;
-  margin-bottom: 5px;
+  margin-bottom: 0.8%;
 }
 .page-text {
   font-size: 12px;
   text-align: center;
   color: #86929d;
-}
-.home-balance-component {
-  margin-bottom: 20px;
 }
 </style>

@@ -6,8 +6,8 @@
         >Increase your chance of winning Power by</text>
         <text class="page-text page-text-last"
         >staking more TON.</text>
-        <winner-table/>
       </view>
+      <winner-table/>
     </view>
 </template>
 <script>
@@ -27,26 +27,25 @@ export default {
 .power-layout{ 
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 .power-container {
   flex: 1;
   align-self: stretch;
   display: flex;
   align-items: center;
-  padding-top: 30px;
+  padding-top: 4.7%;
+  margin-bottom: 4.1%;
 }
 .page-title {
   font-size: 24px;
   color: #3e495c;
   font-weight: 700;
-  margin-bottom: 5px;
+  margin-bottom: 0.8%;
 }
 .page-text {
   font-size: 12px;
   color: #86929d;
   text-align: center;
-}
-.page-text-last {
-  margin-bottom: 26px;
 }
 </style>

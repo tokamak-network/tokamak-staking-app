@@ -243,17 +243,16 @@ export default {
 </script>
 <style scoped>
 .winner-table-container {
-  width: 90%;
-  height: 460px;
+  width: 88.9%;
+  height: 80%;
 }
 .table-header-container {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
   width: 100%;
-  padding-left: 8px;
-  margin-bottom: 15px;
-  
+  padding-left: 2%;
+  height: 7%;
 }
 .th-name {
   display: flex;
@@ -277,21 +276,20 @@ export default {
   border-width: 1px;
   border-radius: 10px;
   border-color: #e7ebf2;
-  padding: 5px;
-  padding-top: 20px;
+  padding: 1.5%;
+  padding-top: 2.6%;
+  padding-bottom: 2.6%;
 }
 
 .list-row {
   display: flex;
- 
   flex-direction: row;
-  
+  height: 5.6%;
 }
 .list-item {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-bottom: 15px;
 }
 .list-item-text {
   font-size: 11px;

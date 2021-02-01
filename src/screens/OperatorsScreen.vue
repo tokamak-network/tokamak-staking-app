@@ -1,10 +1,12 @@
 <template>
     <view class="operator-layout">
-   <header :navigation="navigation" :back="false"/>
-         <view class="operator-container">
-         <text class="page-title">Select your favorite operator!!</text>
-        <text class="page-text">Select an operator to stake, unstake, or withdraw your tokens.</text>
-          <scroll-view>
+         <view class="page-container">
+         <text class="page-title">Select your favorite operator</text>
+        <text class="page-text">Select an operator to stake, unstake, or </text>
+        <text class="page-text">withdraw your tokens.</text> 
+         </view>
+           <view class="operator-scroll">
+        <scroll-view>
         <view v-for="(operator, index) in operators" :key="index"> 
           <operator-component :layer2="operator.layer2" :navigation="navigation"/>
           </view>
@@ -38,27 +40,26 @@ export default {
 .operator-layout {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  padding-top: 30px
 }
-
-.operator-container {
-  flex: 1;
-  align-self: stretch;
-  position: relative;
+.operator-scroll  {
   display: flex;
-  align-items: center;
-  padding: 20px 20px;
+  flex-direction: column;
+  align-self: center;
+}
+.page-container {
+  margin-bottom: 20px;
 }
 .page-title {
-  font-size: 30px;
+  font-size: 24px;
   text-align: center;
-  color: #555555;
-  padding: 0px 40px;
-  font-weight: 700;
+  font-weight: 900;
+  color: #3e495c;
+  margin-bottom: 5px;
 }
 .page-text {
-  font-size: 20px;
+  font-size: 12px;
   text-align: center;
-  padding: 20px 40px;
+  color: #86929d;
 }
 </style>

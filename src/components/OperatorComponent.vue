@@ -1,11 +1,14 @@
 <template>
-<view class="operator-container">
+<view class="operator-wrap">
   <touchable-opacity  :on-press="() => selectOperator(operator.layer2)">
- <view class="row" style="flex-direction: row">
-        <text class="title">{{operator.name }}</text>
-        <view class="avatar" :style="{backgroundColor: operator.color }">
-          <text class="opr">O P R</text>
-        </view>
+  <view class="operator-container">
+     <image class="operator-img" :source="operator.name === 'tokamak1' ? tokamak : operator.name === 'DXM Corp' ? dxm : dsrv">
+    </image>
+     <view class="operator-text-container">
+    <text class="operator-title">{{operator.name}}</text>
+    <text :class="{'selected': pressed === true, 'operator-content': pressed !== true}">{{pressed === false ? info: 'More Information'}}</text>
+    </view>
+        
     </view>
   </touchable-opacity>
 </view>
@@ -13,7 +16,9 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 import { getConfig } from '../../config.js';
-
+import tokamak from "../../assets/tokamak.png"
+import dxm from "../../assets/dxm.png"
+import dsrv from "../../assets/dsrv.png"
 export default {
      props: {
        layer2: {
@@ -24,6 +29,14 @@ export default {
       type: Object
     },
      },
+      data() {
+    return {
+      tokamak,
+      dxm,
+      dsrv,
+      pressed: false
+    }
+  },
      computed: {
     ...mapState([
       'user',
@@ -35,7 +48,21 @@ export default {
     operator () {
       return this.operatorByLayer2(this.layer2);
     },
-   
+   rateOf() {
+      return (commissionRate) => this.$options.filters.rateOf(commissionRate);
+    },
+    fromNow() {
+      return (timestamp, suffix = false) =>
+        this.$options.filters.fromNow(timestamp, suffix);
+    },
+    info() {
+      const commission = "Commission Rate: "
+      const committed = "Last Committed: "
+      const isNeg = this.operator.isCommissionRateNegative === 1 ? "-" : ""
+      const rate = isNeg + this.rateOf(this.operator.commissionRate)
+      const lastComm =  this.fromNow(this.operator.lastFinalizedAt)
+      return (commission + rate + committed+ lastComm )
+    }
   },
      methods: {
        selectOperator (operator) {

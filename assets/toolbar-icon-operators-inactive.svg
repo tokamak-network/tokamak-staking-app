@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <defs>
+        <style>
+            .cls-3{fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round}
+        </style>
+    </defs>
+    <g id="toolbar_icon_operators_Inactive" opacity="0.5" transform="translate(-84 -85)">
+        <path id="Base" fill="none" d="M0 0H24V24H0z" transform="translate(84 85)"/>
+        <circle id="타원_12" cx="3.375" cy="3.375" r="3.375" class="cls-3" transform="translate(87.75 88.75)"/>
+        <circle id="타원_13" cx="3.375" cy="3.375" r="3.375" class="cls-3" transform="translate(97.5 88.75)"/>
+        <circle id="타원_14" cx="3.375" cy="3.375" r="3.375" class="cls-3" transform="translate(87.75 98.5)"/>
+        <path id="선_1" d="M0 0L0 5.25" class="cls-3" transform="translate(100.875 99.25)"/>
+        <path id="선_2" d="M5.25 0L0 0" class="cls-3" transform="translate(98.25 101.875)"/>
+    </g>
+</svg>

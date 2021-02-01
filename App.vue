@@ -16,14 +16,14 @@
       />
       <activity-indicator size="large" color="#FFFFFF" />
     </view>
-
+    
     <app-navigator v-else></app-navigator>
-
-    <footer
+   
+    <!-- <footer
       :color1="signIn ? '#FFFFFF' : '#2a72e5'"
       :color2="signIn ? '#2a72e5' : '#FFFFFF'"
       :signedIn="signIn"
-    />
+    /> -->
   </root>
 </template>
 
@@ -31,7 +31,7 @@
 import {
   createAppContainer,
   createStackNavigator,
-  createDrawerNavigator,
+  createBottomTabNavigator,
 } from "vue-native-router";
 import Vue from "vue-native-core";
 import { Root, VueNativeBase } from "native-base";
@@ -44,6 +44,7 @@ import PowertonScreen from "@/screens/PowertonScreen";
 import LoginScreen from "@/screens/LoginScreen";
 import Header from "./src/components/Header";
 import Footer from "@/components/Footer";
+import NavBarScreen from "./src/components/NavBar"
 import { NativeModules, Alert } from "react-native";
 import store from "@/store";
 import { mapState } from "vuex";
@@ -54,28 +55,25 @@ const { BlockchainModule } = NativeModules;
 Vue.prototype.$store = store;
 Vue.use(VueNativeBase);
 
-const Drawer = createDrawerNavigator(
+const BottomTabNavigator = createBottomTabNavigator(
   {
-    Home: { screen: HomeScreen },
-    Operators: { screen: OperatorsScreen },
-    Staking: { screen: StakingScreen },
-    PowerTON: { screen: PowertonScreen },
-    // Header: {screen: Header},
-    // SelectedOperator : {screen: SelectedOperatorScreen},
+   Home: {screen: HomeScreen},
+    Operators: {screen: OperatorsScreen},
+    Staking: {screen: StakingScreen},
+    PowerTON: {screen: PowertonScreen}, 
+   
   },
   {
     initialRouteName: "Home",
-    contentOptions: {
-      activeTintColor: "#e91e63",
-    },
-    contentComponent: SidebarScreen,
+    // tabBar: NavBar,
+     tabBarComponent: NavBarScreen,
   }
 );
 const AppNavigator = createAppContainer(
   createStackNavigator(
     {
       Login: { screen: LoginScreen },
-      Drawer: { screen: Drawer },
+       BottomTabNavigator: {screen: BottomTabNavigator},
       SelectedOperator: { screen: SelectedOperatorScreen },
       Header: { screen: Header },
     },
@@ -86,7 +84,7 @@ const AppNavigator = createAppContainer(
   )
 );
 export default {
-  components: { Root, AppNavigator, Footer },
+  components: { Root, AppNavigator },
   computed: {
     ...mapState(["loaded", "signIn"]),
   },
@@ -101,6 +99,10 @@ export default {
 };
 </script>
 <style scoped>
+.test {
+  margin-left: -8px;
+  margin-right: -8px;
+}
 .statusBar {
   background-color: #d4d7da;
   height: 35px;

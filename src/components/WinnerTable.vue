@@ -292,6 +292,6 @@ export default {
   align-items: center;
 }
 .list-item-text {
-  font-size: 11px;
+  font-size: 12px;
 }
 </style>

@@ -23,7 +23,7 @@
             </text>
           </touchable-opacity>
         </view>
-        <touchable-opacity v-if="pressed === true" :on-press="closeOperator">
+        <touchable-opacity v-if="pressed === true" :on-press="closeOperator" :style="{marginLeft: 'auto'}">
           <image
             class="operator-img-close"
             :source="pressed === true ? CloseIcon : null"
@@ -132,6 +132,7 @@ export default {
   padding-top: 6.9%;
   padding-left: 6.9%;
   padding-bottom: 6.1%;
+  padding-right: 6.9%;
 }
 .operator-img {
   width: 35px;
@@ -141,8 +142,6 @@ export default {
 .operator-img-close {
   width: 24px;
   height: 24px;
-  align-self: flex-end;
-  margin-left: 36.9%;
 }
 .operator-title {
   font-size: 17px;
@@ -165,7 +164,8 @@ export default {
 }
 .operator-detail {
   display: flex;
-  align-self: center;
+  padding-left: 6.2%;
+  padding-right: 6.2%;
   padding-bottom: 6.1%;
 }
 .operator-detail-text {

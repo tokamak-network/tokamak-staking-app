@@ -461,7 +461,6 @@ export default new Vuex.Store({
           };
          const getPendingRequests = async () => {
           const numPendingRequests = await BlockchainModule.callSmartMethod('numPendingRequests', DepositManager, layer2, user);
-        
           if (parseInt(numPendingRequests) === 0) {
             return [];
           }
@@ -471,7 +470,7 @@ export default new Vuex.Store({
          
           const pendingRequests = [];
           for (const _ of range(numPendingRequests)) {
-            const req = await BlockchainModule.callSmartFunc('withdrawalRequest', DepositManager, layer2, user, bigInt(parseInt(requestIndex)).toString() )
+            const req = await BlockchainModule.callSmartFunc('withdrawalRequest', DepositManager, layer2, user, index.toString() );
             const request = {}; 
             request.withdrawableBlockNumber =  bigInt(parseInt("0x" + req.substring(2, 66))).toString();
             request.amount = bigInt(parseInt("0x" + req.substring(66, 130))).toString();
@@ -766,12 +765,12 @@ export default new Vuex.Store({
         new BN(pseigRate)
          );
         const notWithdrawableRequests = filterNotWithdrawableRequests(pendingRequests);
+
           const withdrawableRequests = filterWithdrawableRequests(pendingRequests);
 
           const userNotWithdrawable = getUserNotWithdrawable(notWithdrawableRequests);
           const userWithdrawable = getUserWithdrawable(withdrawableRequests);
           operatorFromLayer2.address = operator;
-          console.log(userNotWithdrawable);
           // operatorFromLayer2.lastFinalizedAt = lastFinalizedAt;
           operatorFromLayer2.lastFinalizedAt = (lastFinalized[0]==='0') ? lastFinalizedAt : lastFinalized[0];
           operatorFromLayer2.finalizeCount = lastFinalized[1];
@@ -869,7 +868,6 @@ export default new Vuex.Store({
     } else {
       currentRound.winningProbability = '0.00%';
     }
-    console.log(currentRound);
     context.commit('SET_CURRENT_ROUND', currentRound);
      
     },
@@ -881,7 +879,6 @@ export default new Vuex.Store({
     },
     async setRounds (context) {
       const PowerTON = context.state.PowerTON;
-      const user = context.state.user;
       const roundEndEvent = web3EthABI.encodeEventSignature('RoundEnd(uint256,address,uint256)');
       const events = await BlockchainModule.getPastEvents(PowerTON, roundEndEvent );
 

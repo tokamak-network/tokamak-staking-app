@@ -211,7 +211,6 @@ export default {
     ]),
     ...mapGetters(['operatorByLayer2']),
     operator () {
-      console.log(this.operatorByLayer2(this.layer2));
       return this.operatorByLayer2(this.layer2);
     },
     currencyAmount () {
@@ -269,7 +268,7 @@ export default {
       }
       const amount = _TON(this.amountToDelegate).toFixed("wei");
       const data = this.getData();
-      const status = await BlockchainModule.sendSmartContractTransaction(
+      const status = await BlockchainModule.approveAndCall(
         this.TON,
         "approveAndCall",
         this.WTON,
@@ -303,7 +302,6 @@ export default {
       return str;
     },
     getData() {
-  console.log(this.operator);
       const data = this.marshalString(
       
         [this.DepositManager, this.operator.layer2]
@@ -389,7 +387,6 @@ export default {
       const root = operator.layer2;
       this.layer2 = root;
           this.selectedOperator = ops[buttonIndex];
-          console.log(ops[buttonIndex]);
         }
       )
     }

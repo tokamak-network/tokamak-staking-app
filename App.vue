@@ -12,8 +12,9 @@
  
   <app-navigator v-else >
   </app-navigator>
-    <!-- <NavBar/> -->
-      
+  <view class="test">
+    <NavBar/>
+  </view>
 </root>
 </template>
 
@@ -93,14 +94,12 @@ export default {
 }
 </script>
 <style scoped>
+.test {
+  margin-left: -7px;
+  margin-right: -7px;
+}
 .statusBar {
   background-color: #d4d7da;
   height: 35px;
-}
-.logo-container {
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-
 }
 </style>

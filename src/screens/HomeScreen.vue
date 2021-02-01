@@ -37,7 +37,7 @@ export default {
   },
   components: {
     "balance-component": BalanceComponent,
-"nav-bar": NavBar
+    "nav-bar": NavBar
   },
   props: {
     navigation: {

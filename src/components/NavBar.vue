@@ -76,11 +76,10 @@ export default {
 
 <style>
 .nav-bg {
-  width: 375;
+  width: 100%;
   height: 65px;
   display: flex;
   flex-direction: row;
-  margin-left: -7px;
   align-self: stretch;
 }
 

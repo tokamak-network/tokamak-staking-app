@@ -73,7 +73,7 @@ const AppNavigator = createAppContainer(
       SplashScreen: {screen: SplashScreen}
     },
     {
-      initialRouteName: "Home",
+      initialRouteName: "Operators",
       headerMode: "none"
     }
   )
@@ -95,8 +95,8 @@ export default {
 </script>
 <style scoped>
 .test {
-  margin-left: -7px;
-  margin-right: -7px;
+  margin-left: -8px;
+  margin-right: -8px;
 }
 .statusBar {
   background-color: #d4d7da;

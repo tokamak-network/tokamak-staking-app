@@ -79,6 +79,7 @@ export default {
   width: 100%;
   height: 65px;
   display: flex;
+  justify-content: space-around;
   flex-direction: row;
   align-self: stretch;
 }
@@ -106,7 +107,6 @@ export default {
 
 .nav-staking {
   position: absolute;
-  left: 7.5px;
   bottom: 30px;
   width: 64px;
   height: 64px;

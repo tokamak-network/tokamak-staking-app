@@ -28,13 +28,16 @@
       </touchable-opacity>
     </view>
 
-    <view v-if="activeTab === 'Stake'">
-      <view class="value-container">
-        <text class="total-balance">Balance: 99.67 TON</text>
-        <view class="main-row">
-          <text-input
+    <view v-if="activeTab === 'Stake'" class="value-wrap">
+    <view class="value-container">
+      <view class="value-balance value-balance-first">
+        <text class="value-balance-text">Balance : </text>
+        <text class="value-balance-value">4,598.24 TON</text>
+      </view>
+      <view class="value-balance value-balance-second">
+         <text-input
             class="input"
-            v-model="amountToDelegate"
+            v-model="amountToUndelegate"
             placeholder="0.00"
             autocomplete="off"
             minlength="1"
@@ -43,51 +46,14 @@
           />
           <touchable-opacity
             class="button-max"
-            :on-press="() => setAvailableAmountToDelegate()"
+            :on-press="() => setAvailableAmountToUndelegate()"
           >
             <text class="button-name">MAX</text>
           </touchable-opacity>
-          <image
-            class="logo"
-            :style="{ width: 39, height: 25, margin: 5 }"
-            :source="require('../../assets/TokamakLogo.png')"
-          />
-          <text class="button-name">TON</text>
-        </view>
       </view>
-      <view
-        class="value-container"
-        :style="{ height: 50, flexDirection: 'row' }"
-      >
-        <text :style="{ fontSize: 17, marginTop: 4, color: '#555555' }" :onPress="handleBtnPress"
-          >Select an operator ▼</text
-        >
-        <text class="selectedOperator">{{selectedOperator}}</text>
-      </view>
-      <touchable-opacity :on-press="delegate" :style="{ marginBottom: 15 }">
-        <button-main title="Stake" />
-      </touchable-opacity>
-      <view
-        class="value-container"
-        :style="{ height: 50, flexDirection: 'row', alignItems: 'center' }"
-      >
-        <text :style="{ fontSize: 16, marginTop: 4, color: '#555555', marginRight: 10 }"
-          >Re-stake Amount:</text
-        >
-        <text :style="{ fontSize: 16, marginTop: 4, color: '#555555', marginRight: 10, width:60, textAlign: 'right' }"
-          >67.77</text
-        >
-        <image
-            class="logo"
-            :style="{ width: 39, height: 25, margin: 5 }"
-            :source="require('../../assets/TokamakLogo.png')"
-          />
-          <text class="button-name">TON</text>
-      </view>
-      <touchable-opacity :on-press="redelegate" :style="{ marginBottom: 15 }">
-        <button-main title="Re-stake" />
-      </touchable-opacity>
     </view>
+    </view>
+
     <view v-if="activeTab === 'Unstake'">
       <view class="value-container">
         <text class="total-balance">Balance: 232.23 TON</text>
@@ -230,22 +196,59 @@ export default {
 </script>
 <style scoped>
 .staking-component-container {
-  width: 320px;
+  width: 100%;
   background-color: #ffffff;
+  height: 100%;
+}
+.value-wrap {
+  height: 100%;
 }
 .value-container {
-  width: 320px;
+  width: 100%;
+  height: 51.7%;
   display: flex;
-  padding: 10px;
-  border-width: 1;
-  border-color: #ccd1d3;
-  border-radius: 13;
   flex-direction: column;
-  margin-bottom: 15px;
+  border-width: 1px;
+  border-color: #e7ebf2;
+  border-radius: 10px;
+  padding-top: 3%;
+  padding-left: 5.6%;
+  padding-right: 5.6%;
+  padding-bottom: 4.5%;
 }
+
+.value-balance {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.value-balance-first {
+  height: 5.5%;
+}
+
+.value-balance-second {
+  align-items: center;
+}
+
+.value-balance-text {
+  font-size: 12px;
+  color: #86929d;
+}
+
+.value-balance-value {
+  font-size: 13px;
+  color: #3e495c;
+}
+
+.value-balance-input {
+  width: 52.8%;
+  height: 6.2%;
+}
+
 .button-container {
-  width: 320px;
-  height: 36px;
+  width: 88.9%;
+  height: 5.6%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;

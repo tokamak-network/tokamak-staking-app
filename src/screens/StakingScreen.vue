@@ -31,7 +31,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 30px;
+  padding-top: 4.7%;
 }
 .page-title {
 font-size: 24px;
@@ -41,7 +41,7 @@ font-weight: bold;
 .page-text {
   font-size: 12px;
   color: #86929d;
-  height: 32px;
-  margin-bottom: 25px;
+  height: 5%;
+  margin-bottom: 3.9%;
 }
 </style>

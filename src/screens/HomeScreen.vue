@@ -1,12 +1,12 @@
 <template>
-  <view class="home-layout">
-    <view class="home-container">
-       <image class="home-container-logo" :source="require('../../assets/sub-logo.png')" />
-      <text class="page-title">Tokamak Network</text>
+  <view class="home-layout" :style="{paddingTop: windowHeight*0.063}">
+   
+       <image :source="require('../../assets/sub-logo.png')"  :style="{width: windowWidth*0.572, height:windowHeight*0.1}"/>
+      <text class="page-title" :style="{marginTop: windowHeight*0.039, marginBottom: windowHeight*0.008}">Tokamak Network</text>
       <text class="page-text"
         >Stake your TON to earn Power TON</text
       >
-      <text class="page-text" :style="{marginBottom: 30}" 
+      <text class="page-text" :style="{marginBottom: windowHeight*0.047}" 
         >and other rewards</text
       >
       <balance-component
@@ -21,7 +21,7 @@
         rewards="Expected Rewards"
         :value="expectedRewards()"
       />
-    </view>
+    
   </view>
 </template>
 <script>
@@ -30,6 +30,7 @@ import { store } from "@/store/index";
 import Header from "@/components/Header";
 import BalanceComponent from "@/components/BalanceComponent";
 import Vue from "vue-native-core";
+import { Dimensions } from 'react-native';
 
 export default {
   computed: {
@@ -41,6 +42,12 @@ export default {
      currencyAmount () {
       return amount => this.$options.filters.currencyAmount(amount);
     },
+     windowWidth () {
+      return Dimensions.get('window').width
+    },
+    windowHeight () {
+      return Dimensions.get('window').height
+    }
   },
   components: {
     header: Header,
@@ -67,6 +74,10 @@ export default {
   flex-direction: column;
   height: 100%;
   background-color: #FAFBFC;
+  align-self: stretch;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 .home-container {
   flex: 1;
@@ -74,28 +85,18 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  /* padding: 20px 20px; */
 }
-.home-container-logo {
-  width: 170px;
-  height: 60px;
-  margin-top: 40px;
-  margin-bottom: 25px;
-}
+
 .page-title {
    font-size: 24px;
   color: #3e495c;
   font-weight: 700;
-  margin-bottom: 0.8%;
   text-align: center;
-  padding: 0px 40px;
 }
 .page-text {
-  font-size: 12px;
+  font-size: 13px;
   text-align: center;
   color: #86929d;
 }
-.home-balance-component {
-  margin-bottom: 20px;
-}
+
 </style>

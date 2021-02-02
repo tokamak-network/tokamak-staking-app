@@ -1,5 +1,5 @@
 <template>
-    <view class="operator-layout">
+    <view class="operator-layout" :style="{paddingTop: windowHeight*0.047}">
          <view class="page-container">
          <text class="page-title">Select your favorite operator</text>
         <text class="page-text">Select an operator to stake, unstake, or </text>
@@ -18,6 +18,8 @@
 import Header from '../components/Header';
 import OperatorComponent from '@/components/OperatorComponent';
 import { mapState } from 'vuex';
+import { Dimensions } from 'react-native';
+
 
 export default {
     components: {
@@ -28,19 +30,28 @@ export default {
     ...mapState([
       'operators',
     ]),
+    windowWidth () {
+      return Dimensions.get('window').width
+    },
+    windowHeight () {
+      return Dimensions.get('window').height
+    }
   },
     props: {
     navigation: {
       type: Object
     }
   },
+  data() {
+    return { }
+  }
 }
 </script>
 <style scoped>
 .operator-layout {
   display: flex;
   flex-direction: column;
-  padding-top: 30px;
+  /* padding-top: 30px; */
     background-color: #FAFBFC;
 
 }

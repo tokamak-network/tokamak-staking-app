@@ -8,32 +8,33 @@
         <text class="th-text">Winner</text></view
       >
       <view class="th-name" :style="{ width: '25%' }">
-        <text class="th-text">Reward</text>
-        <text class="th-text">(TON)</text></view
+        <text class="th-text">Reward <text :style="{color: '#2a72e5'}">TON</text></text>
+       
+        </view
       >
       <view class="th-name" :style="{ width: '30%' }">
         <text class="th-text">End date</text></view
       >
     </view>
     <view class="table-content-container">
-      <scroll-view>
+      <scroll-view :showsVerticalScrollIndicator="false">
         <view class="list-row" v-for="round in rounds" :key="round.index">
           <view class="list-item" :style="{ width: '15%' }">
-            <text>{{
+            <text class="list-item-text">{{
              round.index
             }}</text>
              
           </view>
           <view  class="list-item" :style="{ width: '30%' }">
-            <text>{{
+            <text class="list-item-text">{{
               round.winner | hexSlicer
             }}</text>
           </view>
           <view class="list-item" :style="{ width: '25%' }">
-            <text>{{ round.reward | currencyAmount }}</text>
+            <text class="list-item-text" :style="{color: '#2a72e5'}">{{ round.reward | currencyAmount }}</text>
           </view>
           <view class="list-item" :style="{ width: '30%' }">
-            <text>{{ round.timestamp|formattedTimestamp}}</text>
+            <text class="list-item-text" >{{ round.timestamp|formattedTimestamp}}</text>
           </view>
          
         </view>
@@ -67,20 +68,7 @@ export default {
 <style scoped>
 .winner-table-container {
   width: 90%;
-  background-color: #e2e8eb;
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-top: 20px;
-  height: 520;
-  border-width: 1;
-  border-color: #ccd1d3;
-  border-radius: 13;
-  align-self: stretch;
-  position: relative;
-  display: flex;
-  align-items: center;
-  /* padding: 10px; */
-  padding-top: 10px;
+  height: 85%;
 }
 .table-header-container {
   display: flex;
@@ -89,6 +77,7 @@ export default {
   width: 100%;
   padding-left: 8px;
   margin-bottom: 15px;
+  
 }
 .th-name {
   display: flex;
@@ -97,7 +86,7 @@ export default {
   align-items: center;
 }
 .th-text {
-  font-size: 18px;
+  font-size: 12px;
   font-weight: bold;
   color: #555555;
 }
@@ -108,7 +97,12 @@ export default {
 .table-content-container {
   display: flex;
   flex-direction: row;
-  height: 84%;
+  background-color: #FFFFFF;
+  border-width: 1px;
+  border-radius: 10px;
+  border-color: #e7ebf2;
+  padding: 5px;
+  padding-top: 20px;
 }
 .list-row {
   display: flex;
@@ -121,5 +115,8 @@ export default {
   justify-content: center;
   align-items: center;
   padding-bottom: 15px;
+}
+.list-item-text {
+  font-size: 11px;
 }
 </style>

@@ -6,7 +6,7 @@
         <text class="page-text">withdraw your tokens.</text> 
          </view>
            <view class="operator-scroll">
-        <scroll-view>
+        <scroll-view :showsVerticalScrollIndicator="false">
         <view v-for="(operator, index) in operators" :key="index"> 
           <operator-component :layer2="operator.layer2" :navigation="navigation"/>
           </view>
@@ -40,7 +40,9 @@ export default {
 .operator-layout {
   display: flex;
   flex-direction: column;
-  padding-top: 30px
+  padding-top: 30px;
+    background-color: #FAFBFC;
+
 }
 .operator-scroll  {
   display: flex;
@@ -54,7 +56,7 @@ export default {
 .page-title {
   font-size: 24px;
   text-align: center;
-  font-weight: 900;
+  font-weight: 700;
   color: #3e495c;
   margin-bottom: 5px;
 }

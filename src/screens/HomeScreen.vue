@@ -83,12 +83,12 @@ export default {
   margin-bottom: 25px;
 }
 .page-title {
-  font-size: 24px;
-  text-align: center;
+   font-size: 24px;
   color: #3e495c;
-  padding: 0px 40px;
   font-weight: 700;
-  margin-bottom: 5px;
+  margin-bottom: 0.8%;
+  text-align: center;
+  padding: 0px 40px;
 }
 .page-text {
   font-size: 12px;

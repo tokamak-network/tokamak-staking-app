@@ -1,53 +1,57 @@
 <template>
-    <view class="power-layout">
-   <header :navigation="navigation" :back="false"/>
-           <view class="power-container">
-         <text class="page-title">Win Power by staking TON!!</text>
+  <view class="power-layout">
+      <view class="power-container">
+      <text class="page-title">Win Power by staking TON</text>
       <text class="page-text"
-        >Increase your chance of winning Power by staking more TON.</text>
-        <winner-table/>
+        >Increase your chance of winning Power by</text>
+        <text class="page-text page-text-last"
+        >staking more TON.</text>
       </view>
+      <winner-table class="table"/>
     </view>
 </template>
 <script>
-import Header from '@/components/Header';
-import WinnerTable from '@/components/WinnerTable';
+import WinnerTable from "@/components/WinnerTable";
 export default {
-    components: {
-      'header': Header,
-      'winner-table': WinnerTable
-    },
-    props: {
-    navigation: {
-      type: Object
-    }
+  components: {
+    "winner-table": WinnerTable,
   },
-}
+  props: {
+    navigation: {
+      type: Object,
+    },
+  },
+};
 </script>
 <style scoped>
 .power-layout{ 
-    display: flex;
+  display: flex;
   flex-direction: column;
-  height: 100%;
+  align-items: center;
+  background-color: #FAFBFC;
+
 }
 .power-container {
- flex: 1;
+  flex: 1;
   align-self: stretch;
-  position: relative;
   display: flex;
   align-items: center;
-  padding-top: 20px;
+  padding-top: 4.7%;
+  margin-bottom: 4.1%;
 }
 .page-title {
-  font-size: 30px;
-  text-align: center;
-  color: #555555;
-  padding: 0px 40px;
+  font-size: 24px;
+  color: #3e495c;
   font-weight: 700;
+  margin-bottom: 0.8%;
 }
 .page-text {
-  font-size: 20px;
+  font-size: 12px;
+  color: #86929d;
   text-align: center;
-  padding: 20px 40px;
+}
+
+.table{
+  /* margin-top: 26px; */
 }
 </style>

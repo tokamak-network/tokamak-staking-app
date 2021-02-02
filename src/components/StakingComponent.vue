@@ -28,33 +28,39 @@
       </touchable-opacity>
     </view>
 
-    <view v-if="activeTab === 'Stake'" class="value-wrap">
-    <view class="value-container">
-      <view class="value-balance value-balance-first">
-        <text class="value-balance-text">Balance : </text>
-        <text class="value-balance-value">4,598.24 TON</text>
+    <view v-if="activeTab === 'Stake'" class="value-wrap" :style="{width: windowWidth*styles.valueWrapWidth, height: windowHeight*styles.valueWrapHeight}">
+      <view class="value-row value-row-first" :style="{height: windowHeight*styles.valueBalanceFirstHeight}">
+        <text class="value-row-text">Balance : </text>
+        <text class="value-row-value">4,598.24 TON</text>
       </view>
-      <view class="value-balance value-balance-second">
-         <text-input
-            class="input"
-            v-model="amountToUndelegate"
-            placeholder="0.00"
-            autocomplete="off"
-            minlength="1"
-            maxlength="1"
-            keyboardType="numeric"
-          />
-          <touchable-opacity
-            class="button-max"
+      <view class="value-row value-row-sb" :style="{height: windowHeight*styles.valueBalanceFirstHeight, marginBottom: '3%'}">
+        <text-input class="value-row-second-input" placeholder="0.00"></text-input>
+        <touchable-opacity
+            class="value-row-second-touch"
             :on-press="() => setAvailableAmountToUndelegate()"
           >
-            <text class="button-name">MAX</text>
-          </touchable-opacity>
+            <text class="value-row-second-max" :style="{width: windowWidth*styles.valueBalanceSecondMax}"
+            >MAX</text>
+        </touchable-opacity>
       </view>
-    </view>
+      <view
+      class="value-row value-row-sb value-row-border"
+      :style="{height: windowHeight*styles.valueRowThirdheight, marginBottom: '4.5%'}"
+      >
+         <text 
+         class="value-row-third-text"
+         :onPress="handleBtnPress"
+          >Select an operator </text
+        >
+        <text>{{selectedOperator}}</text>
+      </view>
+      <button-main title="Stake" :style="{marginBottom: '4.5%'}"></button-main>
+      <divider :style="{marginBottom: '4.5%'}"></divider>
+      <text-input class="value-row-border" :style="{height: windowHeight*styles.valueRowThirdheight, marginBottom: '4.5%'}" placeholder="0.00"></text-input>
+      <button-main title="Re-Stake"></button-main>
     </view>
 
-    <view v-if="activeTab === 'Unstake'">
+    <!-- <view v-if="activeTab === 'Unstake'">
       <view class="value-container">
         <text class="total-balance">Balance: 232.23 TON</text>
         <view class="main-row">
@@ -124,13 +130,15 @@
       <touchable-opacity :on-press="withdraw" :style="{ marginBottom: 15 }">
         <button-main title="Withdraw" />
       </touchable-opacity>
-    </view>
+    </view> -->
   </view>
 </template>
 
 <script>
 import ButtonMain from "@/components/ButtonMain";
+import Divider from "@/components/Divider"
 import { ActionSheet } from "native-base";
+import { Dimensions } from 'react-native';
 
 export default {
   data() {
@@ -144,10 +152,27 @@ export default {
         { name: "DXM Corp", color: "#8948a2" },
         { name: "DSRV", color: "#78eef2" },
       ],
+      styles: {
+        valueWrapWidth : 0.889,
+        valueWrapHeight : 0.47,
+        valueBalanceFirstHeight : 0.055,
+        valueBalanceSecondMax : 0.22,
+        valueRowThirdheight: 0.062,
+        border: ''
+      },
     };
   },
   components: {
     "button-main": ButtonMain,
+    "divider": Divider
+  },
+  computed: {
+   windowWidth () {
+      return Dimensions.get('window').width
+    },
+    windowHeight () {
+      return Dimensions.get('window').height
+    },
   },
   methods: {
     changeTab(tab) {
@@ -200,50 +225,63 @@ export default {
   background-color: #ffffff;
   height: 100%;
 }
+
 .value-wrap {
-  height: 100%;
-}
-.value-container {
-  width: 100%;
-  height: 51.7%;
-  display: flex;
-  flex-direction: column;
   border-width: 1px;
   border-color: #e7ebf2;
   border-radius: 10px;
+  padding-left: 6.2%;
+  padding-right: 6.2%;
   padding-top: 3%;
-  padding-left: 5.6%;
-  padding-right: 5.6%;
-  padding-bottom: 4.5%;
+  display: flex;
+  flex-direction: column;
 }
 
-.value-balance {
-  width: 100%;
+.value-row {
   display: flex;
   flex-direction: row;
 }
 
-.value-balance-first {
-  height: 5.5%;
-}
-
-.value-balance-second {
+.value-row-first {
   align-items: center;
 }
 
-.value-balance-text {
-  font-size: 12px;
-  color: #86929d;
+.value-row-sb {
+  justify-content: space-between;
+  align-items: center;
 }
 
-.value-balance-value {
-  font-size: 13px;
-  color: #3e495c;
+.value-row-second-input {
+  width: 67.4%;
+  height: 100%;
+  border-width: 1px;
+  border-radius: 4px;
+  border-color: #dfe4ee;
 }
 
-.value-balance-input {
-  width: 52.8%;
-  height: 6.2%;
+.value-row-second-touch {
+  height: 100%;
+  border-width: 1px;
+  border-color: #2a72e5;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.value-row-second-max {
+  text-align: center;
+  color: #2a72e5;
+}
+
+.value-row-border {
+  border-width: 1px;
+  border-radius: 4px;
+  border-color: #dfe4ee;
+}
+
+.value-row-third-text {
+  padding-left: 3.6%;
 }
 
 .button-container {
@@ -252,11 +290,12 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 25px;
+  margin-bottom: 3.9%;
   border-width: 1px;
   border-color: #e7ebf2;
   border-radius: 6px;
-  padding: 3px;
+  padding-left: 0.9%;
+  padding-right: 0.9%;
 }
 .button-comp {
   display: flex;
@@ -269,13 +308,14 @@ export default {
 }
 .button-name {
   color: #818992;
+  font-weight: bold;
 }
 
 .selected {
   width: 100%;
+  height: 90%;
   text-align: center;
-  padding-top: 5px;
-  height: 30px;
+  padding-top: 9%;
   border-radius: 5px;
   color: #ffffff;
   background-color: #2a72e5;

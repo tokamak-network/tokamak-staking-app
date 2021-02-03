@@ -31,6 +31,7 @@ import HomeScreen from "@/screens/HomeScreen";
 import StakingScreen from "@/screens/StakingScreen";
 import SelectedOperatorScreen from "@/screens/SelectedOperatorScreen";
 import PowertonScreen from "@/screens/PowertonScreen";
+import AccountScreen from "@/screens/AccountScreen";
 import LoginScreen from "@/screens/LoginScreen";
 import SplashScreen from "@/screens/SplashScreen"
 import Header from "./src/components/Header"
@@ -49,7 +50,7 @@ const BottomTabNavigator = createBottomTabNavigator(
     Operators: {screen: OperatorsScreen},
     Staking: {screen: StakingScreen},
     PowerTON: {screen: PowertonScreen}, 
-   
+    Account: {screen: AccountScreen}
   },
   {
     initialRouteName: "Home",

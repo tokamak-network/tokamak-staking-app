@@ -10,6 +10,8 @@
 </template>
 <script>
 import StakingComponent from "@/components/StakingComponent";
+import { Dimensions } from 'react-native';
+
 export default {
   components: {
     'staking-component': StakingComponent,

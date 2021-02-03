@@ -23,7 +23,7 @@
       >
         <text
           :class="{selected: activeTab === 'Withdraw', 'button-name': activeTab !== 'Withdraw'}"
-          >Withdraw</text
+          >Withdraw</text       
         >
       </touchable-opacity>
     </view>
@@ -44,99 +44,103 @@
         </touchable-opacity>
       </view>
       <view
-      class="value-row value-row-sb value-row-border"
-      :style="{height: windowHeight*styles.valueRowThirdheight, marginBottom: '4.5%'}"
+      class="value-row value-row-third value-row-border"
+      :style="{height: windowHeight*styles.valueRowThirdheight}"
       >
          <text 
          class="value-row-third-text"
-         :onPress="handleBtnPress"
+         
           >Select an operator </text
         >
-        <text>{{selectedOperator}}</text>
-      </view>
+        <image class="value-icon" :style="{height: windowHeight*0.031, width: windowWidth*0.056, resizeMode: 'contain'}" :source=IconTokamak></image>
+        <text 
+        class="value-row-thrid-select"
+        :onPress="handleBtnPress">{{selectedOperator}}</text>
+        <image :style="{height: windowHeight*0.012, width: windowWidth*0.025, resizeMode: 'contain'}" :source=IconSelect></image>
+      </view> 
       <button-main title="Stake" :style="{marginBottom: '4.5%'}"></button-main>
       <divider :style="{marginBottom: '4.5%'}"></divider>
       <text-input class="value-row-border" :style="{height: windowHeight*styles.valueRowThirdheight, marginBottom: '4.5%'}" placeholder="0.00"></text-input>
       <button-main title="Re-Stake"></button-main>
     </view>
 
-    <!-- <view v-if="activeTab === 'Unstake'">
-      <view class="value-container">
-        <text class="total-balance">Balance: 232.23 TON</text>
-        <view class="main-row">
-          <text-input
-            class="input"
-            v-model="amountToUndelegate"
-            placeholder="0.00"
-            autocomplete="off"
-            minlength="1"
-            maxlength="1"
-            keyboardType="numeric"
-          />
-          <touchable-opacity
-            class="button-max"
+    <view v-if="activeTab === 'Unstake'" class="value-wrap" :style="{width: windowWidth*styles.valueWrapWidth, height: windowHeight*0.31}">
+      <view class="value-row value-row-first" :style="{height: windowHeight*styles.valueBalanceFirstHeight}">
+        <text class="value-row-text">Balance : </text>
+        <text class="value-row-value">4,598.24 TON</text>
+      </view>
+      <view class="value-row value-row-sb" :style="{height: windowHeight*styles.valueBalanceFirstHeight, marginBottom: '3%'}">
+        <text-input class="value-row-second-input" placeholder="0.00"></text-input>
+        <touchable-opacity
+            class="value-row-second-touch"
             :on-press="() => setAvailableAmountToUndelegate()"
           >
-            <text class="button-name">MAX</text>
-          </touchable-opacity>
-          <image
-            class="logo"
-            :style="{ width: 39, height: 25, margin: 5 }"
-            :source="require('../../assets/TokamakLogo.png')"
-          />
-          <text class="button-name">TON</text>
-        </view>
+            <text class="value-row-second-max" :style="{width: windowWidth*styles.valueBalanceSecondMax}"
+            >MAX</text>
+        </touchable-opacity>
       </view>
       <view
-        class="value-container"
-        :style="{ height: 50, flexDirection: 'row' }"
+      class="value-row value-row-third value-row-border"
+      :style="{height: windowHeight*styles.valueRowThirdheight}"
       >
-         <text :style="{ fontSize: 17, marginTop: 4, color: '#555555' }" :onPress="handleBtnPress"
-          >Select an operator ▼</text
+         <text 
+         class="value-row-third-text"
+         
+          >Select an operator </text
         >
-        <text class="selectedOperator">{{selectedOperator}}</text>
-      </view>
-      <touchable-opacity :on-press="undelegate" :style="{ marginBottom: 15 }">
-        <button-main title="Unstake" />
-      </touchable-opacity>
+        <image class="value-icon" :style="{height: windowHeight*0.031, width: windowWidth*0.056, resizeMode: 'contain'}" :source=IconTokamak></image>
+        <text 
+        class="value-row-thrid-select"
+        :onPress="handleBtnPress">{{selectedOperator}}</text>
+        <image :style="{height: windowHeight*0.024, width: windowWidth*0.025, resizeMode: 'contain'}" :source=IconSelect></image>
+      </view> 
+      <button-main title="Unstake"></button-main>
     </view>
-    <view v-if="activeTab === 'Withdraw'">
-     <view
-        class="value-container"
-        :style="{ height: 60, flexDirection: 'row', alignItems: 'center' }"
-      >
-        <text :style="{ fontSize: 16, marginTop: 4, color: '#555555', marginRight: 10, width: 90 }"
-          >Withdrawable Amount:</text
-        >
-        <text :style="{ fontSize: 16, marginTop: 4, color: '#555555', marginRight: 10, width:90, textAlign: 'right' }"
-          >55353467.77</text
-        > 
-        <image
-            class="logo"
-            :style="{ width: 39, height: 25, margin: 5 }"
-            :source="require('../../assets/TokamakLogo.png')"
-          />
-          <text class="button-name">TON</text>
+
+    <view v-if="activeTab === 'Withdraw'" class="value-wrap" :style="{width: windowWidth*styles.valueWrapWidth, height: windowHeight*0.31}">
+      <view class="value-row value-row-first" :style="{height: windowHeight*styles.valueBalanceFirstHeight}">
+        <text class="value-row-text">Balance : </text>
+        <text class="value-row-value">4,598.24 TON</text>
+      </view>
+      <view class="value-row value-row-sb" :style="{height: windowHeight*styles.valueBalanceFirstHeight, marginBottom: '3%'}">
+        <text-input class="value-row-second-input" placeholder="0.00"></text-input>
+        <touchable-opacity
+            class="value-row-second-touch"
+            :on-press="() => setAvailableAmountToUndelegate()"
+          >
+            <text class="value-row-second-max" :style="{width: windowWidth*styles.valueBalanceSecondMax}"
+            >MAX</text>
+        </touchable-opacity>
       </view>
       <view
-        class="value-container"
-        :style="{ height: 50, flexDirection: 'row' }"
+      class="value-row value-row-third value-row-border"
+      :style="{height: windowHeight*styles.valueRowThirdheight}"
       >
-         <text :style="{ fontSize: 17, marginTop: 4, color: '#555555' }" :onPress="handleBtnPress"
-          >Select an operator ▼</text
+         <text 
+         class="value-row-third-text"
+         
+          >Select an operator </text
         >
-        <text class="selectedOperator">{{selectedOperator}}</text>
-      </view>
-      <touchable-opacity :on-press="withdraw" :style="{ marginBottom: 15 }">
-        <button-main title="Withdraw" />
-      </touchable-opacity>
-    </view> -->
+        <image class="value-icon" :style="{height: windowHeight*0.031, width: windowWidth*0.056, resizeMode: 'contain'}" :source=IconTokamak></image>
+        <text 
+        class="value-row-thrid-select"
+        :onPress="handleBtnPress">{{selectedOperator}}</text>
+        <image :style="{height: windowHeight*0.024, width: windowWidth*0.025, resizeMode: 'contain'}" :source=IconSelect></image>
+      </view> 
+      <button-main title="Withdraw"></button-main>
+    </view>
+
+    <alert :modalVisible=true :width=0.889 :height=0.5></alert>
+     
   </view>
 </template>
 
 <script>
 import ButtonMain from "@/components/ButtonMain";
 import Divider from "@/components/Divider"
+import Alert from "@/components/Alert"
+import IconTokamak from "../../assets/tokamak.png"
+import IconSelect from "../../assets/select.png"
 import { ActionSheet } from "native-base";
 import { Dimensions } from 'react-native';
 
@@ -154,17 +158,19 @@ export default {
       ],
       styles: {
         valueWrapWidth : 0.889,
-        valueWrapHeight : 0.47,
+        valueWrapHeight : 0.48,
         valueBalanceFirstHeight : 0.055,
         valueBalanceSecondMax : 0.22,
         valueRowThirdheight: 0.062,
-        border: ''
       },
+      IconTokamak,
+      IconSelect
     };
   },
   components: {
     "button-main": ButtonMain,
-    "divider": Divider
+    "divider": Divider,
+    "alert": Alert
   },
   computed: {
    windowWidth () {
@@ -203,7 +209,14 @@ export default {
       const ops = this.operators.map(op => op.name);
       ActionSheet.show(
         {
-          options: ops,
+          options: [
+             { text: "Option 0", icon: "tokamak", iconColor: "black" },
+        { text: "Option 1", icon: "analytics", iconColor: "#f42ced" },
+        { text: "Option 2", icon: "aperture", iconColor: "#ea943b" },
+        { text: "Delete", icon: "trash", iconColor: "#fa213b" },
+        { text: "Cancel", icon: "close", iconColor: "#25de5b" }
+
+          ],
           title: "Select an operator"
         },
         buttonIndex => {
@@ -215,7 +228,7 @@ export default {
           }
         }
       )
-    }
+    },
   },
 };
 </script>
@@ -251,6 +264,16 @@ export default {
   align-items: center;
 }
 
+.value-row-text {
+  font-size: 12px;
+  color: #86929d;
+}
+
+.value-row-value {
+  font-size: 13px;
+  color: #3e495c;
+}
+
 .value-row-second-input {
   width: 67.4%;
   height: 100%;
@@ -280,8 +303,28 @@ export default {
   border-color: #dfe4ee;
 }
 
+.value-row-third {
+  margin-bottom: 4.5%;
+  align-items: center;
+}
+
 .value-row-third-text {
   padding-left: 3.6%;
+  font-size: 12px;
+  color: #3e495c;
+  margin-right: 17.9%;
+  font-size: 12px;
+}
+
+.value-icon {
+  margin-right: 2.5%;
+}
+
+.value-row-thrid-select {
+  font-weight: bold;
+  font-size: 13px;
+  color: #3e495c;
+  margin-right: 2%;
 }
 
 .button-container {
@@ -376,6 +419,5 @@ export default {
   width: 100px;
   font-weight: bold;
     font-size: 18px;
-
 }
 </style>

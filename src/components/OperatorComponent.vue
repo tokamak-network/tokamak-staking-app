@@ -2,6 +2,7 @@
   <view class="operator-wrap">
     <touchable-opacity :on-press="pressed === false ? openOperator : null">
       <view class="operator-container">
+
         <image
           class="operator-img"
           :source="
@@ -12,7 +13,8 @@
         <view class="operator-text-container">
           <text class="operator-title">{{ name }}</text>
           <touchable-opacity
-            :on-press="pressed === true ? openInformation : openOperator"
+            :on-press="pressed === true ? childPropReceived : openOperator"
+            :style="{width: '100%'}"
           >
             <text
               :class="{
@@ -21,9 +23,9 @@
               }"
               >{{ pressed === false ? content : "More Information" }}
             </text>
-          </touchable-opacity>
+        </touchable-opacity>
         </view>
-        <touchable-opacity v-if="pressed === true" :on-press="closeOperator" :style="{marginLeft: 'auto'}">
+        <touchable-opacity v-if="pressed === true" :on-press="closeOperator" :style="{height: '100%', marginLeft: 'auto'}">
           <image
             class="operator-img-close"
             :source="pressed === true ? CloseIcon : null"
@@ -57,14 +59,16 @@
           <text class="operator-detail-title">Available Amount</text>
           <text class="operator-detail-content">4,598.24TON</text>
         </view>
-        <text-input class="operator-detail-input" pla />
+        <text-input class="operator-detail-input" />
         <button-main title="Stake" />
       </view>
     </view>
+    <operator-info :modalVisible=openOperatorInfo @propFromChild="childPropReceived"></operator-info>
   </view>
 </template>
 <script>
 import ButtonMain from "@/components/ButtonMain";
+import OperatorInf from "@/components/OperatorInf";
 import tokamak from "../../assets/tokamak.png";
 import dxm from "../../assets/dxm.png";
 import dsrv from "../../assets/dsrv.png";
@@ -78,11 +82,12 @@ export default {
       dsrv,
       CloseIcon,
       pressed: false,
-      opendNow: null,
+      openOperatorInfo: false,
     };
   },
   components: {
     "button-main": ButtonMain,
+    "operator-info": OperatorInf
   },
   props: {
     name: {
@@ -109,8 +114,13 @@ export default {
       this.pressed = false;
     },
     openInformation() {
-      console.log("openInfo");
+      console.log('----oepnInformation----')
+      console.log(this.openOperatorInfo)
+      this.openOperatorInfo = true
     },
+    childPropReceived(args1) {
+      console.log(args1)
+    }
   },
 };
 </script>

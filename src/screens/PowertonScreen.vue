@@ -17,9 +17,9 @@ export default {
       'winner-table': WinnerTable
     },
     props: {
-    navigation: {
-      type: Object
-    }
+      navigation: {
+        type: Object
+      }
   },
 }
 </script>

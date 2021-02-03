@@ -7,7 +7,7 @@
       </touchable-opacity>
       <touchable-opacity class="nav-menu" :on-press="()=>handleListItemClick('Operators')">
       <image :source="activeTab === 'Operators' ? OperateIcon : OperateIconInactive" class="nav-icon"/>
-      <text  :class="{selected: activeTab === 'Operators', 'nav-text': activeTab !== 'Operators'}">Operators</text>
+      <text :class="{selected: activeTab === 'Operators', 'nav-text': activeTab !== 'Operators'}">Operators</text>
       </touchable-opacity>
       <touchable-opacity class="nav-menu staking" :on-press="()=>handleListItemClick('Staking')">
         <image :source="activeTab === 'Staking' ? StakingIcon : StakingIconInactive" class="nav-staking" />

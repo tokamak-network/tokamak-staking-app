@@ -28,6 +28,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: #FAFBFC;
 }
 .staking-container {
   display: flex;

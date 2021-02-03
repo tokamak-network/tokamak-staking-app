@@ -99,18 +99,10 @@
 
     <view v-if="activeTab === 'Withdraw'" class="value-wrap" :style="{width: windowWidth*styles.valueWrapWidth, height: windowHeight*0.31}">
       <view class="value-row value-row-first" :style="{height: windowHeight*styles.valueBalanceFirstHeight}">
-        <text class="value-row-text">Balance : </text>
-        <text class="value-row-value">4,598.24 TON</text>
+        <text class="value-row-text">Widhdrawable Amount : </text>
       </view>
       <view class="value-row value-row-sb" :style="{height: windowHeight*styles.valueBalanceFirstHeight, marginBottom: '3%'}">
-        <text-input class="value-row-second-input" placeholder="0.00"></text-input>
-        <touchable-opacity
-            class="value-row-second-touch"
-            :on-press="() => setAvailableAmountToUndelegate()"
-          >
-            <text class="value-row-second-max" :style="{width: windowWidth*styles.valueBalanceSecondMax}"
-            >MAX</text>
-        </touchable-opacity>
+        <text-input class="withdraw-value-row-input" :style="{height: windowHeight*0.062}" placeholder="0.00"><text>TON</text></text-input>
       </view>
       <view
       class="value-row value-row-third value-row-border"
@@ -130,8 +122,8 @@
       <button-main title="Withdraw"></button-main>
     </view>
 
-    <alert :modalVisible=true :width=0.889 :height=0.5></alert>
-     
+    <alert :modalVisible=false :width=0.889 :height=0.5></alert>
+    <select-operator :modalVisible=false></select-operator>
   </view>
 </template>
 
@@ -139,6 +131,7 @@
 import ButtonMain from "@/components/ButtonMain";
 import Divider from "@/components/Divider"
 import Alert from "@/components/Alert"
+import SelectOperator from "@/components/SelectOperator"
 import IconTokamak from "../../assets/tokamak.png"
 import IconSelect from "../../assets/select.png"
 import { ActionSheet } from "native-base";
@@ -170,7 +163,8 @@ export default {
   components: {
     "button-main": ButtonMain,
     "divider": Divider,
-    "alert": Alert
+    "alert": Alert,
+    "select-operator": SelectOperator
   },
   computed: {
    windowWidth () {
@@ -419,5 +413,14 @@ export default {
   width: 100px;
   font-weight: bold;
     font-size: 18px;
+}
+.withdraw-value-row-input {
+  width: 100%;
+  border-width: 1px;
+  border-color: #dfe4ee;
+  border-radius: 4px;
+  text-align: right;
+  padding-right: 3.6%;
+  background-color: #e9edf1;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <view class="home-layout" :style="{paddingTop: windowHeight*0.063}">
    
-       <image :source="require('../../assets/sub-logo.png')"  :style="{width: windowWidth*0.572, height:windowHeight*0.1}"/>
+       <image :source="require('../../assets/sub-logo.png')"  :style="{width: windowWidth*0.472, height:windowHeight*0.094, resizeMode: 'contain'}"/>
       <text class="page-title" :style="{marginTop: windowHeight*0.039, marginBottom: windowHeight*0.008}">Tokamak Network</text>
       <text class="page-text"
         >Stake your TON to earn Power TON</text
@@ -94,7 +94,7 @@ export default {
   text-align: center;
 }
 .page-text {
-  font-size: 13px;
+  font-size: 12px;
   text-align: center;
   color: #86929d;
 }

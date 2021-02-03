@@ -76,6 +76,7 @@ const initialState = {
     value: 30,
     symbol: " TON",
   },
+  selectedOperator: '',
 };
 const getInitialState = () => initialState;
 
@@ -181,6 +182,10 @@ export default new Vuex.Store({
     SET_UNCOMMITTED_CURRENT_ROUND_REWARD: (state, reward) => {
       state.uncommittedCurrentRoundReward = reward;
     },
+
+    SET_SELECTED_OPERATOR: (state, operator) => {
+      state.selectedOperator = operator
+    }
   },
   actions: {
     logout(context) {
@@ -899,6 +904,9 @@ export default new Vuex.Store({
       });
       context.commit('SET_ROUNDS', await Promise.all(rounds));
     },
+    setOpenOperator (context, operator) {
+      context.commit('SET_SELECTED_OPERATOR', operator)
+    }
   },
 
   getters: {initialState: (state) => {

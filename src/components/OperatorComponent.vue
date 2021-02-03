@@ -1,7 +1,19 @@
 <template>
-  <view class="operator-wrap">
-    <touchable-opacity :on-press="pressed === false ? openOperator : null">
-      <view class="operator-container">
+  <view
+    class="operator-wrap"
+    :style="{
+      marginBottom: windowHeight * 0.023,
+      width: componentWidth,
+      paddingLeft: componentWidth * 0.063,
+      paddingRight: componentWidth * 0.063,
+    }"
+  >
+    <touchable-opacity :on-press="!pressed ? openOperator : null">
+      <view
+        class="operator-container"
+        :style="{ width: componentWidth * 0.875,  marginTop:windowHeight * 0.122 * 0.256, }"
+      >
+      <view>
         <image
           class="operator-img"
           :source="
@@ -11,78 +23,102 @@
               ? dxm
               : dsrv
           "
+           :style="{
+            height: windowHeight * 0.122 *0.45,
+            width: componentWidth * 0.11,
+            marginRight: componentWidth * 0.056,
+            resizeMode:'contain'
+          }"
         >
         </image>
-        <view class="operator-text-container">
-          <text class="operator-title">{{ operator.name }}</text>
-          <touchable-opacity
-            :on-press="pressed === true ? openInformation : openOperator"
-          >
-            <text
-              :class="{
-                selected: pressed === true,
-                'operator-content': pressed !== true,
+      </view>
+        <view
+          class="operator-subcontainer"
+          :style="{ width: componentWidth * 0.7 }"
+        >
+          <view class="operator-text-container">
+            <text class="operator-title">{{ operator.name }}</text>
+            <touchable-opacity
+              :on-press="selectedOperator === operator.name? openInformation : openOperator"
+            >
+              <text
+                :class="{
+                  selected: selectedOperator === operator.name,
+                  'operator-content': selectedOperator !== operator.name,
+                }"
+                :style="{
+                  marginBottom:  selectedOperator !== operator.name
+                    ? componentHeight * 0.256
+                    : componentHeight * 0.046,
+                    height: selectedOperator === operator.name? componentHeight * 0.038 :windowHeight * 0.122 * 0.192
+                }"
+                >{{ selectedOperator !== operator.name ? info : "More Information" }}
+              </text>
+            </touchable-opacity>
+          </view>
+          <touchable-opacity v-if="pressed && selectedOperator === operator.name" :on-press="closeOperator">
+            <image
+              class="operator-img-close"
+              :style="{
+                width: componentWidth * 0.075,
+                height: componentHeight * 0.069,
               }"
-              >{{ pressed === false ? info : "More Information" }}
-            </text>
+              :source="pressed? CloseIcon : null"
+            >
+            </image>
           </touchable-opacity>
         </view>
-        <touchable-opacity v-if="pressed === true" :on-press="closeOperator">
-          <image
-            class="operator-img-close"
-            :source="pressed === true ? CloseIcon : null"
-          >
-          </image>
-        </touchable-opacity>
       </view>
     </touchable-opacity>
-    <view v-if="pressed" class="operator-detail">
-      <view class="divider" />
-      <view class="operator-detail-container">
-        <view class="operator-detail-text">
+    <view v-if="pressed && selectedOperator === operator.name" class="operator-detail">
+      <view class="divider" :style="{width: componentWidth * 0.875}" />
+      <view class="operator-detail-container" :style="{paddingTop: componentHeight * 0.043}">
+        <view class="operator-detail-text" :style="{marginBottom: componentHeight * 0.055}">
           <text class="operator-detail-title">Commission Rate</text>
           <text class="operator-detail-content"
             >{{ operator.isCommissionRateNegative === 1 ? "-" : ""
             }}{{ rateOf(operator.commissionRate) }}</text
           >
         </view>
-        <view class="operator-detail-text">
+        <view class="operator-detail-text"  :style="{marginBottom: componentHeight * 0.055}">
           <text class="operator-detail-title">Most recent Commit</text>
           <text class="operator-detail-content">{{
             fromNow(operator.lastFinalizedAt)
           }}</text>
         </view>
-        <view class="operator-detail-text">
+        <view class="operator-detail-text"  :style="{marginBottom: componentHeight * 0.055}">
           <text class="operator-detail-title">My Staked</text>
           <text class="operator-detail-content">{{
             currencyAmount(operator.userStaked)
           }}</text>
         </view>
-        <view class="divider" />
-        <view class="operator-detail-text">
+        <view class="divider" :style="{width: componentWidth * 0.875, marginBottom: componentHeight * 0.058}"/>
+        <view class="operator-detail-text"  :style="{marginBottom: componentHeight * 0.055}">
           <text class="operator-detail-title">Available Amount</text>
           <text class="operator-detail-content">{{
             currencyAmount(tonBalance)
           }}</text>
         </view>
-        <view class="operator-detail-input">
-          <text class="info-title">Amount</text>
+        <view class="operator-detail-input" :style="{height: componentHeight * 0.104, width:componentWidth*0.875, paddingLeft:componentWidth* 0.036, paddingRight:componentWidth* 0.036 , marginBottom: componentWidth* 0.043}">
+          <text class="info-title" :style="{marginRight: componentWidth * 0.005}">Amount</text>
           <text-input
             class="value-input"
             v-model="amountToDelegate"
             placeholder="0.00"
             autocomplete="off"
-            minlength="1"
-            maxlength="1"
+            :minLength=1
+            :maxLength=50
             keyboardType="numeric"
+            :style="{width: componentWidth * 0.6}"
           />
-          <text class="info-title">TON</text>
+          <text class="info-title" :style="{marginLeft:componentWidth * 0.025 }">TON</text>
         </view>
         <touchable-opacity :on-press="onPressButton">
-          <button-main title="Stake" />
+          <button-main title="Stake" :style="{marginBottom: componentWidth* 0.043}"/>
         </touchable-opacity>
       </view>
     </view>
+        <operator-info :modalVisible=openOperatorInfo @propFromChild="childPropReceived"></operator-info>
   </view>
 </template>
 <script>
@@ -100,7 +136,8 @@ const _WTON = createCurrency("WTON");
 import { BN, padLeft } from "web3-utils";
 import { createCurrency } from "@makerdao/currency";
 import { ToastAndroid } from "react-native";
-
+import { Dimensions } from "react-native";
+import OperatorInfo from "@/components/OperatorInfo";
 
 export default {
   data() {
@@ -112,10 +149,13 @@ export default {
       pressed: false,
       opendNow: null,
       amountToDelegate: "",
+      openOper:'',
+       openOperatorInfo: false,
     };
   },
   components: {
     "button-main": ButtonMain,
+    "operator-info": OperatorInfo
   },
   props: {
     layer2: {
@@ -136,6 +176,7 @@ export default {
       "TON",
       "WTON",
       "SeigManager",
+      "selectedOperator"
     ]),
     ...mapGetters(["operatorByLayer2"]),
     operator() {
@@ -159,17 +200,40 @@ export default {
     currencyAmount() {
       return (amount) => this.$options.filters.currencyAmount(amount);
     },
+    windowWidth() {
+      return Dimensions.get("window").width;
+    },
+    windowHeight() {
+      return Dimensions.get("window").height;
+    },
+    componentHeight() {
+      if (this.selectedOperator === this.operator.name) {
+        return Dimensions.get("window").height * 0.541;
+      } else {
+        return Dimensions.get("window").height * 0.122;
+      }
+    },
+    componentWidth() {
+      return Dimensions.get("window").width * 0.889;
+    },
   },
   methods: {
     openOperator() {
       this.pressed = true;
-      //  this.navigation.push('SelectedOperator', {name: "tokamak"} );
+       this.$store.dispatch('setOpenOperator', this.operator.name)
+     
     },
     closeOperator() {
       this.pressed = false;
+        this.$store.dispatch('setOpenOperator', "")
     },
     openInformation() {
+  this.openOperatorInfo = true
       console.log("openInfo");
+    },
+     childPropReceived(args1) { 
+       this.openOperatorInfo = args1;
+      console.log(args1)
     },
     async onPressButton() {
       if (
@@ -254,48 +318,43 @@ export default {
 .operator-wrap {
   display: flex;
   flex-direction: column;
-  width: 320px;
-  padding: 15px 61px 15px 15px;
   border-width: 1;
   border-color: #e7ebf2;
-  border-radius: 1px;
+  border-radius: 10px;
   background-color: #ffffff;
-  margin-bottom: 15px;
-}
+  }
 .operator-container {
   display: flex;
   flex-direction: row;
 }
-.operator-img {
-  width: 35px;
-  height: 35px;
-  margin-right: 18px;
-}
-.operator-img-close {
-  width: 24px;
-  height: 24px;
-  align-self: flex-start;
-  margin-left: 118px;
-}
+
 .operator-title {
   font-size: 17px;
-  font-weight: 900;
+  font-weight: bold;
   color: #131315;
+  line-height: 23px;
 }
 .operator-content {
   font-size: 11px;
   color: #86929d;
+  line-height: 15px;
 }
+.operator-subcontainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 .selected {
   font-size: 11px;
   color: #2a72e5;
-  margin-bottom: 16px;
+  
 }
 .divider {
-  width: 280px;
+  /* width: 280px; */
   height: 1px;
   background-color: #e7ebf2;
-  margin-bottom: 15px;
+ 
 }
 .operator-detail {
   display: flex;
@@ -305,16 +364,13 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  height: 35px;
+  /* border-width: 1px;
+  border-color: red; */
 }
 .operator-detail-input {
-  width: 280px;
-  height: 36px;
   border-width: 1px;
-  border-radius: 1px;
+  border-radius: 10px;
   border-color: #dfe4ee;
-  margin-bottom: 15px;
-  padding: 9px, 10px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -329,16 +385,10 @@ export default {
 }
 .value-input {
   text-align: right;
-  height: 38px;
-  font-size: 18px;
-  width: 181px;
+  font-size: 13px;
   overflow: hidden;
-  /* width: 120px; */
-  /* margin-right: 20px; */
   align-items: center;
   color: #555555;
-  margin-top: -5px;
-  margin-bottom: -9px;
   font-size: 13px;
 }
 .info-title {
@@ -350,4 +400,5 @@ export default {
   color: #3e495c;
   font-size: 13px;
 }
+
 </style>

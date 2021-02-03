@@ -77,6 +77,7 @@ export default {
 .nav{ 
    margin-left: -8px;
   margin-right: -8px;
+  background-color: #fafbfc;
 }
 .nav-bg {
   width: 100%;

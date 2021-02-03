@@ -16,9 +16,9 @@
       />
       <activity-indicator size="large" color="#FFFFFF" />
     </view>
-    
+
     <app-navigator v-else></app-navigator>
-   
+
     <!-- <footer
       :color1="signIn ? '#FFFFFF' : '#2a72e5'"
       :color2="signIn ? '#2a72e5' : '#FFFFFF'"
@@ -44,11 +44,10 @@ import PowertonScreen from "@/screens/PowertonScreen";
 import LoginScreen from "@/screens/LoginScreen";
 import Header from "./src/components/Header";
 import Footer from "@/components/Footer";
-import NavBarScreen from "./src/components/NavBar"
+import NavBarScreen from "./src/components/NavBar";
 import { NativeModules, Alert } from "react-native";
 import store from "@/store";
 import { mapState } from "vuex";
-
 
 const { BlockchainModule } = NativeModules;
 
@@ -57,23 +56,25 @@ Vue.use(VueNativeBase);
 
 const BottomTabNavigator = createBottomTabNavigator(
   {
-   Home: {screen: HomeScreen},
-    Operators: {screen: OperatorsScreen},
-    Staking: {screen: StakingScreen},
-    PowerTON: {screen: PowertonScreen}, 
-   
+    Home: { screen: HomeScreen },
+    Operators: { screen: OperatorsScreen },
+    Staking: { screen: StakingScreen },
+    PowerTON: { screen: PowertonScreen },
   },
   {
     initialRouteName: "Home",
     // tabBar: NavBar,
-     tabBarComponent: NavBarScreen,
+    tabBarComponent: NavBarScreen,
+    
+      keyboardHidesTabBar: true,
+ 
   }
 );
 const AppNavigator = createAppContainer(
   createStackNavigator(
     {
       Login: { screen: LoginScreen },
-       BottomTabNavigator: {screen: BottomTabNavigator},
+      BottomTabNavigator: { screen: BottomTabNavigator },
       SelectedOperator: { screen: SelectedOperatorScreen },
       Header: { screen: Header },
     },

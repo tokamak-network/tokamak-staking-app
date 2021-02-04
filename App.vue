@@ -1,7 +1,7 @@
 <template>
   <root>
     <StatusBar
-      :background-color="signIn ? '#d4d7da' : '#2a72e5'"
+      :background-color="signIn ? '#FAFBFC' : '#2a72e5'"
       bar-style="dark-content"
     />
     <view
@@ -41,6 +41,7 @@ import HomeScreen from "@/screens/HomeScreen";
 import StakingScreen from "@/screens/StakingScreen";
 import SelectedOperatorScreen from "@/screens/SelectedOperatorScreen";
 import PowertonScreen from "@/screens/PowertonScreen";
+import AccountScreen from "@/screens/AccountScreen";
 import LoginScreen from "@/screens/LoginScreen";
 import Header from "./src/components/Header";
 import Footer from "@/components/Footer";
@@ -60,6 +61,7 @@ const BottomTabNavigator = createBottomTabNavigator(
     Operators: { screen: OperatorsScreen },
     Staking: { screen: StakingScreen },
     PowerTON: { screen: PowertonScreen },
+      Account: {screen: AccountScreen}
   },
   {
     initialRouteName: "Home",

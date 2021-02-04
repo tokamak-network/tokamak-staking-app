@@ -3,19 +3,33 @@
     :transparent='true'
     :visible=modalVisible
     >
-        <view class="modal-container" :style="{height: windowHeight*0.955, width: windowWidth}">
-            <scroll-view>
+        <view class="modal-container" :style="{height: windowHeight*0.91, width: windowWidth, top: windowHeight * 0.09}">
+            <scroll-view :showsVerticalScrollIndicator="false">
                 <view class="modal-content">
                     <view class="modal-top">
                         <image :source=TokamakIcon :style="{width: windowWidth*0.097, height: windowHeight*0.028, resizeMode: 'contain'}"></image>
-                        <text class="modtal-top-title">Tokamak1</text>
+                        <text class="modtal-top-title">{{operator.name}}</text>
                         <touchable-opacity :on-press="()=>close()">
                         <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain', marginLeft: 'auto'}"></image>
                         </touchable-opacity>
                     </view>
                 <view class="divider" />
                 <view>
-                    <operator-info-sub v-for="(value, key) in dummyData" :key="key" :title=key :content=value></operator-info-sub>
+                    <operator-info-sub title='Website' :content="operator.website"></operator-info-sub>
+                    <operator-info-sub title='Description' :content="operator.description"></operator-info-sub>
+                    <operator-info-sub title='Operator Address' :content="operator.address"></operator-info-sub>
+                    <operator-info-sub title='Chain ID' :content="operator.chainId"></operator-info-sub>
+                    <operator-info-sub title='Commit Count' :content="operator.finalizeCount"></operator-info-sub>
+                    <operator-info-sub title='Recent Commit' :content="fromNow(operator.lastFinalizedAt)"></operator-info-sub>
+                    <operator-info-sub title='Running Time' :content="fromNow(operator.deployedAt, true)"></operator-info-sub>
+                    <operator-info-sub title='Commission Rate' :content="`${operator.isCommissionRateNegative === 1 ? '-' : ''}${rateOf(operator.commissionRate)}`"></operator-info-sub>
+                    <operator-info-sub title='Reward' :content="currencyAmount(operator.userReward)"></operator-info-sub>
+                    <operator-info-sub title='Total Staked' :content="currencyAmount(operator.totalStaked)"></operator-info-sub>
+                    <operator-info-sub title='Not Withdrawable' :content="currencyAmount(operator.userNotWithdrawable)"></operator-info-sub>
+                    <operator-info-sub title='Withdrawable' :content="currencyAmount(operator.userWithdrawable)"></operator-info-sub>
+                    <operator-info-sub title='New Commission Rate' :content="`${operator.delayedCommissionRateNegative === 1? '-' : ''}${rateOf(operator.delayedCommissionRate)}`"></operator-info-sub>
+                    <operator-info-sub title='New Commission Rate Changed At' :content="operator.delayedCommissionBlock"></operator-info-sub>
+                    <operator-info-sub title='Withdrawal Delay' :content="`${delay()}${' blocks'}`"></operator-info-sub>
                 </view>
                 </view>
 
@@ -33,44 +47,53 @@ import ButtonMain from "@/components/ButtonMain"
 import OperatorInfoSub from "@/components/OperatorInfoSub"
 import TokamakIcon from "../../assets/TokamakLogo.png";
 import CloseIcon from "../../assets/icon-close.png";
+import { mapState, mapGetters } from "vuex";
 
 export default {
     data() {
         return{
             TokamakIcon,
             CloseIcon,
-            dummyData: {
-                Website : "https://tokamak.network",
-                Description : "tokamak network’s operator1",
-                OperatorAddress : "0xEA8e2eC08dCf4971bdcdfFFe21439995378B44F3",
-                OperatorContract : "0x39A13a796A3Cd9f480C28259230D2EF0a7026033",
-                ChainID : "9898",
-                CommitCount : "66",
-                RunningCommit : "4시간 전",
-                RunningTime : "3달",
-                CommissionRate : "2.5%",
-                Reward : "0.00TON",
-                TotalStaked : "4545479.24 TON",
-                MyStaked : "5.22 TON",
-                NotWithdrawable : "0.00 TON",
-                Withdrawable : "0.00 TON",
-                NewCommissionRate : "2.5%",
-                NewCommissionRateChangedAt : "0",
-                WithdrawalDelay : "93046 blocks"
-                }
         }
     },
     props: {
         modalVisible: {
             type: Boolean,
             default: false
-        }
+        },
+        layer2: {
+      required: true,
+      type: String,
+    },
     },
     components: {
         "button-main": ButtonMain,
         "operator-info-sub": OperatorInfoSub
     },
     computed: {
+         ...mapState([
+      "DepositManager",
+      "tonBalance",
+      "user",
+      "TON",
+      "WTON",
+      "SeigManager",
+      "selectedOperator"
+    ]),
+    ...mapGetters(["operatorByLayer2"]),
+    operator() {
+      return this.operatorByLayer2(this.layer2);
+    },
+    fromNow() {
+      return (timestamp, suffix = false) =>
+        this.$options.filters.fromNow(timestamp, suffix);
+    },
+    currencyAmount() {
+      return (amount) => this.$options.filters.currencyAmount(amount);
+    },
+    rateOf() {
+      return (commissionRate) => this.$options.filters.rateOf(commissionRate);
+    },
         windowWidth () {
             return Dimensions.get('window').width
         },
@@ -85,7 +108,17 @@ export default {
         },
         sendPropToParent() {
             this.$emit('propFromChild', this.modalVisible)
-        }
+        },
+        delay () {
+      const operatorDelay = this.operator.withdrawalDelay;
+      const globalDelay = this.operator.globalWithdrawalDelay;
+      if(operatorDelay > globalDelay) {
+        return Number(operatorDelay);
+      }
+      else {
+        return Number(globalDelay);
+      }
+    },
     }
 }
 </script>
@@ -94,7 +127,9 @@ export default {
 .modal-container {
     background-color: #FFFFFF;
     justify-content: center;
-    top: 4.5%;
+    border-width: 1px;
+    border-color: #ffffff;
+    border-radius: 10px;
 }
 .modal-content {
     display: flex;

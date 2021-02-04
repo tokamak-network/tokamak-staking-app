@@ -583,6 +583,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     @ReactMethod
     private void callMethod (String method, String address, String user, Promise promise) {
         Context context = getReactApplicationContext();
+
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
         String encodedFunction = getEncodedFunction(method, user);
         etherService
@@ -595,7 +596,7 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
                     @Override
                     public void onSuccess(String result) {
                         results = result;
-                        Log.i("Tokamak App", "call method called" + method);
+
                         promise.resolve(result);
                         //success
                     }

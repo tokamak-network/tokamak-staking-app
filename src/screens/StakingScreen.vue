@@ -1,20 +1,19 @@
 <template>
   <view class="staking-layout">
-    <header :navigation="navigation" :back="false" />
     <view class="staking-container">
       <text class="page-title">Stake tokens now!!!</text>
       <text class="page-text"
         >Stake TON to earn TON..</text>
-      <staking-component/>
+      <staking-component :layer2Address="operators[0].layer2" :selectedOperatorName="operators[0].name"/>
     </view>
   </view>
 </template>
 <script>
-import Header from "@/components/Header";
 import StakingComponent from "@/components/StakingComponent";
+import { mapState, mapGetters } from 'vuex';
+
 export default {
   components: {
-    header: Header,
     'staking-component': StakingComponent,
   },
   props: {
@@ -22,6 +21,9 @@ export default {
       type: Object,
     },
   },
+  computed: {
+    ...mapState([
+      'operators',])}
 };
 </script>
 <style scoped>

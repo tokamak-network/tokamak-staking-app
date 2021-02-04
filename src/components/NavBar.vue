@@ -26,10 +26,6 @@
 </template>
 
 <script>
-import { ImageBackground } from "react-native";
-import { store } from "@/store/index";
-import { mapState } from "vuex";
-
 import Bg from "../../assets/nav-bar-bg.png"
 import HomeIcon from "../../assets/toolbar-icon-home-active.png"
 import OperateIcon from "../../assets/toolbar-icon-operators-active.png"

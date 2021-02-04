@@ -74,7 +74,7 @@ export function currencyAmount (amount) {
     else if (amount.symbol === 'ETH'){
       const ethAmount = Number(amount.toBigNumber()).toLocaleString('en-US');
       const index = ethAmount.indexOf('.');
-      return index > -1 ? `${ethAmount.slice(0, index + 3)} TON` : ethAmount + ' ETH';
+      return index > -1 ? `${ethAmount.slice(0, index + 3)} ETH` : ethAmount + ' ETH';
     }
   } else {
     return amount;

@@ -12,7 +12,7 @@ export default {
 .button-stake {
   background-color: #2a72e5;
   color: #ffffff;
-  border-radius: 13px;
+  border-radius: 4px;
   width: 100%;
   height: 40px;
   display: flex;

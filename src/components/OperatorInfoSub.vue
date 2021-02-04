@@ -12,16 +12,7 @@
 <script>
 import { Linking } from 'react-native';
 export default {
-    props: {
-        title: {
-            type: String,
-            default: ''
-        },
-         content: {
-            type: String,
-            default: ''
-        },
-    },
+    props: ['title', 'content'],
     methods: {
       openURL () {
           Linking.openURL('https://tokamak.network/')

@@ -11,27 +11,30 @@
     <touchable-opacity :on-press="!pressed ? openOperator : null">
       <view
         class="operator-container"
-        :style="{ width: componentWidth * 0.875,  marginTop:windowHeight * 0.122 * 0.256, }"
+        :style="{
+          width: componentWidth * 0.875,
+          marginTop: windowHeight * 0.122 * 0.256,
+        }"
       >
-      <view>
-        <image
-          class="operator-img"
-          :source="
-            operator.name === 'test'
-              ? tokamak
-              : operator.name === 'DXM Corp'
-              ? dxm
-              : dsrv
-          "
-           :style="{
-            height: windowHeight * 0.122 *0.45,
-            width: componentWidth * 0.11,
-            marginRight: componentWidth * 0.056,
-            resizeMode:'contain'
-          }"
-        >
-        </image>
-      </view>
+        <view>
+          <image
+            class="operator-img"
+            :source="
+              operator.name === 'test'
+                ? tokamak
+                : operator.name === 'DXM Corp'
+                ? dxm
+                : dsrv
+            "
+            :style="{
+              height: windowHeight * 0.122 * 0.45,
+              width: componentWidth * 0.11,
+              marginRight: componentWidth * 0.056,
+              resizeMode: 'contain',
+            }"
+          >
+          </image>
+        </view>
         <view
           class="operator-subcontainer"
           :style="{ width: componentWidth * 0.7 }"
@@ -39,7 +42,11 @@
           <view class="operator-text-container">
             <text class="operator-title">{{ operator.name }}</text>
             <touchable-opacity
-              :on-press="selectedOperator === operator.name? openInformation : openOperator"
+              :on-press="
+                selectedOperator === operator.name
+                  ? openInformation
+                  : openOperator
+              "
             >
               <text
                 :class="{
@@ -47,78 +54,135 @@
                   'operator-content': selectedOperator !== operator.name,
                 }"
                 :style="{
-                  marginBottom:  selectedOperator !== operator.name
-                    ? componentHeight * 0.256
-                    : componentHeight * 0.046,
-                    height: selectedOperator === operator.name? componentHeight * 0.038 :windowHeight * 0.122 * 0.192
+                  marginBottom:
+                    selectedOperator !== operator.name
+                      ? componentHeight * 0.256
+                      : componentHeight * 0.046,
+                  height:
+                    selectedOperator === operator.name
+                      ? componentHeight * 0.038
+                      : windowHeight * 0.122 * 0.192,
                 }"
-                >{{ selectedOperator !== operator.name ? info : "More Information" }}
+                >{{
+                  selectedOperator !== operator.name ? info : "More Information"
+                }}
               </text>
             </touchable-opacity>
           </view>
-          <touchable-opacity v-if="pressed && selectedOperator === operator.name" :on-press="closeOperator">
+          <touchable-opacity
+            v-if="pressed && selectedOperator === operator.name"
+            :on-press="closeOperator"
+          >
             <image
               class="operator-img-close"
               :style="{
                 width: componentWidth * 0.075,
                 height: componentHeight * 0.069,
               }"
-              :source="pressed? CloseIcon : null"
+              :source="pressed ? CloseIcon : null"
             >
             </image>
           </touchable-opacity>
         </view>
       </view>
     </touchable-opacity>
-    <view v-if="pressed && selectedOperator === operator.name" class="operator-detail">
-      <view class="divider" :style="{width: componentWidth * 0.875}" />
-      <view class="operator-detail-container" :style="{paddingTop: componentHeight * 0.043}">
-        <view class="operator-detail-text" :style="{marginBottom: componentHeight * 0.055}">
+    <view
+      v-if="pressed && selectedOperator === operator.name"
+      class="operator-detail"
+    >
+      <view class="divider" :style="{ width: componentWidth * 0.875 }" />
+      <view
+        class="operator-detail-container"
+        :style="{ paddingTop: componentHeight * 0.043 }"
+      >
+        <view
+          class="operator-detail-text"
+          :style="{ marginBottom: componentHeight * 0.055 }"
+        >
           <text class="operator-detail-title">Commission Rate</text>
           <text class="operator-detail-content"
             >{{ operator.isCommissionRateNegative === 1 ? "-" : ""
             }}{{ rateOf(operator.commissionRate) }}</text
           >
         </view>
-        <view class="operator-detail-text"  :style="{marginBottom: componentHeight * 0.055}">
+        <view
+          class="operator-detail-text"
+          :style="{ marginBottom: componentHeight * 0.055 }"
+        >
           <text class="operator-detail-title">Most recent Commit</text>
           <text class="operator-detail-content">{{
             fromNow(operator.lastFinalizedAt)
           }}</text>
         </view>
-        <view class="operator-detail-text"  :style="{marginBottom: componentHeight * 0.055}">
+        <view
+          class="operator-detail-text"
+          :style="{ marginBottom: componentHeight * 0.055 }"
+        >
           <text class="operator-detail-title">My Staked</text>
           <text class="operator-detail-content">{{
             currencyAmount(operator.userStaked)
           }}</text>
         </view>
-        <view class="divider" :style="{width: componentWidth * 0.875, marginBottom: componentHeight * 0.058}"/>
-        <view class="operator-detail-text"  :style="{marginBottom: componentHeight * 0.055}">
+        <view
+          class="divider"
+          :style="{
+            width: componentWidth * 0.875,
+            marginBottom: componentHeight * 0.058,
+          }"
+        />
+        <view
+          class="operator-detail-text"
+          :style="{ marginBottom: componentHeight * 0.055 }"
+        >
           <text class="operator-detail-title">Available Amount</text>
           <text class="operator-detail-content">{{
             currencyAmount(tonBalance)
           }}</text>
         </view>
-        <view class="operator-detail-input" :style="{height: componentHeight * 0.104, width:componentWidth*0.875, paddingLeft:componentWidth* 0.036, paddingRight:componentWidth* 0.036 , marginBottom: componentWidth* 0.043}">
-          <text class="info-title" :style="{marginRight: componentWidth * 0.005}">Amount</text>
+        <view
+          class="operator-detail-input"
+          :style="{
+            height: componentHeight * 0.104,
+            width: componentWidth * 0.875,
+            paddingLeft: componentWidth * 0.036,
+            paddingRight: componentWidth * 0.036,
+            marginBottom: componentWidth * 0.043,
+          }"
+        >
+          <text
+            class="info-title"
+            :style="{ marginRight: componentWidth * 0.005 }"
+            >Amount</text
+          >
           <text-input
             class="value-input"
             v-model="amountToDelegate"
             placeholder="0.00"
             autocomplete="off"
-            :minLength=1
-            :maxLength=50
+            :minLength="1"
+            :maxLength="50"
             keyboardType="numeric"
-            :style="{width: componentWidth * 0.6}"
+            :style="{ width: componentWidth * 0.6 }"
           />
-          <text class="info-title" :style="{marginLeft:componentWidth * 0.025 }">TON</text>
+          <text
+            class="info-title"
+            :style="{ marginLeft: componentWidth * 0.025 }"
+            >TON</text
+          >
         </view>
         <touchable-opacity :on-press="onPressButton">
-          <button-main title="Stake" :style="{marginBottom: componentWidth* 0.043}"/>
+          <button-main
+            title="Stake"
+            :style="{ marginBottom: componentWidth * 0.043 }"
+          />
         </touchable-opacity>
       </view>
     </view>
-        <operator-info :modalVisible=openOperatorInfo @propFromChild="childPropReceived"></operator-info>
+    <operator-info
+      :modalVisible="openOperatorInfo"
+      :layer2="operator.layer2"
+      @propFromChild="childPropReceived"
+    ></operator-info>
   </view>
 </template>
 <script>
@@ -149,13 +213,13 @@ export default {
       pressed: false,
       opendNow: null,
       amountToDelegate: "",
-      openOper:'',
-       openOperatorInfo: false,
+      openOper: "",
+      openOperatorInfo: false,
     };
   },
   components: {
     "button-main": ButtonMain,
-    "operator-info": OperatorInfo
+    "operator-info": OperatorInfo,
   },
   props: {
     layer2: {
@@ -168,15 +232,13 @@ export default {
   },
   computed: {
     ...mapState([
-      "user",
       "DepositManager",
       "tonBalance",
-      "blockNumber",
       "user",
       "TON",
       "WTON",
       "SeigManager",
-      "selectedOperator"
+      "selectedOperator",
     ]),
     ...mapGetters(["operatorByLayer2"]),
     operator() {
@@ -220,20 +282,17 @@ export default {
   methods: {
     openOperator() {
       this.pressed = true;
-       this.$store.dispatch('setOpenOperator', this.operator.name)
-     
+      this.$store.dispatch("setOpenOperator", this.operator.name);
     },
     closeOperator() {
       this.pressed = false;
-        this.$store.dispatch('setOpenOperator', "")
+      this.$store.dispatch("setOpenOperator", "");
     },
     openInformation() {
-  this.openOperatorInfo = true
-      console.log("openInfo");
+      this.openOperatorInfo = true;
     },
-     childPropReceived(args1) { 
-       this.openOperatorInfo = args1;
-      console.log(args1)
+    childPropReceived(args1) {
+      this.openOperatorInfo = args1;
     },
     async onPressButton() {
       if (
@@ -322,7 +381,7 @@ export default {
   border-color: #e7ebf2;
   border-radius: 10px;
   background-color: #ffffff;
-  }
+}
 .operator-container {
   display: flex;
   flex-direction: row;
@@ -348,13 +407,11 @@ export default {
 .selected {
   font-size: 11px;
   color: #2a72e5;
-  
 }
 .divider {
   /* width: 280px; */
   height: 1px;
   background-color: #e7ebf2;
- 
 }
 .operator-detail {
   display: flex;
@@ -400,5 +457,4 @@ export default {
   color: #3e495c;
   font-size: 13px;
 }
-
 </style>

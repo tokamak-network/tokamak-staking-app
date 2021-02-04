@@ -31,7 +31,7 @@
             }}</text>
           </view>
           <view class="list-item" :style="{ width: '25%' }">
-            <text class="list-item-text" :style="{color: '#2a72e5'}">{{ round.reward | currencyAmount }}</text>
+            <text class="list-item-text" :style="{color: '#2a72e5'}">{{currencyAmount(round.reward).substring(0, currencyAmount(round.reward).length - 3) }}</text>
           </view>
           <view class="list-item" :style="{ width: '30%' }">
             <text class="list-item-text" >{{ round.timestamp|formattedTimestamp}}</text>
@@ -56,6 +56,9 @@ export default {
     },
     formattedTimestamp () {
       return timestamp => this.$options.filters.formattedTimestamp(timestamp);
+    },
+    currencyAmount () {
+      return amount => this.$options.filters.currencyAmount(amount);
     },
   },
   methods: {

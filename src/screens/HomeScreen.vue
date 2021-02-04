@@ -1,53 +1,58 @@
 <template>
-  <view class="home-layout" :style="{paddingTop: windowHeight*0.063}">
-   
-       <image :source="require('../../assets/sub-logo.png')"  :style="{width: windowWidth*0.472, height:windowHeight*0.094, resizeMode: 'contain'}"/>
-      <text class="page-title" :style="{marginTop: windowHeight*0.039, marginBottom: windowHeight*0.008}">Tokamak Network</text>
-      <text class="page-text"
-        >Stake your TON to earn Power TON</text
-      >
-      <text class="page-text" :style="{marginBottom: windowHeight*0.047}" 
-        >and other rewards</text
-      >
-      <balance-component
-        title="Your TON Balance"
-        :balance="currencyAmount(tonBalance)"
-        rewards="Power TON Balance"
-        :value="currencyAmount(power)"
-      />
-      <balance-component
-        title="Total Staked Amount"
-        :balance="currencyAmount(userTotalStaked)"
-        rewards="Expected Rewards"
-        :value="expectedRewards()"
-      />
-    
+  <view class="home-layout" :style="{ paddingTop: windowHeight * 0.063 }">
+    <image
+      :source="require('../../assets/sub-logo.png')"
+      :style="{
+        width: windowWidth * 0.472,
+        height: windowHeight * 0.094,
+        resizeMode: 'contain',
+      }"
+    />
+    <text
+      class="page-title"
+      :style="{
+        marginTop: windowHeight * 0.039,
+        marginBottom: windowHeight * 0.008,
+      }"
+      >Tokamak Network</text
+    >
+    <text class="page-text">Stake your TON to earn Power TON</text>
+    <text class="page-text" :style="{ marginBottom: windowHeight * 0.047 }"
+      >and other rewards</text
+    >
+    <balance-component
+      title="Your TON Balance"
+      :balance="currencyAmount(tonBalance)"
+      rewards="Power TON Balance"
+      :value="currencyAmount(power)"
+    />
+    <balance-component
+      title="Total Staked Amount"
+      :balance="currencyAmount(userTotalStaked)"
+      rewards="Expected Rewards"
+      :value="expectedRewards()"
+    />
   </view>
 </template>
 <script>
-import { mapState,mapGetters } from "vuex";
-import { store } from "@/store/index";
+import { mapState, mapGetters } from "vuex";
 import Header from "@/components/Header";
 import BalanceComponent from "@/components/BalanceComponent";
-import Vue from "vue-native-core";
-import { Dimensions } from 'react-native';
+import { Dimensions } from "react-native";
 
 export default {
   computed: {
-    ...mapState(['tonBalance', 'power', 'stakedAmount', 'rewards']),
-    ...mapGetters([
-      'userTotalStaked',
-      'userTotalSeigs',
-    ]),
-     currencyAmount () {
-      return amount => this.$options.filters.currencyAmount(amount);
+    ...mapState(["tonBalance", "power", "stakedAmount", "rewards"]),
+    ...mapGetters(["userTotalStaked", "userTotalSeigs"]),
+    currencyAmount() {
+      return (amount) => this.$options.filters.currencyAmount(amount);
     },
-     windowWidth () {
-      return Dimensions.get('window').width
+    windowWidth() {
+      return Dimensions.get("window").width;
     },
-    windowHeight () {
-      return Dimensions.get('window').height
-    }
+    windowHeight() {
+      return Dimensions.get("window").height;
+    },
   },
   components: {
     header: Header,
@@ -58,11 +63,11 @@ export default {
       type: Object,
     },
   },
-  created () {
+  created() {
     setInterval(() => this.expectedRewards(), 1000);
   },
   methods: {
-    expectedRewards () {
+    expectedRewards() {
       return this.currencyAmount(this.userTotalSeigs);
     },
   },
@@ -73,7 +78,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #FAFBFC;
+  background-color: #fafbfc;
   align-self: stretch;
   position: relative;
   display: flex;
@@ -88,7 +93,7 @@ export default {
 }
 
 .page-title {
-   font-size: 24px;
+  font-size: 24px;
   color: #3e495c;
   font-weight: 700;
   text-align: center;
@@ -98,5 +103,4 @@ export default {
   text-align: center;
   color: #86929d;
 }
-
 </style>

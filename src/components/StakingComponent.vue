@@ -1,6 +1,8 @@
 <template>
   <view class="staking-component-container">
+
     <view class="button-container">
+      <!-- <animatedView> -->
       <touchable-opacity
         class="button-comp"
         :on-press="() => changeTab('Stake')"
@@ -9,6 +11,7 @@
           >Stake</text
         >
       </touchable-opacity>
+      <!-- </animatedView> -->
       <touchable-opacity
         class="button-comp"
         :on-press="() => changeTab('Unstake')"
@@ -103,14 +106,13 @@
       </view>
       <view class="value-row value-row-sb" :style="{height: windowHeight*styles.valueBalanceFirstHeight, marginBottom: '3%'}">
         <text-input class="withdraw-value-row-input" :style="{height: windowHeight*0.062}" placeholder="0.00"><text>TON</text></text-input>
-      </view>
+      </view> 
       <view
       class="value-row value-row-third value-row-border"
       :style="{height: windowHeight*styles.valueRowThirdheight}"
       >
          <text 
          class="value-row-third-text"
-         
           >Select an operator </text
         >
         <image class="value-icon" :style="{height: windowHeight*0.031, width: windowWidth*0.056, resizeMode: 'contain'}" :source=IconTokamak></image>
@@ -122,7 +124,7 @@
       <button-main title="Withdraw"></button-main>
     </view>
 
-    <alert :modalVisible=false :width=0.889 :height=0.5></alert>
+    <alert :modalVisible=true :width=0.889 :height=0.242></alert>
     <select-operator :modalVisible=false></select-operator>
   </view>
 </template>

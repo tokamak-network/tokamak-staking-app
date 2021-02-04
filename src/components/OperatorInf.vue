@@ -10,7 +10,7 @@
                         <image :source=TokamakIcon :style="{width: windowWidth*0.097, height: windowHeight*0.028, resizeMode: 'contain'}"></image>
                         <text class="modtal-top-title">Tokamak1</text>
                         <touchable-opacity :on-press="()=>close()">
-                        <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain', marginLeft: 'auto'}"></image>
+                        <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain', marginLeft: '63%'}"></image>
                         </touchable-opacity>
                     </view>
                 <view class="divider" />

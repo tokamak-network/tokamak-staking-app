@@ -40,6 +40,8 @@ import { NativeModules, Alert } from 'react-native';
 import store from '@/store';
 import { mapState } from 'vuex';
 const { BlockchainModule } = NativeModules;
+import TestScreen from "@/screens/TestScreen";
+
 
 Vue.prototype.$store = store;
 Vue.use(VueNativeBase);
@@ -50,7 +52,8 @@ const BottomTabNavigator = createBottomTabNavigator(
     Operators: {screen: OperatorsScreen},
     Staking: {screen: StakingScreen},
     PowerTON: {screen: PowertonScreen}, 
-    Account: {screen: AccountScreen}
+    Account: {screen: AccountScreen},
+    TestScreen: {screen: TestScreen}
   },
   {
     initialRouteName: "Home",

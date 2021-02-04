@@ -17,14 +17,13 @@
 <script>
 import {
   Dimensions,
-  Modal
+  Modal,
 } from "react-native";
 import ButtonMain from "@/components/ButtonMain"
 
 export default {
     data() {
         return{
-            
         }
     },
     props: {
@@ -42,7 +41,7 @@ export default {
         }
     },
     components: {
-        "button-main": ButtonMain
+        "button-main": ButtonMain,
     },
     computed: {
         windowWidth () {
@@ -63,6 +62,7 @@ export default {
 <style>
 .modal-background {
    background-color:rgba( 0, 0, 0, 0.45 );
+   
 }
 .modal-container {
     align-self: center;

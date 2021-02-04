@@ -1,8 +1,6 @@
 <template>
   <view class="staking-component-container">
-
     <view class="button-container">
-      <!-- <animatedView> -->
       <touchable-opacity
         class="button-comp"
         :on-press="() => changeTab('Stake')"
@@ -11,7 +9,6 @@
           >Stake</text
         >
       </touchable-opacity>
-      <!-- </animatedView> -->
       <touchable-opacity
         class="button-comp"
         :on-press="() => changeTab('Unstake')"
@@ -37,7 +34,9 @@
         <text class="value-row-value">4,598.24 TON</text>
       </view>
       <view class="value-row value-row-sb" :style="{height: windowHeight*styles.valueBalanceFirstHeight, marginBottom: '3%'}">
+        <view class="value-row-second-wrap-input">
         <text-input class="value-row-second-input" placeholder="0.00"></text-input>
+        </view>
         <touchable-opacity
             class="value-row-second-touch"
             :on-press="() => setAvailableAmountToUndelegate()"
@@ -58,7 +57,7 @@
         <image class="value-icon" :style="{height: windowHeight*0.031, width: windowWidth*0.056, resizeMode: 'contain'}" :source=IconTokamak></image>
         <text 
         class="value-row-thrid-select"
-        :onPress="handleBtnPress">{{selectedOperator}}</text>
+        :onPress="openSelectOperator">{{selectedOperator}}</text>
         <image :style="{height: windowHeight*0.012, width: windowWidth*0.025, resizeMode: 'contain'}" :source=IconSelect></image>
       </view> 
       <button-main title="Stake" :style="{marginBottom: '4.5%'}"></button-main>
@@ -94,7 +93,7 @@
         <image class="value-icon" :style="{height: windowHeight*0.031, width: windowWidth*0.056, resizeMode: 'contain'}" :source=IconTokamak></image>
         <text 
         class="value-row-thrid-select"
-        :onPress="handleBtnPress">{{selectedOperator}}</text>
+        :onPress="openSelectOperator">{{selectedOperator}}</text>
         <image :style="{height: windowHeight*0.024, width: windowWidth*0.025, resizeMode: 'contain'}" :source=IconSelect></image>
       </view> 
       <button-main title="Unstake"></button-main>
@@ -118,14 +117,14 @@
         <image class="value-icon" :style="{height: windowHeight*0.031, width: windowWidth*0.056, resizeMode: 'contain'}" :source=IconTokamak></image>
         <text 
         class="value-row-thrid-select"
-        :onPress="handleBtnPress">{{selectedOperator}}</text>
+        :onPress="openSelectOperator">{{selectedOperator}}</text>
         <image :style="{height: windowHeight*0.024, width: windowWidth*0.025, resizeMode: 'contain'}" :source=IconSelect></image>
       </view> 
       <button-main title="Withdraw"></button-main>
     </view>
 
     <alert :modalVisible=true :width=0.889 :height=0.242></alert>
-    <select-operator :modalVisible=false></select-operator>
+    <select-operator :modalVisible=openOperator></select-operator>
   </view>
 </template>
 
@@ -138,11 +137,39 @@ import IconTokamak from "../../assets/tokamak.png"
 import IconSelect from "../../assets/select.png"
 import { ActionSheet } from "native-base";
 import { Dimensions } from 'react-native';
+import { Animated, Easing } from "react-native";
 
 export default {
+  // data: function() {
+  //   return {
+  //     growth: 0
+  //   };
+  // },
+  // created: function() {
+  //   this.growth = new Animated.Value(0);
+  // },
+  // mounted: function() {
+  //   this.animateGrowth();
+  // },
+  // methods: {
+  //   animateGrowth: function() {
+
+  //     this.growth.setValue(0);
+
+  //     Animated.timing(this.growth, {
+  //       toValue: 500,
+  //       duration: 3000,
+  //       easing: Easing.linear
+  //     }).start(() => {
+  //       // this.animateGrowth();
+  //     });
+  //   }
+  // }
+  // ,
   data() {
     return {
       activeTab: "Stake",
+      openOperator: false,
       amountToDelegate: "",
       amountToUndelegate: "",
       selectedOperator: "tokamak1",
@@ -179,6 +206,10 @@ export default {
   methods: {
     changeTab(tab) {
       this.activeTab = tab;
+    },
+    openSelectOperator() {
+      console.log("func : openSelectOperator")
+      this.openOperator = !this.openOperator
     },
     delegate() {
       console.log("delegate");
@@ -231,7 +262,7 @@ export default {
 <style scoped>
 .staking-component-container {
   width: 100%;
-  background-color: #ffffff;
+  background-color: #FFFFFF;
   height: 100%;
 }
 
@@ -270,12 +301,17 @@ export default {
   color: #3e495c;
 }
 
-.value-row-second-input {
+.value-row-second-wrap-input {
   width: 67.4%;
   height: 100%;
   border-width: 1px;
   border-radius: 4px;
   border-color: #dfe4ee;
+}
+
+.value-row-second-input {
+  text-align: right;
+  padding-right: 14%;
 }
 
 .value-row-second-touch {

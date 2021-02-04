@@ -13,7 +13,7 @@
         <view class="operator-text-container">
           <text class="operator-title">{{ name }}</text>
           <touchable-opacity
-            :on-press="pressed === true ? childPropReceived : openOperator"
+            :on-press="pressed === true ? openInformation : openOperator"
             :style="{width: '100%'}"
           >
             <text

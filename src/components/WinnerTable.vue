@@ -8,64 +8,90 @@
         <text class="th-text">Winner</text></view
       >
       <view class="th-name" :style="{ width: '25%' }">
-        <text class="th-text">Reward <text :style="{color: '#2a72e5'}">TON</text></text>
-       
-        </view
-      >
+        <text class="th-text"
+          >Reward <text :style="{ color: '#2a72e5' }">TON</text></text
+        >
+      </view>
       <view class="th-name" :style="{ width: '30%' }">
         <text class="th-text">End date</text></view
       >
     </view>
     <view class="table-content-container">
-      <scroll-view :showsVerticalScrollIndicator="false">
-        <view class="list-row" v-for="round in rounds" :key="round.index">
+      <scroll-view-indicator
+      :scrollIndicatorStyle='styles'
+     :shouldIndicatorHide='false'
+     :flexibleIndicator='false'
+     :indicatorHeight='60' >
+        <view class="list-row" v-for="round in orderedRounds" :key="round.index">
           <view class="list-item" :style="{ width: '15%' }">
-            <text class="list-item-text">{{
-             round.index
-            }}</text>
-             
+            <text class="list-item-text">{{ round.index }}</text>
           </view>
-          <view  class="list-item" :style="{ width: '30%', marginLeft: '2%' }">
-            <text class="list-item-text">{{
-              round.winner | hexSlicer
-            }}</text>
+          <view class="list-item" :style="{ width: '30%', marginLeft: '2%' }">
+            <text class="list-item-text">{{ round.winner | hexSlicer }}</text>
           </view>
           <view class="list-item" :style="{ width: '25%' }">
-            <text class="list-item-text" :style="{color: '#2a72e5'}">{{currencyAmount(round.reward).substring(0, currencyAmount(round.reward).length - 3) }}</text>
+            <text class="list-item-text" :style="{ color: '#2a72e5' }">{{
+              currencyAmount(round.reward).substring(
+                0,
+                currencyAmount(round.reward).length - 3
+              )
+            }}</text>
           </view>
           <view class="list-item" :style="{ width: '30%' }">
-            <text class="list-item-text" >{{ round.timestamp|formattedTimestamp}}</text>
+            <text class="list-item-text">{{
+              round.timestamp | formattedTimestamp
+            }}</text>
           </view>
-         
         </view>
-      </scroll-view>
+      </scroll-view-indicator>
     </view>
   </view>
 </template>
 <script>
-import React from "react";
-import { mapState } from 'vuex';
-import { View, Text } from "react-native";
+import { mapState } from "vuex";
+import ScrollViewIndicator from "react-native-scroll-indicator";
+import { orderBy } from 'lodash';
 export default {
- computed: {
-    ...mapState([
-      'rounds',
-    ]),
-    toExplorer () {
+  components: {
+    "scroll-view-indicator": ScrollViewIndicator,
+  },
+  data() {
+    return {
+      styles: {
+        backgroundColor: "#5e94ea",
+        opacity: 1,
+      },
+       orderedRounds: [],
+    };
+  },
+  computed: {
+    ...mapState(["rounds"]),
+    toExplorer() {
       return (type, param) => this.$options.filters.toExplorer(type, param);
     },
-    formattedTimestamp () {
-      return timestamp => this.$options.filters.formattedTimestamp(timestamp);
+    formattedTimestamp() {
+      return (timestamp) => this.$options.filters.formattedTimestamp(timestamp);
     },
-    currencyAmount () {
-      return amount => this.$options.filters.currencyAmount(amount);
+    currencyAmount() {
+      return (amount) => this.$options.filters.currencyAmount(amount);
     },
+  },
+  mounted () {
+    this.orderedRounds = orderBy(this.rounds, (round) => round.index, 'desc');
   },
   methods: {
-    getFlatListRenderItem(item) {
-      return <Text>{item}</Text>;
+    orderBy (from) {
+      if (this.from === from) {
+        this.order = this.changedOrder();
+      } else {
+        this.from = from;
+        this.order = 'desc';
+      }
     },
-  },
+     changedOrder () {
+      return this.order === 'desc' ? 'asc' : 'desc';
+    },
+  }
 };
 </script>
 <style scoped>
@@ -79,7 +105,7 @@ export default {
   justify-content: space-around;
   width: 100%;
   padding-left: 8px;
-  margin-bottom: 15px; 
+  margin-bottom: 15px;
 }
 .th-name {
   display: flex;
@@ -99,7 +125,7 @@ export default {
 .table-content-container {
   display: flex;
   flex-direction: row;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-width: 1px;
   border-radius: 10px;
   border-color: #e7ebf2;
@@ -108,9 +134,8 @@ export default {
 }
 .list-row {
   display: flex;
- 
+
   flex-direction: row;
-  
 }
 .list-item {
   display: flex;

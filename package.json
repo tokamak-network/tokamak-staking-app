@@ -47,6 +47,7 @@
     "react-native-randombytes": "^3.6.0",
     "react-native-reanimated": "~1.13.0",
     "react-native-screens": "~2.15.0",
+    "react-native-scroll-indicator": "^0.1.0",
     "react-native-tcp": "^3.3.2",
     "react-native-udp": "^2.7.0",
     "react-native-unimodules": "~0.12.0",

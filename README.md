@@ -18,6 +18,10 @@ react-native bundle --platform android --dev false --entry-file index.js --bundl
 npx react-native start
 ```
 
+```
+npm start -- --reset-cache
+```
+
 ## Run the project 
 ``` 
 npx react-native run-android

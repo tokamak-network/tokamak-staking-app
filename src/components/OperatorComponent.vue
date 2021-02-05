@@ -143,12 +143,11 @@
           class="operator-detail-input"
           :style="{
             height: componentHeight * 0.104,
-            width: componentWidth * 0.875
+            width: componentWidth * 0.875,
           }"
         >
           <text
             class="info-title"
-            :style="{ marginRight: componentWidth * 0.005 }"
             >Amount</text
           >
           <text-input
@@ -159,7 +158,8 @@
             :minLength="1"
             :maxLength="50"
             keyboardType="numeric"
-            :style="{ width: componentWidth * 0.6 }"
+            :style="{ width: componentWidth * 0.6,
+             }"
           />
           <text
             class="info-title"
@@ -427,7 +427,6 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-self: stretch;
   align-items: center;
   margin-bottom: 4.3%;
   padding-left: 3.6%;
@@ -442,7 +441,6 @@ export default {
   text-align: right;
   font-size: 13px;
   overflow: hidden;
-  align-items: center;
   color: #555555;
   font-size: 13px;
 }

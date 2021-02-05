@@ -83,51 +83,55 @@ export default {
 </script>
 
 <style>
+.modal-background {
+  background-color: rgba(0, 0, 0, 0.45);
+}
 .modal-container {
-    background-color: #FFFFFF;
-    justify-content: center;
-    top: 57.2%;
-    padding-top: 9.9%;
-    padding-left: 5.6%;
-    padding-right: 5.6%;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+  background-color: #ffffff;
+  justify-content: center;
+  top: 57.2%;
+  padding-top: 7%;
+  padding-left: 5.6%;
+  padding-right: 5.6%;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 .modal-content {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 .modal-top {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 7.7%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6%;
 }
 .modtal-top-title {
-    font-size: 16px;
-    color: #131315;
+  font-size: 16px;
+  color: #131315;
 }
 .divider {
   width: 100%;
   height: 1px;
   background-color: #dfe4ee;
-  margin-bottom: 5.8%;
+  margin-bottom: 4%;
 }
 .modal-bottom {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 .modal-bottom-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 10.2%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 7%;
 }
 .modal-bottom-row-text {
-    margin-left: 4.7%;
-    font-size: 16px;
-    font-weight: bold;
-    color: #131315;
+  margin-left: 4.7%;
+  font-size: 16px;
+  font-weight: bold;
+  color: #131315;
+
 }
 </style>

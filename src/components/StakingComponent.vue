@@ -289,6 +289,7 @@
 
     <alert :modalVisible="alertVisibility" :width="0.889" :height="0.242" @closePopup="closePopUp"></alert>
     <select-operator :modalVisible="false"></select-operator>
+    <fee :modalVisible="true"></fee>
   </view>
 </template>
 
@@ -298,6 +299,7 @@ import { ToastAndroid } from "react-native";
 import Divider from "@/components/Divider";
 import Alert from "@/components/Alert";
 import SelectOperator from "@/components/SelectOperator";
+import Fee from "@/components/Fee";
 import IconTokamak from "../../assets/tokamak.png";
 import IconSelect from "../../assets/select.png";
 import { ActionSheet } from "native-base";
@@ -342,6 +344,7 @@ export default {
     divider: Divider,
     alert: Alert,
     "select-operator": SelectOperator,
+    'fee': Fee
   },
   computed: {
     ...mapState([

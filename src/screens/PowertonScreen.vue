@@ -37,13 +37,12 @@ export default {
   display: flex;
   align-items: center;
   padding-top: 4.7%;
-  margin-bottom: 4.1%;
 }
 .page-title {
   font-size: 24px;
   color: #3e495c;
   font-weight: 700;
-  margin-bottom: 0.8%;
+  margin-bottom: 2%;
 }
 .page-text {
   font-size: 12px;

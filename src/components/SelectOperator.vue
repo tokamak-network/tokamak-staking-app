@@ -48,15 +48,6 @@
                 <text class="modal-bottom-row-text">{{ operator.name }}</text>
                 </touchable-opacity>
               </view>
-             
-              <!-- <view class="modal-bottom-row">
-                            <image :style="{width: windowWidth*0.083, height: windowHeight*0.047, resizeMode: 'contain'}" :source=DXMIcon></image>
-                            <text class="modal-bottom-row-text">DXM Corp</text>
-                        </view>
-                        <view class="modal-bottom-row">
-                            <image :style="{width: windowWidth*0.083, height: windowHeight*0.047, resizeMode: 'contain'}" :source=DSRVIcon></image>
-                            <text class="modal-bottom-row-text">DSRV</text>
-                        </view> -->
             </view>
           </view>
         </scroll-view>

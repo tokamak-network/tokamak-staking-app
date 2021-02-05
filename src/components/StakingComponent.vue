@@ -108,7 +108,11 @@
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
               }"
-              :source="IconTokamak"
+              :source="selectedOperator === 'test'
+                ? TokamakIcon
+                : operator.name === 'test3'
+                ? DXMIcon
+                : DSRVIcon"
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -220,7 +224,11 @@
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
               }"
-              :source="IconTokamak"
+               :source="selectedOperator === 'test'
+                ? TokamakIcon
+                : operator.name === 'test3'
+                ? DXMIcon
+                : DSRVIcon"
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -283,7 +291,11 @@
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
               }"
-              :source="IconTokamak"
+            :source="selectedOperator === 'test'
+                ? TokamakIcon
+                : operator.name === 'test3'
+                ? DXMIcon
+                : DSRVIcon"
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -332,12 +344,18 @@ import { createCurrency } from "@makerdao/currency";
 import { BN, padLeft } from "web3-utils";
 import { range } from "lodash";
 import { mapState, mapGetters } from "vuex";
+import TokamakIcon from "../../assets/TokamakLogo.png";
+import DSRVIcon from "../../assets/dsrv.png";
+import DXMIcon from "../../assets/dxm.png";
 const _TON = createCurrency("TON");
 const _WTON = createCurrency("WTON");
 export default {
   props: ["layer2Address", "selectedOperatorName"],
   data() {
     return {
+       TokamakIcon,
+      DSRVIcon,
+      DXMIcon,
       activeTab: "Stake",
       amountToDelegate: "",
       amountToUndelegate: "",
@@ -541,25 +559,6 @@ export default {
       this.selectedOperator = value;
     },
     handleBtnPress() {
-      // const ops = this.operators.map(op => op.name);
-
-      // ActionSheet.show(
-      //   {
-      //     options: ops,
-      //     title: "Select an operator"
-      //   },
-      //   buttonIndex => {
-      //      const operator = this.operators.find(
-      //   (operator) => operator.name ===  ops[buttonIndex]
-      // );
-
-      // if (operator !== undefined) {
-      //   const root = operator.layer2;
-      //    this.layer2 = root;
-      //     this.selectedOperator = ops[buttonIndex];
-      // }
-      //   }
-      // )
       this.actionSheetVisibility = true;
     },
     closeModel(result) {
@@ -567,7 +566,6 @@ export default {
       this.actionSheetVisibility = result;
     },
     handleModelOutput(result) {
-      console.log(result);
       const operator = this.operators.find(
         (operator) => operator.name === result
       );

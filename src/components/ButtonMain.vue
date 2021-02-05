@@ -1,11 +1,16 @@
 <template>
      <view class="button-stake">
-          <text class="text" >{{title}}</text>
+          <text class="text">{{title}}</text>
         </view>
 </template>
 <script>
 export default {
-    props: ['title']
+    props: {
+        title: {
+            type: String,
+            default: ''
+        },
+    }
 }
 </script>
 <style scoped>
@@ -22,7 +27,7 @@ export default {
 }
 
 .text {
-   color: white;
+  color: white;
   font-size: 14px;
   font-weight: 700;  
 }

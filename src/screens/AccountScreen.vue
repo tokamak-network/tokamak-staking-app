@@ -17,7 +17,7 @@
       <view
         class="account-wallet-container"
         :style="{
-          height: windowHeight * 0.109,
+          height: windowHeight * 0.090,
           marginBottom: windowHeight * 0.023,
         }"
       >
@@ -28,7 +28,7 @@
       <view
         class="account-wallet-container"
         :style="{
-          height: windowHeight * 0.109,
+          height: windowHeight * 0.090,
           marginBottom: windowHeight * 0.023,
         }"
       >
@@ -39,7 +39,7 @@
       <view
         class="account-wallet-container"
         :style="{
-          height: windowHeight * 0.109,
+          height: windowHeight * 0.090,
           marginBottom: windowHeight * 0.023,
         }"
       >
@@ -131,6 +131,7 @@ export default {
 .account-wallet {
   display: flex;
   flex-direction: column;
+  margin-bottom: 4.7%;
 }
 .account-wallet-container {
   display: flex;
@@ -155,13 +156,13 @@ export default {
 }
 .account-wallet-container-text-unit {
   position: absolute;
-  right: 5.5%;
+  right: 7%;
   bottom: 14.3%;
   font-size: 10px;
   color: #86929d;
 }
 .account-btn {
-  height: 6.2%;
+  height: 6.5%;
   border-width: 1px;
   border-color: #2a72e5;
   border-radius: 4px;

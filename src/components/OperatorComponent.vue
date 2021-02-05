@@ -143,10 +143,7 @@
           class="operator-detail-input"
           :style="{
             height: componentHeight * 0.104,
-            width: componentWidth * 0.875,
-            paddingLeft: componentWidth * 0.036,
-            paddingRight: componentWidth * 0.036,
-            marginBottom: componentWidth * 0.043,
+            width: componentWidth * 0.875
           }"
         >
           <text
@@ -166,7 +163,6 @@
           />
           <text
             class="info-title"
-            :style="{ marginLeft: componentWidth * 0.025 }"
             >TON</text
           >
         </view>
@@ -433,7 +429,9 @@ export default {
   justify-content: space-between;
   align-self: stretch;
   align-items: center;
-  position: relative;
+  margin-bottom: 4.3%;
+  padding-left: 3.6%;
+  padding-right: 3.6%;
 }
 .operator-detail-btn {
   width: 280px;

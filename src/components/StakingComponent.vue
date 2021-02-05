@@ -126,22 +126,21 @@
         </touchable-opacity>
       <divider :style="{ marginBottom: '4.5%' }"></divider>
 
-     <view class="value-row-border"
+     <view class="value-row-border unable-row"
         :style="{
           height: windowHeight * styles.valueRowThirdheight,
           marginBottom: '4.5%',
           flexDirection:'row',
           justifyContent: 'space-between'
         }">
-        <text class="value-row-third-text">Re-stake Amount</text>
-        
-         <view class="value-row-second-input" :style="{borderWidth:0}">
+        <text class="value-row-third-text" :style="{color: '#3e495c'}">Re-stake Amount</text>
+        <view class="value-row-thrid-amount">
         <text
-            class="text-input"
-            :style="{borderWidth:0}"
+            class=""
+            :style="{borderWidth:0, color: '#3e495c'}"
         >{{ currencyAmount(operator.userNotWithdrawable).toString().replace('TON', '') }}</text>
-        <text class="ton-text">TON</text>
-      </view>
+        <text class="" :style="{color: '#3e495c'}">TON</text>
+        </view>
       </view>
        <touchable-opacity :on-press="redelegate">
       <button-main title="Re-Stake"></button-main>
@@ -605,10 +604,8 @@ export default {
 .ton-text {
   font-size: 13px;
   color: #3e495c;
-  /* height: 100%; */
-  
-  display: flex;
-  align-items: center;
+  /* display: flex;
+  align-items: center; */
 }
 .text-input {
    text-align: right;
@@ -644,11 +641,23 @@ export default {
   align-items: center;
 }
 
+.unable-row {
+  background-color: #e9edf1;
+}
+
 .value-row-third {
   margin-bottom: 4.5%;
   align-items: center;
   display: flex;
- 
+  padding-right: 4.6%;
+}
+
+.value-row-thrid-amount {
+  display: flex;
+  flex-direction: row;
+  padding-right: 4.6%;
+  font-size: 13px;
+  color: #3e495c;
 }
 
 .value-row-third-text {
@@ -657,29 +666,27 @@ export default {
   color: #3e495c;
   /* margin-right: 17.9%; */
   font-size: 12px;
- 
 }
 
 .input-icon-container {
   display: flex;
   flex-direction: row;
-   align-items: center;
-   margin-right: -30%;
+  align-items: center;
+  justify-content: flex-end;
 }
 .value-icon {
-  margin-right: 5%;
+  /* margin-right: 5%; */
 }
 
 .value-row-thrid-select {
   font-weight: bold;
   font-size: 13px;
   color: #3e495c;
-  margin-right: 6%;
   display: flex;
   justify-content: center;
-    align-items: center;
-  width:35%;
- 
+  align-items: center;
+  padding-left: 2.5%;
+  padding-right: 3.6%
 }
 
 .button-container {

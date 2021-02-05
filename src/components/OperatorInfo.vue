@@ -3,6 +3,7 @@
     :transparent='true'
     :visible=modalVisible
     >
+    <view class="modal-background">
         <view class="modal-container" :style="{height: windowHeight*0.91, width: windowWidth, top: windowHeight * 0.09}">
             <scroll-view :showsVerticalScrollIndicator="false">
                 <view class="modal-content">
@@ -10,7 +11,7 @@
                         <image :source=TokamakIcon :style="{width: windowWidth*0.097, height: windowHeight*0.028, resizeMode: 'contain'}"></image>
                         <text class="modtal-top-title">{{operator.name}}</text>
                         <touchable-opacity :on-press="()=>close()">
-                        <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain', marginLeft: 'auto'}"></image>
+                        <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain', marginLeft: '75%'}"></image>
                         </touchable-opacity>
                     </view>
                 <view class="divider" />
@@ -18,6 +19,7 @@
                     <operator-info-sub title='Website' :content="operator.website"></operator-info-sub>
                     <operator-info-sub title='Description' :content="operator.description"></operator-info-sub>
                     <operator-info-sub title='Operator Address' :content="operator.address"></operator-info-sub>
+                    <operator-info-sub title='Operator Contract' :content="operator.layer2"></operator-info-sub>
                     <operator-info-sub title='Chain ID' :content="operator.chainId"></operator-info-sub>
                     <operator-info-sub title='Commit Count' :content="operator.finalizeCount"></operator-info-sub>
                     <operator-info-sub title='Recent Commit' :content="fromNow(operator.lastFinalizedAt)"></operator-info-sub>
@@ -32,9 +34,9 @@
                     <operator-info-sub title='Withdrawal Delay' :content="`${delay()}${' blocks'}`"></operator-info-sub>
                 </view>
                 </view>
-
             </scroll-view>
         </view> 
+    </view>
     </Modal>
 </template>
 
@@ -124,6 +126,9 @@ export default {
 </script>
 
 <style>
+.modal-background {
+   background-color:rgba( 0, 0, 0, 0.45 );
+}
 .modal-container {
     background-color: #FFFFFF;
     justify-content: center;

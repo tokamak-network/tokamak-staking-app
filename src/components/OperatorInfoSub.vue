@@ -2,8 +2,8 @@
   <view class="OperatorInfoSub">
       <text class="OperatorInfoSubTitle">{{title}}</text>
       <text class="OperatorInfoSubContent" 
-      :class="{link: title === 'Website', underline: title === 'OperatorAddress' || title === 'OperatorContract'}"
-      :on-press="title === 'Website' || title === 'OperatorAddress' || title === 'OperatorContract' ? openURL : null"
+      :class="{link: title === 'Website', underline: title === 'Operator Address' || title === 'Operator Contract'}"
+      :on-press="title === 'Website' || title === 'Operator Address' || title === 'Operator Contract' ? openURL : null"
       >
       {{content}}</text>
   </view>

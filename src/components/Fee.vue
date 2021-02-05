@@ -4,7 +4,7 @@
     :visible=modalVisible
     >
     <view class="modal-background">
-        <view class="modal-container" :style="{height: windowHeight*0.730, width: windowWidth, top: windowHeight * 0.270}">
+        <view class="modal-container" :style="{height: windowHeight, width: windowWidth, top: windowHeight * 0.270}">
           <view class="modal-top">
               <text class="modal-top-text">Fee</text>
               <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain'}"></image>

@@ -1,43 +1,72 @@
 <template>
-    <Modal
-    :transparent='true'
-    :visible=modalVisible
+  <Modal :transparent="true" :visible="modalVisible" :onRequestClose="close">
+    <view
+      class="modal-background"
+      :style="{ height: windowHeight, width: windowWidth }"
     >
-        <view class="modal-container" :style="{height: windowHeight*0.428, width: windowWidth}">
-            <scroll-view>
-                <view class="modal-content">
-                    <view class="modal-top">
-                        <text class="modtal-top-title">Select an operator</text>
-                        <touchable-opacity :on-press="()=>close()">
-                        <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain', marginLeft: 'auto'}"></image>
-                        </touchable-opacity>
-                    </view>
-                    <view class="divider" />
-                    <view class="modal-bottom">
-                        <view class="modal-bottom-row">
-                            <image :style="{width: windowWidth*0.083, height: windowHeight*0.047, resizeMode: 'contain'}" :source=TokamakIcon></image>
-                            <text class="modal-bottom-row-text">Tokamak1</text>
-                        </view>
-                        <view class="modal-bottom-row">
+      <view
+        class="modal-container"
+        :style="{ height: windowHeight * 0.428, width: windowWidth }"
+      >
+        <scroll-view>
+          <view class="modal-content">
+            <view class="modal-top">
+              <text class="modtal-top-title">Select an operator</text>
+              <touchable-opacity :on-press="() => close()">
+                <image
+                  :source="CloseIcon"
+                  :style="{
+                    width: windowWidth * 0.08,
+                    height: windowHeight * 0.032,
+                    resizeMode: 'contain',
+                    marginLeft: 'auto',
+                  }"
+                ></image>
+              </touchable-opacity>
+            </view>
+            <view class="divider" />
+            <view class="modal-bottom">
+           
+              <view 
+                
+                v-for="(operator, index) in operators"
+                :key="index"
+              >
+                <touchable-opacity :on-press="() => selectOperator(operator.name )" class="modal-bottom-row">
+                <image
+                  :style="{
+                    width: windowWidth * 0.083,
+                    height: windowHeight * 0.047,
+                    resizeMode: 'contain',
+                  }"
+                  :source="operator.name === 'test'
+                ? TokamakIcon
+                : operator.name === 'test3'
+                ? DXMIcon
+                : DSRVIcon"
+                ></image>
+                <text class="modal-bottom-row-text">{{ operator.name }}</text>
+                </touchable-opacity>
+              </view>
+             
+              <!-- <view class="modal-bottom-row">
                             <image :style="{width: windowWidth*0.083, height: windowHeight*0.047, resizeMode: 'contain'}" :source=DXMIcon></image>
                             <text class="modal-bottom-row-text">DXM Corp</text>
                         </view>
                         <view class="modal-bottom-row">
                             <image :style="{width: windowWidth*0.083, height: windowHeight*0.047, resizeMode: 'contain'}" :source=DSRVIcon></image>
                             <text class="modal-bottom-row-text">DSRV</text>
-                        </view>
-                    </view>
-                </view>
-            </scroll-view>
-        </view> 
-    </Modal>
+                        </view> -->
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+  </Modal>
 </template>
 
 <script>
-import {
-  Dimensions,
-  Modal
-} from "react-native";
+import { Dimensions, Modal } from "react-native";
 import TokamakIcon from "../../assets/TokamakLogo.png";
 import CloseIcon from "../../assets/icon-close.png";
 import DSRVIcon from "../../assets/dsrv.png";
@@ -45,41 +74,45 @@ import DXMIcon from "../../assets/dxm.png";
 import { mapState } from 'vuex';
 
 export default {
-    data() {
-        return{
-            TokamakIcon,
-            CloseIcon,
-            DSRVIcon,
-            DXMIcon
-        }
+  data() {
+    return {
+      TokamakIcon,
+      CloseIcon,
+      DSRVIcon,
+      DXMIcon,
+    };
+  },
+  props: {
+    modalVisible: {
+      type: Boolean,
+      default: false,
     },
-    computed: {
-    ...mapState([
+  },
+  components: {},
+  computed: {
+      ...mapState([
       'operators',
     ]),
+    windowWidth() {
+      return Dimensions.get("window").width;
     },
-    props: {
-        modalVisible: {
-            type: Boolean,
-            default: false
-        }
+    windowHeight() {
+      return Dimensions.get("window").height;
     },
-    components: {
+  },
+  methods: {
+    close() {
+      this.modalVisible = false;
+         this.$emit('closeModel', this.modalVisible)
     },
-    computed: {
-        windowWidth () {
-            return Dimensions.get('window').width
-        },
-        windowHeight () {
-            return Dimensions.get('window').height
-        },
-    },
-    methods: {
-        close() {
-            this.modalVisible = false
-        },
+    selectOperator (op) {
+        this.$emit('handleModelOutput', op)
+
+        this.modalVisible = false;
+          this.$emit('closeModel', this.modalVisible)
     }
-}
+  },
+};
 </script>
 
 <style>
@@ -132,6 +165,5 @@ export default {
   font-size: 16px;
   font-weight: bold;
   color: #131315;
-
 }
 </style>

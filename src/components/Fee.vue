@@ -4,7 +4,7 @@
     :visible=modalVisible
     >
     <view class="modal-background">
-        <view class="modal-container" :style="{height: windowHeight, width: windowWidth, top: windowHeight * 0.270}">
+        <view v-if="activeTab === 'selectFee'" class="modal-container" :style="{height: windowHeight, width: windowWidth, top: windowHeight * 0.270}">
           <view class="modal-top">
               <text class="modal-top-text">Fee</text>
               <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain'}"></image>
@@ -66,10 +66,11 @@
                   <text class="modal-fee-unit">ETH</text>
               </view>
           </view>
-          <touchable-opacity>
+          <touchable-opacity :on-press="selectState === 'custom' ? ()=>goToCustomFee() : ()=>console.log('no')">
           <button title="Next"></button>
           </touchable-opacity>
         </view> 
+        <custom-fee v-if="selectState === 'custom' && activeTab === 'customFee'" :selectState=selectState :activeTab=activeTab @propFromChild="childPropReceived"></custom-fee>
     </view>
     </Modal>
 </template>
@@ -79,15 +80,17 @@ import {
   Dimensions,
   Modal
 } from "react-native";
-import CloseIcon from "../../assets/icon-close.png";
 import Divider from "@/components/Divider"
 import ButtonMain from "@/components/ButtonMain"
+import CustomFee from "@/components/CustomFee"
+import CloseIcon from "../../assets/icon-close.png";
 
 export default {
     data() {
         return{
            CloseIcon,
-           selectState : ""
+           selectState : "",
+           activeTab : 'selectFee',
         }
     },
     props: {
@@ -98,14 +101,14 @@ export default {
     },
     components: {
         "divider": Divider,
-        "button": ButtonMain
+        "button": ButtonMain,
+        "custom-fee": CustomFee
     },
     methods: {
         selectType(args) {
             console.log("func : selectType")
             this.selectState = args
             console.log(this.selectState)
-
         },
         close() {
             this.modalVisible = false
@@ -114,6 +117,13 @@ export default {
         sendPropToParent() {
             this.$emit('propFromChild', this.modalVisible)
         },
+        goToCustomFee() {
+            this.activeTab = 'customFee'
+        },
+        childPropReceived(args1, args2) {
+            this.activeTab = args1;
+            this.selectState = args2;
+        }
     },
     computed: {
          windowWidth() {
@@ -130,7 +140,7 @@ export default {
    background-color:rgba( 0, 0, 0, 0.45 );
 }
 .modal-container {
-   background-color: #FFFFFF;
+    background-color: #FFFFFF;
     border-width: 1px;
     border-color: #ffffff;
     border-top-left-radius: 10px;

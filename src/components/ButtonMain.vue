@@ -23,7 +23,7 @@ export default {
 
 .text {
    color: white;
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 700;  
 }
 </style>

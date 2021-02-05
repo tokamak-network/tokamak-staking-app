@@ -42,6 +42,7 @@ import TokamakIcon from "../../assets/TokamakLogo.png";
 import CloseIcon from "../../assets/icon-close.png";
 import DSRVIcon from "../../assets/dsrv.png";
 import DXMIcon from "../../assets/dxm.png";
+import { mapState } from 'vuex';
 
 export default {
     data() {
@@ -51,6 +52,11 @@ export default {
             DSRVIcon,
             DXMIcon
         }
+    },
+    computed: {
+    ...mapState([
+      'operators',
+    ]),
     },
     props: {
         modalVisible: {

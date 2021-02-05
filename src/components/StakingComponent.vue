@@ -79,7 +79,7 @@
       </view>
         <touchable-opacity
           class="value-row-second-touch"
-          :on-press="() => setAvailableAmountToUndelegate()"
+          :on-press="() => setAvailableAmountToDelegate()"
         >
           <text
             class="value-row-second-max"
@@ -90,7 +90,7 @@
       </view>
       <view
         class="value-row value-row-third value-row-border"
-        :style="{ height: windowHeight * styles.valueRowThirdheight,   justifyContent: 'space-between'}"
+        :style="{ height: windowHeight * styles.valueRowThirdheight, justifyContent: 'space-between'}"
       >
         <text class="value-row-third-text">Select an operator </text>
         <touchable-opacity :on-press="handleBtnPress">
@@ -130,19 +130,22 @@
         :style="{
           height: windowHeight * styles.valueRowThirdheight,
           marginBottom: '4.5%',
+          flexDirection:'row',
+          justifyContent: 'space-between'
         }">
-        <text-input
-        :style="{borderWidth:1, borderColor:'#ebc634'}"
-          v-model="amountToDelegate"
-            placeholder="0.00"
-            autocomplete="off"
-            minlength="1"
-            maxlength="1"
-            keyboardType="numeric"
+        <text class="value-row-third-text">Re-stake Amount</text>
         
-        ></text-input>
+         <view class="value-row-second-input" :style="{borderWidth:0}">
+        <text
+            class="text-input"
+            :style="{borderWidth:0}"
+        >{{ currencyAmount(operator.userNotWithdrawable).toString().replace('TON', '') }}</text>
+        <text class="ton-text">TON</text>
       </view>
+      </view>
+       <touchable-opacity :on-press="redelegate">
       <button-main title="Re-Stake"></button-main>
+       </touchable-opacity>
     </view>
    <!-- <Unstake tab> -->
     <view
@@ -158,7 +161,7 @@
         :style="{ height: windowHeight * styles.valueBalanceFirstHeight }"
       >
         <text class="value-row-text">Balance : </text>
-        <text class="value-row-value">4,598.24 TON</text>
+        <text class="value-row-value">{{currencyAmount(operator.userStaked)}}</text>
       </view>
       <view
         class="value-row value-row-sb"
@@ -167,14 +170,18 @@
           marginBottom: '3%',
         }"
       >
+        <view class="value-row-second-input">
         <text-input
-          class="value-row-second-input"
+          v-model="amountToUndelegate"
             placeholder="0.00"
             autocomplete="off"
             minlength="1"
             maxlength="1"
             keyboardType="numeric"
+            class="text-input"
         ></text-input>
+        <text class="ton-text">TON</text>
+      </view>
         <touchable-opacity
           class="value-row-second-touch"
           :on-press="() => setAvailableAmountToUndelegate()"
@@ -188,9 +195,11 @@
       </view>
       <view
         class="value-row value-row-third value-row-border"
-        :style="{ height: windowHeight * styles.valueRowThirdheight }"
+        :style="{ height: windowHeight * styles.valueRowThirdheight, justifyContent: 'space-between' }"
       >
         <text class="value-row-third-text">Select an operator </text>
+        <touchable-opacity :on-press="handleBtnPress">
+        <view class="input-icon-container">
         <image
           class="value-icon"
           :style="{
@@ -200,19 +209,23 @@
           }"
           :source="IconTokamak"
         ></image>
-        <text class="value-row-thrid-select" :onPress="handleBtnPress">{{
+        <text class="value-row-thrid-select" >{{
           selectedOperator
         }}</text>
         <image
           :style="{
-            height: windowHeight * 0.024,
+            height: windowHeight * 0.012,
             width: windowWidth * 0.025,
             resizeMode: 'contain',
           }"
           :source="IconSelect"
         ></image>
+        </view>
+        </touchable-opacity>
       </view>
+       <touchable-opacity :on-press="undelegate">
       <button-main title="Unstake"></button-main>
+       </touchable-opacity>
     </view>
    <!-- <Withdraw tab> -->
     <view
@@ -230,24 +243,25 @@
         <text class="value-row-text">Widhdrawable Amount : </text>
       </view>
       <view
-        class="value-row value-row-sb"
+        class="value-row"
         :style="{
           height: windowHeight * styles.valueBalanceFirstHeight,
-          marginBottom: '3%',
+          marginBottom: '3%'
         }"
       >
-        <text-input
+        <text
           class="withdraw-value-row-input"
-          :style="{ height: windowHeight * 0.062 }"
-          placeholder="0.00"
-          ><text>TON</text></text-input
+          :style="{ height: windowHeight * styles.valueBalanceFirstHeight }"
+          >{{currencyAmount(operator.userWithdrawable)}}</text
         >
       </view>
       <view
         class="value-row value-row-third value-row-border"
-        :style="{ height: windowHeight * styles.valueRowThirdheight }"
+        :style="{ height: windowHeight * styles.valueRowThirdheight, justifyContent: 'space-between'}"
       >
         <text class="value-row-third-text">Select an operator </text>
+        <touchable-opacity :on-press="handleBtnPress">
+        <view class="input-icon-container">
         <image
           class="value-icon"
           :style="{
@@ -257,22 +271,24 @@
           }"
           :source="IconTokamak"
         ></image>
-        <text class="value-row-thrid-select" :onPress="handleBtnPress">{{
+        <text class="value-row-thrid-select" >{{
           selectedOperator
         }}</text>
         <image
           :style="{
-            height: windowHeight * 0.024,
+            height: windowHeight * 0.012,
             width: windowWidth * 0.025,
             resizeMode: 'contain',
           }"
           :source="IconSelect"
         ></image>
+        </view>
+        </touchable-opacity>
       </view>
       <button-main title="Withdraw"></button-main>
     </view>
 
-    <!-- <alert :modalVisible="true" :width="0.889" :height="0.242"></alert> -->
+    <alert :modalVisible="alertVisibility" :width="0.889" :height="0.242" @closePopup="closePopUp"></alert>
     <select-operator :modalVisible="false"></select-operator>
   </view>
 </template>
@@ -307,6 +323,7 @@ export default {
        layer2: this.layer2Address,
       amountToDelegate: '',
       amountToUndelegate: '',
+      alertVisibility:false,
       index: 0,
   // 
       styles: {
@@ -367,19 +384,6 @@ export default {
     disableButton () {
       return false;
     },
-    // minimumAmount () {
-    //   return this.SeigManager.methods.minimumAmount().call();
-    // },
-    // operatorMinimumAmount () {
-    //   const operatorDeposit = this.operator.selfDeposit;
-    //   const minimumAmount = this.operator.minimumAmount;
-    //   const lessThan = operatorDeposit < minimumAmount;
-    //   if (this.user !== this.operator.address) {
-    //     return lessThan;
-    //   } else {
-    //     return false;
-    //   }
-    // },
     windowWidth() {
       return Dimensions.get("window").width;
     },
@@ -395,17 +399,20 @@ export default {
     selectFirstOperator () {
       this.selectedOperator = this.operators[0];
     },
+    closePopUp (close) {
+      this.alertVisibility = close;
+    },
     async delegate() {
      if (
-        this.amountToDelegate === "" ||
-        parseFloat(this.amountToDelegate) === 0
+        this.amountToDelegate === "" 
       ) {
-        return alert("Please check your TON amount.");
+        this.alertVisibility = true
       }
-      if (_TON(this.amountToDelegate).gt(this.tonBalance)) {
-        return alert("Please check your TON amount.");
+      else if (_TON(this.amountToDelegate).gt(this.tonBalance)) {
+       this.alertVisibility = true
       }
-      const amount = _TON(this.amountToDelegate).toFixed("wei");
+      else {
+        const amount = _TON(this.amountToDelegate).toFixed("wei");
       const data = this.getData();
       const status = await BlockchainModule.approveAndCall(
         this.TON,
@@ -431,6 +438,8 @@ export default {
       } else {
         ToastAndroid.show("Transaction Unsuccessful", ToastAndroid.SHORT);
       }
+      }
+      
     },
      marshalString(str) {
       if (str.slice(0, 2) === "0x") return str;
@@ -529,33 +538,10 @@ export default {
         const root = operator.layer2;
          this.layer2 = root;
           this.selectedOperator = ops[buttonIndex];
-          console.log(operator);
       }
         }
       )
     },
-    // handleBtnPress() {
-    //   const ops = this.ops.map((op) => op.name);
-    //   ActionSheet.show(
-    //     {
-    //       options: [
-    //         { text: "Option 0", icon: "tokamak", iconColor: "black" },
-    //         { text: "Option 1", icon: "analytics", iconColor: "#f42ced" },
-    //         { text: "Option 2", icon: "aperture", iconColor: "#ea943b" },
-    //         { text: "Delete", icon: "trash", iconColor: "#fa213b" },
-    //         { text: "Cancel", icon: "close", iconColor: "#25de5b" },
-    //       ],
-    //       title: "Select an operator",
-    //     },
-    //     (buttonIndex) => {
-    //       if (buttonIndex === undefined) {
-    //         this.selectedOperator = this.selectedOperator;
-    //       } else {
-    //         this.selectedOperator = ops[buttonIndex];
-    //       }
-    //     }
-    //   );
-    // },
   },
 };
 </script>
@@ -652,7 +638,10 @@ export default {
   border-width: 1px;
   border-radius: 4px;
   border-color: #dfe4ee;
-  
+  display: flex;
+  flex-direction: row;
+   /* justify-content: center; */
+  align-items: center;
 }
 
 .value-row-third {
@@ -793,7 +782,12 @@ export default {
   border-color: #dfe4ee;
   border-radius: 4px;
   text-align: right;
-  padding-right: 3.6%;
+  padding: 4.1%;
   background-color: #e9edf1;
+  display: flex;
+   justify-content: center;
+  align-self: stretch;
+  align-items: center;
+
 }
 </style>

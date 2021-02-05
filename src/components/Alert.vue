@@ -53,7 +53,8 @@ export default {
     },
     methods: {
         setModalVisible() {
-            this.modalVisible = !this.modalVisible
+            this.modalVisible = false
+              this.$emit('closePopup', false)
         }
     }
 }

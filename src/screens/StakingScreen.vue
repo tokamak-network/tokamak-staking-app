@@ -1,9 +1,9 @@
 <template>
   <view class="staking-layout">
     <view class="staking-container">
-      <text class="page-title">Stake tokens now!!!</text>
+      <text class="page-title">Stake tokens now</text>
       <text class="page-text"
-        >Stake TON to earn TON..</text>
+        >Stake TON to earn TON.</text>
       <staking-component :layer2Address="operators[0].layer2" :selectedOperatorName="operators[0].name"/>
     </view>
   </view>
@@ -30,28 +30,24 @@ export default {
 .staking-layout {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  align-items: center;
   background-color: #FAFBFC;
-
 }
 .staking-container {
-  flex: 1;
-  align-self: stretch;
-  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 20px 40px;
+  padding-top: 4.7%;
 }
 .page-title {
-  font-size: 30px;
-  text-align: center;
-  color: #555555;
-  padding: 0px 40px;
-  font-weight: 700;
+font-size: 24px;
+color: #3e495c;
+font-weight: bold;
 }
 .page-text {
-  font-size: 20px;
-  text-align: center;
-  padding: 20px 40px;
+  font-size: 12px;
+  color: #86929d;
+  height: 5%;
+  margin-bottom: 3.9%;
 }
 </style>

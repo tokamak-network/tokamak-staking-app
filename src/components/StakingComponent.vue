@@ -311,7 +311,6 @@
       </view>
       <button-main title="Withdraw"></button-main>
     </view>
-
     <alert
       :modalVisible="alertVisibility"
       :width="0.889"
@@ -324,6 +323,7 @@
       @handleModelOutput="handleModelOutput"
     ></select-operator>
      <fee :modalVisible="false"></fee>
+     <pending :modalVisible="activeTab === 'Unstake' ? true : false"></pending>
   </view>
 </template>
 
@@ -334,6 +334,7 @@ import Divider from "@/components/Divider";
 import Alert from "@/components/Alert";
 import SelectOperator from "@/components/SelectOperator";
 import Fee from "@/components/Fee";
+import Pending from "@/components/Pending";
 import IconTokamak from "../../assets/tokamak.png";
 import IconSelect from "../../assets/select.png";
 import { ActionSheet } from "native-base";
@@ -385,7 +386,8 @@ export default {
     divider: Divider,
     alert: Alert,
     "select-operator": SelectOperator,
-    'fee': Fee
+    'fee': Fee,
+    'pending': Pending
   },
   computed: {
     ...mapState([

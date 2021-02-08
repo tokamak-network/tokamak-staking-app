@@ -83,6 +83,9 @@ export default {
     props: {
         activeTab: {
             type: String
+        },
+        selectState: {
+            type: String
         }
     },
     computed: {
@@ -96,7 +99,8 @@ export default {
         methods: {
             backToSelectFee() {
                 this.activeTab = 'selectFee'
-                this.$emit('propFromChild', this.activeTab)
+                this.selectState = ''
+                this.$emit('propFromChild', this.activeTab, this.selectState)
             }
         }
 }

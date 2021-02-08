@@ -7,12 +7,16 @@
         <view v-if="activeTab === 'selectFee'" class="modal-container" :style="{height: windowHeight, width: windowWidth, top: windowHeight * 0.270}">
           <view class="modal-top">
               <text class="modal-top-text">Fee</text>
+              <touchable-opacity :on-press="()=>close()">
               <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain'}"></image>
+              </touchable-opacity>
           </view>
           <touchable-opacity :on-press="()=>selectType('faster')">
           <view :class="{'modal-fee-container' : selectState !== 'faster', 'selected' : selectState === 'faster'}" :style="{height: windowHeight*0.109}">
               <view class="modal-fee-type">
-                  <text class="modal-fee-radio">btn</text>
+                  <view class="modal-fee-radio" :style="{width: windowWidth * 0.05, height: windowHeight * 0.025, backgroundColor: selectState === 'faster' ?  '#2a72e5' : '#FFFFFF'}">
+                      <view class="modal-fee-radio-dot" :style="{width: windowWidth * 0.018, height: windowHeight * 0.010}"></view>
+                  </view>
                   <text class="modal-fee-type-text">Faster</text>
               </view>
               <view class="modal-fee-amount">
@@ -24,7 +28,9 @@
           <touchable-opacity :on-press="()=>selectType('normal')">
           <view :class="{'modal-fee-container' : selectState !== 'normal', 'selected' : selectState === 'normal'}" :style="{height: windowHeight*0.109}">
               <view class="modal-fee-type">
-                  <text class="modal-fee-radio">btn</text>
+                  <view class="modal-fee-radio" :style="{width: windowWidth * 0.05, height: windowHeight * 0.025, backgroundColor: selectState === 'normal' ?  '#2a72e5' : '#FFFFFF'}">
+                      <view class="modal-fee-radio-dot" :style="{width: windowWidth * 0.018, height: windowHeight * 0.010}"></view>
+                  </view>
                   <text class="modal-fee-type-text">Normal</text>
               </view>
               <view class="modal-fee-amount">
@@ -36,7 +42,9 @@
           <touchable-opacity :on-press="()=>selectType('slower')">
           <view :class="{'modal-fee-container' : selectState !== 'slower', 'selected' : selectState === 'slower'}" :style="{height: windowHeight*0.109}">
               <view class="modal-fee-type">
-                  <text class="modal-fee-radio">btn</text>
+                  <view class="modal-fee-radio" :style="{width: windowWidth * 0.05, height: windowHeight * 0.025, backgroundColor: selectState === 'slower' ?  '#2a72e5' : '#FFFFFF'}">
+                      <view class="modal-fee-radio-dot" :style="{width: windowWidth * 0.018, height: windowHeight * 0.010}"></view>
+                  </view>
                   <text class="modal-fee-type-text">Slower</text>
               </view>
               <view class="modal-fee-amount">
@@ -48,7 +56,9 @@
           <touchable-opacity :on-press="()=>selectType('custom')">
           <view :class="{'modal-fee-container' : selectState !== 'custom', 'selected' : selectState === 'custom'}" :style="{height: windowHeight*0.109}">
               <view class="modal-fee-type">
-                  <text class="modal-fee-radio">btn</text>
+                  <view class="modal-fee-radio" :style="{width: windowWidth * 0.05, height: windowHeight * 0.025, backgroundColor: selectState === 'custom' ?  '#2a72e5' : '#FFFFFF'}">
+                      <view class="modal-fee-radio-dot" :style="{width: windowWidth * 0.018, height: windowHeight * 0.010}"></view>
+                  </view>
                   <text class="modal-fee-type-text">Custom</text>
               </view>
               <view class="modal-fee-amount">
@@ -178,9 +188,21 @@ export default {
 .modal-fee-type {
     display: flex;
     flex-direction: row;
+    align-items: center;
 }
 .modal-fee-radio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-width: 1px;
+    border-color: #e7ebf2;
+    border-radius: 10px;
     margin-right: 3.1%;
+    padding: 5px;
+}
+.modal-fee-radio-dot {
+    border-radius: 10px;
+    background-color: #FFFFFF;
 }
 .modal-fee-type-text {
     font-size: 16px;

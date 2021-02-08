@@ -38,32 +38,23 @@ import com.samsung.android.sdk.blockchain.exception.RootSeedChangedException;
 import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumService;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import android.util.Log;
 import android.content.Context;
 
-//import org.unimodules.core.Promise;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.web3j.abi.FunctionEncoder;
-import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
-import org.web3j.abi.datatypes.Array;
 import org.web3j.abi.datatypes.Bool;
-import org.web3j.abi.datatypes.BytesType;
-import org.web3j.abi.datatypes.DynamicArray;
 import org.web3j.abi.datatypes.DynamicBytes;
 import org.web3j.abi.datatypes.generated.AbiTypes;
 import org.web3j.abi.datatypes.Function;
@@ -461,6 +452,61 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
 
         return FunctionEncoder.encode(transferFunction);
     }
+
+    ///withdraw
+
+    @ReactMethod
+    private void withdraw (String toContractAddress, String function, String input1, String input2, Boolean input3, Promise promise) throws DecoderException {
+        hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
+        Context context = getReactApplicationContext();
+        EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+        String encodedFunction = convertWithdraw(function, input1, input2, input3);
+        Log.i("Tokamak App", "sendSmartContractTransaction" + ethereumGasPriceSlow);
+        try{
+            etherService
+                    .sendSmartContractTransaction(
+                            hardwareWallet,
+                            ethereumAccount,
+                            toContractAddress,
+                            EthereumUtils.convertGweiToWei(new BigDecimal(10)),
+                            new BigInteger(String.valueOf(735458)),
+                            encodedFunction,
+                            null,
+                            null  // nonce
+                    )
+                    .setCallback(
+                            new ListenableFutureTask.Callback<TransactionResult>() {
+                                @Override
+                                public void onSuccess(TransactionResult result) {
+                                    //success
+                                    WritableMap infoMap = Arguments.createMap();
+                                    infoMap.putString("hash", result.getHash());
+                                    infoMap.putInt("code", result.getError().getCode());
+                                    promise.resolve(infoMap);
+                                }
+                                @Override
+                                public void onFailure(ExecutionException exception) {
+                                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                                }
+                                @Override
+                                public void onCancelled(InterruptedException exception) {
+                                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                                }
+                            });
+        } catch (AvailabilityException e) {
+            //handle exception
+        } }
+
+    @NotNull
+    public String convertWithdraw (String method, String input1, String input2, Boolean input3) {
+        List<Type> inputParameters = Arrays.asList(new Address(input1), new Uint(new BigInteger(input2)), new Bool( input3) );
+        List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
+        );
+        Function transferFunction = new Function(method, inputParameters, outputParameters);
+
+        return FunctionEncoder.encode(transferFunction);
+    }
+////
 
     @ReactMethod
     private void requestWithdrawal (String toContractAddress, String function, String input1, String input2, Promise promise) throws DecoderException {

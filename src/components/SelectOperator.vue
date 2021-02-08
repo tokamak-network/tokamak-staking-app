@@ -8,7 +8,11 @@
         class="modal-container"
         :style="{ height: windowHeight * 0.428, width: windowWidth }"
       >
-        <scroll-view>
+        <scroll-view-indicator
+        :scrollIndicatorStyle='styles'
+     :shouldIndicatorHide='false'
+     :flexibleIndicator='false'
+     :indicatorHeight='30' >
           <view class="modal-content">
             <view class="modal-top">
               <text class="modtal-top-title">Select an operator</text>
@@ -24,6 +28,7 @@
                 ></image>
               </touchable-opacity>
             </view>
+            
             <view class="divider" />
             <view class="modal-bottom">
            
@@ -50,7 +55,7 @@
               </view>
             </view>
           </view>
-        </scroll-view>
+        </scroll-view-indicator>
       </view>
     </view>
   </Modal>
@@ -63,14 +68,22 @@ import CloseIcon from "../../assets/icon-close.png";
 import DSRVIcon from "../../assets/dsrv.png";
 import DXMIcon from "../../assets/dxm.png";
 import { mapState } from 'vuex';
+import ScrollViewIndicator from "react-native-scroll-indicator";
 
 export default {
+     components: {
+    "scroll-view-indicator": ScrollViewIndicator,
+  },
   data() {
     return {
       TokamakIcon,
       CloseIcon,
       DSRVIcon,
       DXMIcon,
+      styles: {
+        backgroundColor: "#5e94ea",
+        opacity: 1,
+      },
     };
   },
   props: {
@@ -79,7 +92,6 @@ export default {
       default: false,
     },
   },
-  components: {},
   computed: {
       ...mapState([
       'operators',

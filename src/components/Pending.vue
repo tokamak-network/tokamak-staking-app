@@ -1,5 +1,5 @@
 <template>
-        <view v-if="modalVisible===true" class="modal-container" :style="{width: windowWidth*0.358, height: windowHeight*0.059, marginTop: windowHeight * 0.094}">
+        <view v-if="modalVisible===true" class="modal-container" :style="{width: windowWidth*0.358, height: windowHeight*0.059, marginTop: windowHeight * 0.28}">
             <activity-indicator class="modal-indicator" size="small" color="#FFFFFF" />
             <text class="modal-text">Tx Pending</text>
         </view>

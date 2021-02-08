@@ -108,11 +108,13 @@
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
               }"
-              :source="selectedOperator === 'test'
-                ? TokamakIcon
-                : operator.name === 'test3'
-                ? DXMIcon
-                : DSRVIcon"
+              :source="
+                selectedOperator === 'test'
+                  ? TokamakIcon
+                  : operator.name === 'test3'
+                  ? DXMIcon
+                  : DSRVIcon
+              "
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -224,11 +226,13 @@
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
               }"
-               :source="selectedOperator === 'test'
-                ? TokamakIcon
-                : operator.name === 'test3'
-                ? DXMIcon
-                : DSRVIcon"
+              :source="
+                selectedOperator === 'test'
+                  ? TokamakIcon
+                  : operator.name === 'test3'
+                  ? DXMIcon
+                  : DSRVIcon
+              "
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -291,11 +295,13 @@
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
               }"
-            :source="selectedOperator === 'test'
-                ? TokamakIcon
-                : operator.name === 'test3'
-                ? DXMIcon
-                : DSRVIcon"
+              :source="
+                selectedOperator === 'test'
+                  ? TokamakIcon
+                  : operator.name === 'test3'
+                  ? DXMIcon
+                  : DSRVIcon
+              "
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -309,12 +315,15 @@
           </view>
         </touchable-opacity>
       </view>
-      <button-main title="Withdraw"></button-main>
+      <touchable-opacity :on-press="withdraw">
+        <button-main title="Withdraw"></button-main>
+      </touchable-opacity>
     </view>
     <alert
       :modalVisible="alertVisibility"
       :width="0.889"
       :height="0.242"
+      :message="message"
       @closePopup="closePopUp"
     ></alert>
     <select-operator
@@ -354,7 +363,7 @@ export default {
   props: ["layer2Address", "selectedOperatorName"],
   data() {
     return {
-       TokamakIcon,
+      TokamakIcon,
       DSRVIcon,
       DXMIcon,
       activeTab: "Stake",
@@ -366,6 +375,7 @@ export default {
       amountToDelegate: "",
       amountToUndelegate: "",
       alertVisibility: false,
+      message: "",
       actionSheetVisibility: false,
       index: 0,
       //
@@ -449,8 +459,10 @@ export default {
     },
     async delegate() {
       if (this.amountToDelegate === "") {
+        this.message = "Please input a valid TON amount";
         this.alertVisibility = true;
       } else if (_TON(this.amountToDelegate).gt(this.tonBalance)) {
+        this.message = "Please input a valid TON amount";
         this.alertVisibility = true;
       } else {
         const amount = _TON(this.amountToDelegate).toFixed("wei");
@@ -467,7 +479,7 @@ export default {
           ToastAndroid.show("Transaction Successful", ToastAndroid.SHORT);
           const transaction = {
             from: this.user,
-            type: "Withdrawn",
+            type: "Delegated",
             amount: amount,
             transactionHash: status.hash,
             target: this.operator.layer2,
@@ -501,12 +513,14 @@ export default {
     async undelegate() {
       if (
         this.amountToUndelegate === "" ||
-        parseFloat(this.amountToUndelegate) === 0
+        parseInt(this.amountToUndelegate) === 0
       ) {
-        return alert("Please check input amount.");
+        this.message = "Please input a valid TON amount";
+        this.alertVisibility = true;
       }
       if (_WTON(this.amountToUndelegate).gt(this.operator.userStaked)) {
-        return alert("Please check your TON amount.");
+        this.message = "Please input a valid TON amount";
+        this.alertVisibility = true;
       }
       const amount = _WTON(this.amountToUndelegate).toFixed("ray");
       const status = await BlockchainModule.requestWithdrawal(
@@ -520,6 +534,75 @@ export default {
         ToastAndroid.show("Transaction Successful", ToastAndroid.SHORT);
         const transaction = {
           from: this.user,
+          type: "Undelegated",
+          amount: amount,
+          transactionHash: status.hash,
+          target: this.operator.layer2,
+        };
+        //  this.$store.dispatch('addPendingTransaction', transaction);
+        this.$store.dispatch("setBalance");
+        this.$store.dispatch("setOperators");
+        this.amountToUndelegate = "";
+        this.index = 0;
+      } else {
+        ToastAndroid.show("Transaction Unsuccessful", ToastAndroid.SHORT);
+      }
+    },
+    async redelegate() {
+      if (this.operator.withdrawalRequests.length === 0) {
+        this.message = "Redelegatable amount is 0.";
+        this.alertVisibility = true;
+      }
+      const amount = this.redelegatableAmount.toFixed("ray");
+      const status = await BlockchainModule.requestWithdrawal(
+        this.DepositManager,
+        "redepositMulti",
+        this.operator.layer2,
+        this.redelegatableRequests.toString()
+      );
+      if (status.code === 0) {
+        this.index = 0;
+        ToastAndroid.show("Transaction Successful", ToastAndroid.SHORT);
+        const transaction = {
+          from: this.user,
+          type: "Redelegated",
+          amount: amount,
+          transactionHash: status.hash,
+          target: this.operator.layer2,
+        };
+        //  this.$store.dispatch('addPendingTransaction', transaction);
+        this.$store.dispatch("setBalance");
+        this.$store.dispatch("setOperators");
+        this.amountToUndelegate = "";
+        this.index = 0;
+      } else {
+        ToastAndroid.show("Transaction Unsuccessful", ToastAndroid.SHORT);
+      }
+    },
+    async withdraw() {
+      const userWithdrawable = this.operator.userWithdrawable;
+      if (userWithdrawable.isEqual(_WTON.ray("0"))) {
+        this.message = "Withdrawable amount is 0.";
+        this.alertVisibility = true;
+      }
+      const count = this.operator.withdrawableRequests.length;
+      if (count === 0) {
+        this.message = "Withdrawable amount is 0.";
+        this.alertVisibility = true;
+      }
+      const amount = _WTON(userWithdrawable).toFixed("ray");
+      const status = await BlockchainModule.withdraw(
+        this.DepositManager,
+        "processRequests",
+        this.operator.layer2,
+        count.toString(),
+        true
+      );
+       if (status.code === 0) {
+        this.index = 0;
+        ToastAndroid.show("Transaction Successful", ToastAndroid.SHORT);
+        const transaction = {
+          from: this.user,
           type: "Withdrawn",
           amount: amount,
           transactionHash: status.hash,
@@ -529,15 +612,11 @@ export default {
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setOperators");
         this.amountToUndelegate = "";
+        this.index = 0;
       } else {
         ToastAndroid.show("Transaction Unsuccessful", ToastAndroid.SHORT);
       }
-    },
-    redelegate() {
-      console.log("redelegate");
-    },
-    withdraw() {
-      console.log("withdraw");
+
     },
     setAvailableAmountToDelegate() {
       const tonAmount = this.tonBalance.toBigNumber().toString();
@@ -564,7 +643,6 @@ export default {
       this.actionSheetVisibility = true;
     },
     closeModel(result) {
-    
       this.actionSheetVisibility = result;
     },
     handleModelOutput(result) {
@@ -673,7 +751,7 @@ export default {
 }
 
 .unable-row {
-  background-color: #e9edf1;
+  /* background-color: #e9edf1; */
 }
 
 .value-row-third {

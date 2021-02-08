@@ -5,7 +5,7 @@
     >
     <view class="modal-background" :style="{height: windowHeight, width: windowWidth}">
         <view class="modal-container" :style="{height: windowHeight*height, width: windowWidth*width}">
-            <text class="modal-container-text">Please check your TON amount</text>
+            <text class="modal-container-text">{{message}}</text>
             <touchable-opacity :style="{width: windowWidth*0.361}" :on-press="()=>setModalVisible()">
             <button-main title="OK"></button-main>
             </touchable-opacity>
@@ -38,7 +38,11 @@ export default {
         height: {
             type: Number,
             default: 0
-        }
+        },
+         message: {
+             type:String, 
+             default:''
+         }
     },
     components: {
         "button-main": ButtonMain

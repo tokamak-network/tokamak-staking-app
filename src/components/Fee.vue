@@ -101,6 +101,7 @@ export default {
            CloseIcon,
            selectState : "",
            activeTab : 'selectFee',
+           total:0
         }
     },
     props: {

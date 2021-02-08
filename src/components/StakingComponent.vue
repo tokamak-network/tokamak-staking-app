@@ -331,8 +331,11 @@
       @closeModel="closeModel"
       @handleModelOutput="handleModelOutput"
     ></select-operator>
-     <fee :modalVisible="true"></fee>
-     <pending :modalVisible="activeTab === 'Unstake' ? true : false"></pending>
+    <fee
+      :modalVisible="feeModelVisibility"
+      @getCustomValues="getCustomValues"
+    ></fee>
+    <pending :modalVisible="activeTab === 'Unstake' ? true : false"></pending>
   </view>
 </template>
 
@@ -377,6 +380,9 @@ export default {
       alertVisibility: false,
       message: "",
       actionSheetVisibility: false,
+      feeModelVisibility: false,
+      price: 0,
+      limit: 0,
       index: 0,
       //
       styles: {
@@ -396,8 +402,8 @@ export default {
     divider: Divider,
     alert: Alert,
     "select-operator": SelectOperator,
-    'fee': Fee,
-    'pending': Pending
+    fee: Fee,
+    pending: Pending,
   },
   computed: {
     ...mapState([
@@ -465,6 +471,8 @@ export default {
         this.message = "Please input a valid TON amount";
         this.alertVisibility = true;
       } else {
+        this.feeModelVisibility = true;
+
         const amount = _TON(this.amountToDelegate).toFixed("wei");
         const data = this.getData();
         const status = await BlockchainModule.approveAndCall(
@@ -598,7 +606,7 @@ export default {
         count.toString(),
         true
       );
-       if (status.code === 0) {
+      if (status.code === 0) {
         this.index = 0;
         ToastAndroid.show("Transaction Successful", ToastAndroid.SHORT);
         const transaction = {
@@ -616,7 +624,6 @@ export default {
       } else {
         ToastAndroid.show("Transaction Unsuccessful", ToastAndroid.SHORT);
       }
-
     },
     setAvailableAmountToDelegate() {
       const tonAmount = this.tonBalance.toBigNumber().toString();
@@ -636,9 +643,6 @@ export default {
         this.amountToUndelegate = tonAmount;
       }
     },
-    onValueChange(value) {
-      this.selectedOperator = value;
-    },
     handleBtnPress() {
       this.actionSheetVisibility = true;
     },
@@ -652,6 +656,11 @@ export default {
       const root = operator.layer2;
       this.layer2 = root;
       this.selectedOperator = operator.name;
+    },
+    getCustomValues(price, limit, func) {
+      this.price = price;
+      this.limit = limit;
+      console.log(price, limit);
     },
   },
 };

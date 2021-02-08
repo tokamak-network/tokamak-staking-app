@@ -62,7 +62,7 @@
                   <text class="modal-fee-type-text">Custom</text>
               </view>
               <view class="modal-fee-amount">
-                   <text class="modal-fee-num">{{price*limit*0.000000001}}</text>
+                   <text class="modal-fee-num">{{(price*limit*0.000000001).toFixed(6)}}</text>
                   <text class="modal-fee-unit">ETH</text>
               </view>
           </view>
@@ -73,11 +73,11 @@
           <view class='modal-fee-total'>
               <text>Total</text>
               <view class="modal-fee-amount">
-                  <text class="modal-fee-num">{{total}}</text>
+                  <text class="modal-fee-num">{{total.toFixed(6)}}</text>
                   <text class="modal-fee-unit">ETH</text>
               </view>
           </view>
-          <touchable-opacity :on-press="()=>console.log('no')">
+          <touchable-opacity :on-press="()=>sendCustomValues()">
           <button title="Next"></button>
           </touchable-opacity>
         </view> 
@@ -103,7 +103,7 @@ export default {
            selectState : "",
            activeTab : 'selectFee',
            total:0.00,
-           price: 0,
+           price: 0.23,
            limit:0
         }
     },
@@ -141,11 +141,14 @@ export default {
         },
         setCustomValue(state, tab, price, limit){
             console.log(state, tab, price, limit);
-            this.activeTab = tab;
-            this.selectState = state;
+            this.activeTab = 'selectFee';
+            this.selectState = 'custom';
             this.price = price;
             this.limit = limit
-            this.total = price * limit
+            this.total = price * limit * 0.000000001
+        }, 
+        sendCustomValues (){
+            this.$emit('getCustomValues', this.price, this.limit);
         }
     },
     computed: {

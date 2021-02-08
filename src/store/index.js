@@ -281,7 +281,7 @@ export default new Vuex.Store({
       const totTotalSupply = bigInt(parseInt(totTotalSup)).toString();
       const tonBalanceOfWTON = bigInt(parseInt(tonBalanceWTON)).toString();
 
-      const operators = context.state.operators;
+      const operators = context.state.operators.slice(0, 5);
       for (let i = 0; i < operators.length; i++) {
         const result = await BlockchainModule.callMethod(
           "layer2s",

@@ -11,7 +11,7 @@
               <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain'}"></image>
               </touchable-opacity>
           </view>
-          <touchable-opacity :on-press="()=>selectType('faster')">
+          <touchable-opacity :on-press="()=>selectType('faster', 0.004368)">
           <view :class="{'modal-fee-container' : selectState !== 'faster', 'selected' : selectState === 'faster'}" :style="{height: windowHeight*0.109}">
               <view class="modal-fee-type">
                   <view class="modal-fee-radio" :style="{width: windowWidth * 0.05, height: windowHeight * 0.025, backgroundColor: selectState === 'faster' ?  '#2a72e5' : '#FFFFFF'}">
@@ -25,7 +25,7 @@
               </view>
           </view>
           </touchable-opacity>
-          <touchable-opacity :on-press="()=>selectType('normal')">
+          <touchable-opacity :on-press="()=>selectType('normal', 0.003486)">
           <view :class="{'modal-fee-container' : selectState !== 'normal', 'selected' : selectState === 'normal'}" :style="{height: windowHeight*0.109}">
               <view class="modal-fee-type">
                   <view class="modal-fee-radio" :style="{width: windowWidth * 0.05, height: windowHeight * 0.025, backgroundColor: selectState === 'normal' ?  '#2a72e5' : '#FFFFFF'}">
@@ -39,7 +39,7 @@
               </view>
           </view>
           </touchable-opacity>
-          <touchable-opacity :on-press="()=>selectType('slower')">
+          <touchable-opacity :on-press="()=>selectType('slower', 0.003049)">
           <view :class="{'modal-fee-container' : selectState !== 'slower', 'selected' : selectState === 'slower'}" :style="{height: windowHeight*0.109}">
               <view class="modal-fee-type">
                   <view class="modal-fee-radio" :style="{width: windowWidth * 0.05, height: windowHeight * 0.025, backgroundColor: selectState === 'slower' ?  '#2a72e5' : '#FFFFFF'}">
@@ -53,7 +53,7 @@
               </view>
           </view>
           </touchable-opacity>
-          <touchable-opacity :on-press="()=>selectType('custom')">
+          <touchable-opacity :on-press="()=>goToCustomFee()">
           <view :class="{'modal-fee-container' : selectState !== 'custom', 'selected' : selectState === 'custom'}" :style="{height: windowHeight*0.109}">
               <view class="modal-fee-type">
                   <view class="modal-fee-radio" :style="{width: windowWidth * 0.05, height: windowHeight * 0.025, backgroundColor: selectState === 'custom' ?  '#2a72e5' : '#FFFFFF'}">
@@ -62,6 +62,7 @@
                   <text class="modal-fee-type-text">Custom</text>
               </view>
               <view class="modal-fee-amount">
+                   <text class="modal-fee-num">{{price*limit*0.000000001}}</text>
                   <text class="modal-fee-unit">ETH</text>
               </view>
           </view>
@@ -72,15 +73,15 @@
           <view class='modal-fee-total'>
               <text>Total</text>
               <view class="modal-fee-amount">
-                  <text class="modal-fee-num">0.003049</text>
+                  <text class="modal-fee-num">{{total}}</text>
                   <text class="modal-fee-unit">ETH</text>
               </view>
           </view>
-          <touchable-opacity :on-press="selectState === 'custom' ? ()=>goToCustomFee() : ()=>console.log('no')">
+          <touchable-opacity :on-press="()=>console.log('no')">
           <button title="Next"></button>
           </touchable-opacity>
         </view> 
-        <custom-fee v-if="selectState === 'custom' && activeTab === 'customFee'" :selectState=selectState :activeTab=activeTab @propFromChild="childPropReceived"></custom-fee>
+        <custom-fee v-if="selectState === 'custom' && activeTab === 'customFee'" :selectState=selectState :activeTab=activeTab @propFromChild="childPropReceived" @getCustomValue="setCustomValue"></custom-fee>
     </view>
     </Modal>
 </template>
@@ -101,7 +102,9 @@ export default {
            CloseIcon,
            selectState : "",
            activeTab : 'selectFee',
-           total:0
+           total:0.00,
+           price: 0,
+           limit:0
         }
     },
     props: {
@@ -116,9 +119,9 @@ export default {
         "custom-fee": CustomFee
     },
     methods: {
-        selectType(args) {
-            console.log("func : selectType")
-            this.selectState = args
+        selectType(args, value) {
+            this.selectState = args;
+            this.total = value;
             console.log(this.selectState)
         },
         close() {
@@ -129,11 +132,20 @@ export default {
             this.$emit('propFromChild', this.modalVisible)
         },
         goToCustomFee() {
+             this.selectState  = 'custom'
             this.activeTab = 'customFee'
         },
         childPropReceived(args1, args2) {
             this.activeTab = args1;
             this.selectState = args2;
+        },
+        setCustomValue(state, tab, price, limit){
+            console.log(state, tab, price, limit);
+            this.activeTab = tab;
+            this.selectState = state;
+            this.price = price;
+            this.limit = limit
+            this.total = price * limit
         }
     },
     computed: {
@@ -197,7 +209,7 @@ export default {
     justify-content: center;
     border-width: 1px;
     border-color: #e7ebf2;
-    border-radius: 10px;
+    border-radius: 20px;
     margin-right: 3.1%;
     padding: 5px;
 }

@@ -331,7 +331,7 @@
       @closeModel="closeModel"
       @handleModelOutput="handleModelOutput"
     ></select-operator>
-     <fee :modalVisible="false"></fee>
+     <fee :modalVisible="true"></fee>
      <pending :modalVisible="activeTab === 'Unstake' ? true : false"></pending>
   </view>
 </template>

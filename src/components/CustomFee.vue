@@ -139,7 +139,7 @@ export default {
     backToSelectFee() {
          this.selectState = "custom";
           this.activeTab = "selectFee";
-        this.$emit("getCustomValue", 'selectFee', 'custom', this.price, this.limit);
+        this.$emit("getCustomValue", this.price* 1000000000, this.limit);
     },
   },
 };

@@ -2,6 +2,7 @@
     <Modal
     :transparent='true'
     :visible=modalVisible
+    :onRequestClose="()=>close()"
     >
     <view class="modal-background">
         <view v-if="activeTab === 'selectFee'" class="modal-container" :style="{height: windowHeight, width: windowWidth, top: windowHeight * 0.270}">
@@ -11,7 +12,7 @@
               <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain'}"></image>
               </touchable-opacity>
           </view>
-          <touchable-opacity :on-press="()=>selectType('faster', 0.004368)">
+          <touchable-opacity :on-press="()=>selectType('faster', fastPrice)">
           <view :class="{'modal-fee-container' : selectState !== 'faster', 'selected' : selectState === 'faster'}" :style="{height: windowHeight*0.109}">
               <view class="modal-fee-type">
                   <view class="modal-fee-radio" :style="{width: windowWidth * 0.05, height: windowHeight * 0.025, backgroundColor: selectState === 'faster' ?  '#2a72e5' : '#FFFFFF'}">
@@ -20,12 +21,12 @@
                   <text class="modal-fee-type-text">Faster</text>
               </view>
               <view class="modal-fee-amount">
-                  <text class="modal-fee-num">0.004368</text>
+                  <text class="modal-fee-num">{{((fastPrice/Eth)*gasLimit).toFixed(7)}}</text>
                   <text class="modal-fee-unit">ETH</text>
               </view>
           </view>
           </touchable-opacity>
-          <touchable-opacity :on-press="()=>selectType('normal', 0.003486)">
+          <touchable-opacity :on-press="()=>selectType('normal',normalPrice )">
           <view :class="{'modal-fee-container' : selectState !== 'normal', 'selected' : selectState === 'normal'}" :style="{height: windowHeight*0.109}">
               <view class="modal-fee-type">
                   <view class="modal-fee-radio" :style="{width: windowWidth * 0.05, height: windowHeight * 0.025, backgroundColor: selectState === 'normal' ?  '#2a72e5' : '#FFFFFF'}">
@@ -34,12 +35,12 @@
                   <text class="modal-fee-type-text">Normal</text>
               </view>
               <view class="modal-fee-amount">
-                  <text class="modal-fee-num">0.003486</text>
+                  <text class="modal-fee-num">{{((normalPrice/Eth)*gasLimit).toFixed(7)}}</text>
                   <text class="modal-fee-unit">ETH</text>
               </view>
           </view>
           </touchable-opacity>
-          <touchable-opacity :on-press="()=>selectType('slower', 0.003049)">
+          <touchable-opacity :on-press="()=>selectType('slower', slowPrice)">
           <view :class="{'modal-fee-container' : selectState !== 'slower', 'selected' : selectState === 'slower'}" :style="{height: windowHeight*0.109}">
               <view class="modal-fee-type">
                   <view class="modal-fee-radio" :style="{width: windowWidth * 0.05, height: windowHeight * 0.025, backgroundColor: selectState === 'slower' ?  '#2a72e5' : '#FFFFFF'}">
@@ -48,7 +49,7 @@
                   <text class="modal-fee-type-text">Slower</text>
               </view>
               <view class="modal-fee-amount">
-                  <text class="modal-fee-num">0.003049</text>
+                  <text class="modal-fee-num">{{((slowPrice/Eth)*gasLimit).toFixed(7)}}</text>
                   <text class="modal-fee-unit">ETH</text>
               </view>
           </view>
@@ -62,7 +63,7 @@
                   <text class="modal-fee-type-text">Custom</text>
               </view>
               <view class="modal-fee-amount">
-                   <text class="modal-fee-num">{{(price*limit*0.000000001).toFixed(6)}}</text>
+                   <text class="modal-fee-num">{{((price/Eth)*limit).toFixed(7)}}</text>
                   <text class="modal-fee-unit">ETH</text>
               </view>
           </view>
@@ -73,7 +74,7 @@
           <view class='modal-fee-total'>
               <text>Total</text>
               <view class="modal-fee-amount">
-                  <text class="modal-fee-num">{{total.toFixed(6)}}</text>
+                  <text class="modal-fee-num">{{total.toFixed(7)}}</text>
                   <text class="modal-fee-unit">ETH</text>
               </view>
           </view>
@@ -95,42 +96,45 @@ import Divider from "@/components/Divider"
 import ButtonMain from "@/components/ButtonMain"
 import CustomFee from "@/components/CustomFee"
 import CloseIcon from "../../assets/icon-close.png";
+import { NativeModules } from "react-native";
+const { BlockchainModule } = NativeModules;
+import { createCurrency } from "@makerdao/currency";
+const _ETH = createCurrency("ETH");
 
 export default {
     data() {
         return{
            CloseIcon,
-           selectState : "",
+           selectState : "normal",
            activeTab : 'selectFee',
            total:0.00,
-           price: 0.23,
-           limit:0
+           price: 0,
+           limit:0,
+           Eth: 1000000000000000000
         }
     },
-    props: {
-        modalVisible: {
-            type: Boolean,
-            default: false
-        },
-    },
+    props: ['modalVisible', 'slowPrice','normalPrice', 'fastPrice', 'gasLimit' ],
     components: {
         "divider": Divider,
         "button": ButtonMain,
         "custom-fee": CustomFee
     },
     methods: {
-        selectType(args, value) {
+        selectType(args, price) {
             this.selectState = args;
-            this.total = value;
-            console.log(this.selectState)
+            this.total = (price/this.Eth)*this.gasLimit;
+            this.price = price;
+            this.limit = this.gasLimit
         },
         close() {
             this.modalVisible = false
-            this.$emit('propFromChild', this.modalVisible)
+            this.total = 0;
+            this.selectState = 'normal'
+            this.$emit('closeFeeModel')
         },
-        sendPropToParent() {
-            this.$emit('propFromChild', this.modalVisible)
-        },
+        // sendPropToParent() {
+        //     this.$emit('propFromChild', this.modalVisible)
+        // },
         goToCustomFee() {
              this.selectState  = 'custom'
             this.activeTab = 'customFee'
@@ -139,13 +143,12 @@ export default {
             this.activeTab = args1;
             this.selectState = args2;
         },
-        setCustomValue(state, tab, price, limit){
-            console.log(state, tab, price, limit);
+        setCustomValue(price, limit){
             this.activeTab = 'selectFee';
             this.selectState = 'custom';
             this.price = price;
             this.limit = limit
-            this.total = price * limit * 0.000000001
+            this.total = (price/this.Eth) * limit
         }, 
         sendCustomValues (){
             this.$emit('getCustomValues', this.price, this.limit);

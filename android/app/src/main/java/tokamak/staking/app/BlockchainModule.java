@@ -44,6 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
+
+import android.telecom.Call;
 import android.util.Log;
 import android.content.Context;
 
@@ -71,6 +73,8 @@ import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.request.Filter;
 import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.protocol.core.methods.response.EthEstimateGas;
+import org.web3j.protocol.core.methods.response.EthGasPrice;
 import org.web3j.protocol.core.methods.response.EthLog;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
@@ -81,8 +85,8 @@ import org.web3j.utils.Numeric;
 
 import jnr.ffi.StructLayout;
 
-public class BlockchainModule  extends ReactContextBaseJavaModule{
-    public  EthereumAccount ethereumAccount;
+public class BlockchainModule extends ReactContextBaseJavaModule {
+    public EthereumAccount ethereumAccount;
     private SBlockchain mSBlockchain;
     private HardwareWalletManager hardwareWalletManager;
     private AccountManager accountManager;
@@ -90,19 +94,17 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     private HardwareWallet hardwareWallet;
     private CoinNetworkInfo coinNetworkInfo;
     private EthereumService etherService;
-    private EthereumTokenInfo TONtokenInfo;
-    private EthereumTokenInfo WTonInfo;
     private BigDecimal balanceInEther;
-    private BigDecimal balanceInTON;
     private Web3j web3;
     private BigInteger ethereumGasPriceSlow = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(4)).toBigInteger();
     private BigInteger ethereumGasPriceNormal = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(10)).toBigInteger();
     private BigInteger ethereumGasPriceFast = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(20)).toBigInteger();
     public static String rpcUrl = "https://mainnet.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
-    public static  String rpcUrlRinkeby = "https://rinkeby.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
+    public static String rpcUrlRinkeby = "https://rinkeby.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
     public static String tonAddress = "0x3734E35231abE68818996dC07Be6a8889202DEe9";
-    public static  String wtonAddress = "0x9985d94ee25a1eB0459696667f071ECE121ACce6";
+    public static String wtonAddress = "0x9985d94ee25a1eB0459696667f071ECE121ACce6";
     public String results;
+
     BlockchainModule(ReactApplicationContext context) {
         super(context);
     }
@@ -111,61 +113,124 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
     public String getName() {
         return "BlockchainModule";
     }
+
     @ReactMethod
-    public void connect (Promise promise) {
+    public void connect(Promise promise) {
         Web3j web3j = Web3j.build(new HttpService(rpcUrlRinkeby));
         try {
             Web3ClientVersion clientVersion = web3j.web3ClientVersion().send();
-            if(!clientVersion.hasError()){
-                //Connected
+            if (!clientVersion.hasError()) {
+                // Connected
                 web3 = web3j;
+            } else {
+                Log.e("Tokamak App", "not connected web3");
+                // Show Error
             }
-            else {
-                Log.e("Tokamak App", "not connected web3" );
-                //Show Error
-            }
-        }
-        catch (Exception e) {
-            //Show Error
-            Log.e("Tokamak App", "web3 error" +e);
+        } catch (Exception e) {
+            // Show Error
+            Log.e("Tokamak App", "web3 error" + e);
         }
     }
+
     @ReactMethod
-    public void getBlockNumber (Promise promise) throws ExecutionException, InterruptedException, IOException {
+    public void getBlockNumber(Promise promise) throws ExecutionException, InterruptedException, IOException {
         EthBlockNumber block = web3.ethBlockNumber().sendAsync().get();
         Integer blockNumber = block.getBlockNumber().intValue();
 
-//                Log.e("Tokamak App", "connected web3" + block.getBlockNumber() );
-        EthBlock.Block ethBlock = web3.ethGetBlockByNumber(
-                DefaultBlockParameter.valueOf(
-                        BigInteger.valueOf(blockNumber)), false).send().getBlock();
+        // Log.e("Tokamak App", "connected web3" + block.getBlockNumber() );
+        EthBlock.Block ethBlock = web3
+                .ethGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(blockNumber)), false).send()
+                .getBlock();
         promise.resolve(block.getBlockNumber().intValue());
     }
-    @ReactMethod
-    public void getTimeStamp (Integer blockNumber, Promise promise) throws ExecutionException, InterruptedException, IOException {
 
-//                Log.e("Tokamak App", "connected web3" + block.getBlockNumber() );
-        EthBlock.Block ethBlock = web3.ethGetBlockByNumber(
-                DefaultBlockParameter.valueOf(
-                        BigInteger.valueOf(blockNumber)), false).send().getBlock();
+    @ReactMethod
+    public void getTimeStamp(Integer blockNumber, Promise promise)
+            throws ExecutionException, InterruptedException, IOException {
+
+        // Log.e("Tokamak App", "connected web3" + block.getBlockNumber() );
+        EthBlock.Block ethBlock = web3
+                .ethGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(blockNumber)), false).send()
+                .getBlock();
         promise.resolve(ethBlock.getTimestamp().intValue());
     }
+
     @ReactMethod
-    public void getPastEvents (String address, String encoded, Promise promise) throws ExecutionException, InterruptedException, JSONException {
+    public void getPastEvents(String address, String encoded, Promise promise)
+            throws ExecutionException, InterruptedException, JSONException {
         Gson g = new Gson();
-        EthFilter filter = new EthFilter(DefaultBlockParameterName.EARLIEST,  DefaultBlockParameterName.LATEST, address );
+        EthFilter filter = new EthFilter(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST, address);
         filter.addSingleTopic(encoded);
         EthLog ethLog = web3.ethGetLogs(filter).sendAsync().get();
-        Log.e("Tokamak App", "getPastEvents" + ethLog.getLogs() );
+        Log.e("Tokamak App", "getPastEvents" + ethLog.getLogs());
         WritableArray array = new WritableNativeArray();
-        for (Object logs: ethLog.getLogs()){
+        for (Object logs : ethLog.getLogs()) {
             JSONObject jo = new JSONObject(g.toJson(logs));
             WritableMap wm = convertJsonToMap(jo);
             array.pushMap(wm);
         }
         promise.resolve(array);
     }
+    @ReactMethod
+    private void estimateGasLimit(String address, Promise promise) throws ExecutionException, InterruptedException {
 
+
+        Context context = getReactApplicationContext();
+        EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+        etherService.estimateGasLimit(ethereumAccount,address, null, null ).setCallback(new ListenableFutureTask.Callback<BigInteger>() {
+            @Override
+            public void onSuccess(BigInteger bigInteger) {
+                Log.i("Tokamak App", "estimateGasLimit" + bigInteger);
+                promise.resolve(bigInteger.floatValue());
+            }
+
+            @Override
+            public void onFailure(@NotNull ExecutionException e) {
+
+            }
+
+            @Override
+            public void onCancelled(@NotNull InterruptedException e) {
+
+            }
+        });
+    }
+
+    @ReactMethod
+    private void requestCurrentGasPrice(Callback callback) throws ExecutionException, InterruptedException {
+        EthGasPrice ethGasPrice = web3.ethGasPrice().sendAsync().get();
+
+        Log.i("Tokamak App", "estimateGasLimit" + ethGasPrice.getGasPrice());
+        callback.invoke(400,300,200);
+
+    }
+
+
+    @ReactMethod
+private void esitmatedGasLimitForDelegate (String toContractAddress, String function, String input1, String input2, String input3,
+                                           Promise promise) throws ExecutionException, InterruptedException, DecoderException {
+    String encodedFunction = convertFunction(function, input1, input2, input3);
+    EthEstimateGas estimatedLimit = web3.ethEstimateGas(Transaction.createEthCallTransaction(ethereumAccount.getAddress(),toContractAddress, encodedFunction)).sendAsync().get();
+    Log.i("Tokamak App", "esitmatedGasLimitForDelegate" + estimatedLimit.getResult());
+    promise.resolve(estimatedLimit.getResult());
+}
+    @ReactMethod
+    private void esitmatedGasLimitForRequestWithdrawal (String toContractAddress, String function, String input1, String input2,
+                                                        Promise promise) throws ExecutionException, InterruptedException, DecoderException {
+        String encodedFunction = convertFunctionWithdrawal(function, input1, input2);
+        EthEstimateGas estimatedLimit = web3.ethEstimateGas(Transaction.createEthCallTransaction(ethereumAccount.getAddress(),toContractAddress, encodedFunction)).sendAsync().get();
+        Log.i("Tokamak App", "esitmatedGasLimitForDelegate" + estimatedLimit.getResult());
+        promise.resolve(estimatedLimit.getResult());
+    }
+
+    @ReactMethod
+    private void esitmatedGasLimitForWithdraw (String toContractAddress, String function, String input1, String input2, Boolean input3,
+                                                 Promise promise) throws ExecutionException, InterruptedException, DecoderException {
+        String encodedFunction = convertWithdraw(function, input1, input2, input3);
+        EthEstimateGas estimatedLimit = web3.ethEstimateGas(Transaction.createEthCallTransaction(ethereumAccount.getAddress(),toContractAddress, encodedFunction)).sendAsync().get();
+        Log.i("Tokamak App", "esitmatedGasLimitForDelegate" + estimatedLimit.getResult());
+        promise.resolve(estimatedLimit.getResult());
+    }
     private static WritableMap convertJsonToMap(JSONObject jsonObject) throws JSONException {
         WritableMap map = new WritableNativeMap();
 
@@ -189,159 +254,139 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
         }
         return map;
     }
+
     @ReactMethod
-    public void initis( Callback callBack) {
+    public void initis(Callback callBack) {
         Context context = getReactApplicationContext();
-        try{
+        try {
             mSBlockchain = new SBlockchain();
             mSBlockchain.initialize(context);
             accountManager = mSBlockchain.getAccountManager();
 
             hardwareWalletManager = mSBlockchain.getHardwareWalletManager();
-            coinNetworkInfo = new CoinNetworkInfo(
-                    CoinType.ETH,
-                    EthereumNetworkType.RINKEBY,
-                    rpcUrlRinkeby);
+            coinNetworkInfo = new CoinNetworkInfo(CoinType.ETH, EthereumNetworkType.RINKEBY, rpcUrlRinkeby);
             setCoinNetworkInfo(coinNetworkInfo);
-            ListenableFutureTask<HardwareWallet> connectionTask =
-                    mSBlockchain.getHardwareWalletManager().connect( HardwareWalletType.SAMSUNG, true);
-            connectionTask.setCallback(
-                    new ListenableFutureTask.Callback<HardwareWallet>() {
-                        @Override
-                        public void onSuccess(HardwareWallet hardwareWallet) {
-                            hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
-//                    HardwareWallet mhardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
-                            setHardwareWallet(hardwareWallet);
-                            Log.e("Tokamak App", "initialized " );
-                            callBack.invoke(true);
-//                    restoreAccs();
-                        }
-                        @Override
-                        public void onFailure(@NotNull ExecutionException e) {
-                            e.printStackTrace();
-                        }
-                        @Override
-                        public void onCancelled(@NotNull InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    });
-        }
-        catch(SsdkUnsupportedException e) {
+            ListenableFutureTask<HardwareWallet> connectionTask = mSBlockchain.getHardwareWalletManager()
+                    .connect(HardwareWalletType.SAMSUNG, true);
+            connectionTask.setCallback(new ListenableFutureTask.Callback<HardwareWallet>() {
+                @Override
+                public void onSuccess(HardwareWallet hardwareWallet) {
+                    hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
+                    setHardwareWallet(hardwareWallet);
+                    Log.e("Tokamak App", "initialized ");
+                    callBack.invoke(true);
+                    // restoreAccs();
+                }
+                @Override
+                public void onFailure(@NotNull ExecutionException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onCancelled(@NotNull InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (SsdkUnsupportedException e) {
             Log.e("Tokamak App", "Error message: " + e.getMessage());
         }
-
     }
+
     public void setCoinNetworkInfo(CoinNetworkInfo coinNetworkInfo) {
         this.coinNetworkInfo = coinNetworkInfo;
     }
+
     @ReactMethod
-    private  void restoreAccs(Callback callBack) {
-        CoinNetworkInfo coinNetworkInfo = new CoinNetworkInfo(
-                CoinType.ETH,
-                EthereumNetworkType.RINKEBY,
-                rpcUrlRinkeby);
-        ListenableFutureTask.Callback<Boolean> restoreAccountsCallback =
-                new ListenableFutureTask.Callback<Boolean>() {
-                    @Override
-                    public void onSuccess(Boolean result) {
-                        callBack.invoke(result);
-                        if (result) {
-                            Log.e("Tokamak App", "success restore");
-//                            setAccountStatus();
-                        }
-                        else {
-                            Log.e("Tokamak App", "fail restore");
-                        }
-                    }
+    private void restoreAccs(Callback callBack) {
+        CoinNetworkInfo coinNetworkInfo = new CoinNetworkInfo(CoinType.ETH, EthereumNetworkType.RINKEBY, rpcUrlRinkeby);
+        ListenableFutureTask.Callback<Boolean> restoreAccountsCallback = new ListenableFutureTask.Callback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                callBack.invoke(result);
+                if (result) {
+                    Log.e("Tokamak App", "success restore");
+                    // setAccountStatus();
+                } else {
+                    Log.e("Tokamak App", "fail restore");
+                }
+            }
 
-                    @Override
-                    public void onFailure(ExecutionException e) {
-                        Throwable cause = e.getCause();
-                        Log.e("onFailure", cause.toString());
-                        if (cause instanceof AccountException) {
-                            Log.e("Tokamak App", "restore AccountException");
-                        } else if (cause instanceof RootSeedChangedException) {
-                            Log.e("Tokamak App", "restore RootSeedChangedException");
-                        } else if (cause instanceof RemoteClientException) {
-                            Log.e("Tokamak App", "restore RemoteClientException");
-                        }
-                    }
+            @Override
+            public void onFailure(ExecutionException e) {
+                Throwable cause = e.getCause();
+                Log.e("onFailure", cause.toString());
+                if (cause instanceof AccountException) {
+                    Log.e("Tokamak App", "restore AccountException");
+                } else if (cause instanceof RootSeedChangedException) {
+                    Log.e("Tokamak App", "restore RootSeedChangedException");
+                } else if (cause instanceof RemoteClientException) {
+                    Log.e("Tokamak App", "restore RemoteClientException");
+                }
+            }
 
-                    @Override
-                    public void onCancelled(InterruptedException exception) {
-                        Log.e("Tokamak App", "onCancelled");
-                    }
-                };
+            @Override
+            public void onCancelled(InterruptedException exception) {
+                Log.e("Tokamak App", "onCancelled");
+            }
+        };
 
-        accountManager.restoreAccounts(
-                hardwareWallet,
-                true,
-                coinNetworkInfo
-        ).setCallback(restoreAccountsCallback);
+        accountManager.restoreAccounts(hardwareWallet, true, coinNetworkInfo).setCallback(restoreAccountsCallback);
     }
+
     @ReactMethod
     private void setAccountStatus(Callback callBack) {
-//        HardwareWallet connectedHardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
-
-        List<Account> accounts =
-                accountManager
-                        .getAccounts(
-                                hardwareWallet.getWalletId(),
-                                CoinType.ETH,
-                                EthereumNetworkType.RINKEBY
-                        );
+        List<Account> accounts = accountManager.getAccounts(hardwareWallet.getWalletId(), CoinType.ETH,
+                EthereumNetworkType.RINKEBY);
 
         if (!accounts.isEmpty()) {
-            String account =  accounts.get(0).getAddress();
+            String account = accounts.get(0).getAddress();
             setEthereumAccount((EthereumAccount) accounts.get(0));
             callBack.invoke(account);
-        }
-        else {
+        } else {
             Log.e("Tokamak App", "account empty.");
             generateNewAccount(callBack);
         }
     }
+
     public void setHardwareWallet(HardwareWallet hardwareWallet) {
         this.hardwareWallet = hardwareWallet;
     }
+
     public void generateNewAccount(Callback callBack) {
-        ListenableFutureTask.Callback<Account> generatingNewAccountCallback =
-                new ListenableFutureTask.Callback<Account>() {
-                    @Override
-                    public void onSuccess(Account account) {
-                        setAccountStatus(callBack);
-                    }
+        ListenableFutureTask.Callback<Account> generatingNewAccountCallback = new ListenableFutureTask.Callback<Account>() {
+            @Override
+            public void onSuccess(Account account) {
+                setAccountStatus(callBack);
+            }
 
-                    @Override
-                    public void onFailure(ExecutionException e) {
+            @Override
+            public void onFailure(ExecutionException e) {
 
-                        Throwable cause = e.getCause();
-                        Log.i("Tokamak App fail", String.valueOf(cause));
-                        if (cause instanceof AccountException) {
-                            Log.i("Tokamak App", "AccountException");
-                        } else if (cause instanceof RootSeedChangedException) {
-                            Log.i("Tokamak App", "RootSeedChangedException");
-                        } else if (cause instanceof RemoteClientException) {
-                            Log.i("Tokamak App", "RemoteClientException");
-                        }
-                    }
+                Throwable cause = e.getCause();
+                Log.i("Tokamak App fail", String.valueOf(cause));
+                if (cause instanceof AccountException) {
+                    Log.i("Tokamak App", "AccountException");
+                } else if (cause instanceof RootSeedChangedException) {
+                    Log.i("Tokamak App", "RootSeedChangedException");
+                } else if (cause instanceof RemoteClientException) {
+                    Log.i("Tokamak App", "RemoteClientException");
+                }
+            }
 
-                    @Override
-                    public void onCancelled(InterruptedException e) {
-                        Log.i("Tokamak App", "Account creation cancelled");
-                    }
-                };
+            @Override
+            public void onCancelled(InterruptedException e) {
+                Log.i("Tokamak App", "Account creation cancelled");
+            }
+        };
 
-        accountManager
-                .generateNewAccount(
-                        hardwareWallet,
-                        coinNetworkInfo
-                ).setCallback(generatingNewAccountCallback);
+        accountManager.generateNewAccount(hardwareWallet, coinNetworkInfo).setCallback(generatingNewAccountCallback);
     }
-    public void setEthereumAccount(EthereumAccount ethereumAccount){
+
+    public void setEthereumAccount(EthereumAccount ethereumAccount) {
         this.ethereumAccount = ethereumAccount;
     }
-    public EthereumAccount getEthereumAccount () {
+
+    public EthereumAccount getEthereumAccount() {
         return ethereumAccount;
     }
 
@@ -350,382 +395,365 @@ public class BlockchainModule  extends ReactContextBaseJavaModule{
         this.etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
     }
 
-    private void getFeeInfo (){
-        Context context = getReactApplicationContext();
-        EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
-        etherService.getFeeInfo().setCallback(
-                new ListenableFutureTask.Callback<EthereumFeeInfo>() {
-                    @Override
-                    public void onSuccess(EthereumFeeInfo ethereumFeeInfo) {
-                        Log.i("Tokamak App", "fee info" + ethereumFeeInfo);
-                    }
 
-                    @Override
-                    public void onFailure(@NotNull ExecutionException e) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NotNull InterruptedException e) {
-
-                    }
-                }
-        );
-    }
     @ReactMethod
-    private void  getBalance (Promise promise) {
-        getFeeInfo();
+    private void getBalance(Promise promise) {
         EthereumAccount account = getEthereumAccount();
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
 
-        etherService.getBalance(account).setCallback(
-                new ListenableFutureTask.Callback<BigInteger>() {
-                    @Override
-                    public void onSuccess(BigInteger result) {
-                        balanceInEther = EthereumUtils.convertWeiToEth(result);
-                        Log.i("Tokamak App", "Balance" + balanceInEther);
-                        promise.resolve(balanceInEther.floatValue());
-                    }
-                    @Override
-                    public void onFailure(ExecutionException exception) {
-                        Log.i("Tokamak App", "Balance fail" + exception);
-                    }
-                    @Override
-                    public void onCancelled(InterruptedException exception) {
-                        Log.i("Tokamak App", "Balance cancel" + exception);
-                        //cancelled
-                    }
-                });
+        etherService.getBalance(account).setCallback(new ListenableFutureTask.Callback<BigInteger>() {
+            @Override
+            public void onSuccess(BigInteger result) {
+                balanceInEther = EthereumUtils.convertWeiToEth(result);
+                Log.i("Tokamak App", "Balance" + balanceInEther);
+                promise.resolve(balanceInEther.floatValue());
+            }
+
+            @Override
+            public void onFailure(ExecutionException exception) {
+                Log.i("Tokamak App", "Balance fail" + exception);
+            }
+
+            @Override
+            public void onCancelled(InterruptedException exception) {
+                Log.i("Tokamak App", "Balance cancel" + exception);
+                // cancelled
+            }
+        });
     }
+
     @ReactMethod
-    private void approveAndCall (String toContractAddress, String function, String input1, String input2, String input3, Promise promise) throws DecoderException {
+    private void approveAndCall(String toContractAddress, String function, String gasPrice, String gasLimit, String input1, String input2, String input3,
+            Promise promise) throws DecoderException {
+        Log.i("Tokamak App", "gasPrice" + new BigInteger(gasPrice));
         hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
         String encodedFunction = convertFunction(function, input1, input2, input3);
-        Log.i("Tokamak App", "sendSmartContractTransaction" + ethereumGasPriceSlow);
-        try{
-        etherService
-                .sendSmartContractTransaction(
-                        hardwareWallet,
-                        ethereumAccount,
-                        toContractAddress,
-                        EthereumUtils.convertGweiToWei(new BigDecimal(10)),
-                        new BigInteger(String.valueOf(735458)),
-                        encodedFunction,
-                        null,
-                        null  // nonce
-                )
-                .setCallback(
-                        new ListenableFutureTask.Callback<TransactionResult>() {
-                            @Override
-                            public void onSuccess(TransactionResult result) {
-                                //success
-                             WritableMap infoMap = Arguments.createMap();
-                                infoMap.putString("hash", result.getHash());
-                                infoMap.putInt("code", result.getError().getCode());
-                                promise.resolve(infoMap);
-                            }
-                            @Override
-                            public void onFailure(ExecutionException exception) {
-                                Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
-                            }
-                            @Override
-                            public void onCancelled(InterruptedException exception) {
-                                Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
-                            }
-                        });
-    } catch (AvailabilityException e) {
-        //handle exception
-    } }
+        try {
+            etherService.sendSmartContractTransaction(hardwareWallet, ethereumAccount, toContractAddress,
+                    (new BigInteger(gasPrice)),  (new BigInteger(gasLimit)),
+                    encodedFunction, null, null // nonce
+            ).setCallback(new ListenableFutureTask.Callback<TransactionResult>() {
+                @Override
+                public void onSuccess(TransactionResult result) {
+                    // success
+                    WritableMap infoMap = Arguments.createMap();
+                    infoMap.putString("hash", result.getHash());
+                    infoMap.putInt("code", result.getError().getCode());
+                    promise.resolve(infoMap);
+                }
+
+                @Override
+                public void onFailure(ExecutionException exception) {
+                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                }
+
+                @Override
+                public void onCancelled(InterruptedException exception) {
+                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                }
+            });
+        } catch (AvailabilityException e) {
+            // handle exception
+        }
+    }
 
     @NotNull
-    public String convertFunction (String method, String input1, String input2, String input3) throws DecoderException {
+    public String convertFunction(String method, String input1, String input2, String input3) throws DecoderException {
 
         byte[] bytes = Hex.decodeHex(input3.toCharArray());
         Log.i("Tokamak App", "gasPrice" + bytes);
-       List<Type> inputParameters = Arrays.asList(new Address(input1), new Uint(new BigInteger(input2)), new DynamicBytes( bytes) );
-        List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
-        );
+        List<Type> inputParameters = Arrays.asList(new Address(input1), new Uint(new BigInteger(input2)),
+                new DynamicBytes(bytes));
+        List outputParameters = Arrays.asList(new TypeReference<Uint>() {
+        });
         Function transferFunction = new Function(method, inputParameters, outputParameters);
 
         return FunctionEncoder.encode(transferFunction);
     }
 
-    ///withdraw
+    /// withdraw
 
     @ReactMethod
-    private void withdraw (String toContractAddress, String function, String input1, String input2, Boolean input3, Promise promise) throws DecoderException {
+    private void withdraw(String toContractAddress, String function, String gasPrice, String gasLimit, String input1, String input2, Boolean input3,
+            Promise promise) throws DecoderException {
         hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
         String encodedFunction = convertWithdraw(function, input1, input2, input3);
-        Log.i("Tokamak App", "sendSmartContractTransaction" + ethereumGasPriceSlow);
-        try{
-            etherService
-                    .sendSmartContractTransaction(
-                            hardwareWallet,
-                            ethereumAccount,
-                            toContractAddress,
-                            EthereumUtils.convertGweiToWei(new BigDecimal(10)),
-                            new BigInteger(String.valueOf(735458)),
-                            encodedFunction,
-                            null,
-                            null  // nonce
-                    )
-                    .setCallback(
-                            new ListenableFutureTask.Callback<TransactionResult>() {
-                                @Override
-                                public void onSuccess(TransactionResult result) {
-                                    //success
-                                    WritableMap infoMap = Arguments.createMap();
-                                    infoMap.putString("hash", result.getHash());
-                                    infoMap.putInt("code", result.getError().getCode());
-                                    promise.resolve(infoMap);
-                                }
-                                @Override
-                                public void onFailure(ExecutionException exception) {
-                                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
-                                }
-                                @Override
-                                public void onCancelled(InterruptedException exception) {
-                                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
-                                }
-                            });
+
+        try {
+            etherService.sendSmartContractTransaction(hardwareWallet, ethereumAccount, toContractAddress,
+                    (new BigInteger(gasPrice)),  (new BigInteger(gasLimit)),
+                    encodedFunction, null, null // nonce
+            ).setCallback(new ListenableFutureTask.Callback<TransactionResult>() {
+                @Override
+                public void onSuccess(TransactionResult result) {
+                    // success
+                    WritableMap infoMap = Arguments.createMap();
+                    infoMap.putString("hash", result.getHash());
+                    infoMap.putInt("code", result.getError().getCode());
+                    promise.resolve(infoMap);
+                }
+
+                @Override
+                public void onFailure(ExecutionException exception) {
+                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                }
+
+                @Override
+                public void onCancelled(InterruptedException exception) {
+                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                }
+            });
         } catch (AvailabilityException e) {
-            //handle exception
-        } }
+            // handle exception
+        }
+    }
 
     @NotNull
-    public String convertWithdraw (String method, String input1, String input2, Boolean input3) {
-        List<Type> inputParameters = Arrays.asList(new Address(input1), new Uint(new BigInteger(input2)), new Bool( input3) );
-        List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
-        );
+    public String convertWithdraw(String method, String input1, String input2, Boolean input3) {
+        List<Type> inputParameters = Arrays.asList(new Address(input1), new Uint(new BigInteger(input2)),
+                new Bool(input3));
+        List outputParameters = Arrays.asList(new TypeReference<Uint>() {
+        });
         Function transferFunction = new Function(method, inputParameters, outputParameters);
 
         return FunctionEncoder.encode(transferFunction);
     }
-////
+    ////
 
     @ReactMethod
-    private void requestWithdrawal (String toContractAddress, String function, String input1, String input2, Promise promise) throws DecoderException {
+    private void requestWithdrawal(String toContractAddress, String function,  String gasPrice, String gasLimit,String input1, String input2,
+            Promise promise) throws DecoderException {
         hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
         String encodedFunction = convertFunctionWithdrawal(function, input1, input2);
-        Log.i("Tokamak App", "sendSmartContractTransaction" + ethereumGasPriceSlow);
-        try{
-            etherService
-                    .sendSmartContractTransaction(
-                            hardwareWallet,
-                            ethereumAccount,
-                            toContractAddress,
-                            EthereumUtils.convertGweiToWei(new BigDecimal(10)),
-                            new BigInteger(String.valueOf(735458)),
-                            encodedFunction,
-                            null,
-                            null  // nonce
-                    )
-                    .setCallback(
-                            new ListenableFutureTask.Callback<TransactionResult>() {
-                                @Override
-                                public void onSuccess(TransactionResult result) {
-                                    //success
-                                    WritableMap infoMap = Arguments.createMap();
-                                    infoMap.putString("hash", result.getHash());
-                                    infoMap.putInt("code", result.getError().getCode());
-                                    promise.resolve(infoMap);
-                                }
-                                @Override
-                                public void onFailure(ExecutionException exception) {
-                                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
-                                }
-                                @Override
-                                public void onCancelled(InterruptedException exception) {
-                                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
-                                }
-                            });
+
+        try {
+            etherService.sendSmartContractTransaction(hardwareWallet, ethereumAccount, toContractAddress,
+                    (new BigInteger(gasPrice)),  (new BigInteger(gasLimit)),
+                    encodedFunction, null, null // nonce
+            ).setCallback(new ListenableFutureTask.Callback<TransactionResult>() {
+                @Override
+                public void onSuccess(TransactionResult result) {
+                    // success
+                    WritableMap infoMap = Arguments.createMap();
+                    infoMap.putString("hash", result.getHash());
+                    infoMap.putInt("code", result.getError().getCode());
+                    promise.resolve(infoMap);
+                }
+
+                @Override
+                public void onFailure(ExecutionException exception) {
+                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                }
+
+                @Override
+                public void onCancelled(InterruptedException exception) {
+                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
+                }
+            });
         } catch (AvailabilityException e) {
-            //handle exception
-        } }
+            // handle exception
+        }
+    }
 
     @NotNull
-    public String convertFunctionWithdrawal (String method, String input1, String input2) throws DecoderException {
+    public String convertFunctionWithdrawal(String method, String input1, String input2) throws DecoderException {
 
         List<Type> inputParameters = Arrays.asList(new Address(input1), new Uint(new BigInteger(input2)));
-        List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
-        );
+        List outputParameters = Arrays.asList(new TypeReference<Uint>() {
+        });
         Function transferFunction = new Function(method, inputParameters, outputParameters);
 
         return FunctionEncoder.encode(transferFunction);
     }
 
     @ReactMethod
-    private void callSmartFunc (String method, String address, String input1, String input2, String input3, Promise promise){
-        Log.i("Tokamak App", "callSmartFunc came"+ method );
+    private void callSmartFunc(String method, String address, String input1, String input2, String input3,
+            Promise promise) {
+        Log.i("Tokamak App", "callSmartFunc came" + method);
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
         String encodedFunction = getEncodedFunc(method, input1, input2, input3);
-        etherService
-                .callSmartContractFunction(
-                        ethereumAccount,
-                        address,
-                        encodedFunction
-                )
+        etherService.callSmartContractFunction(ethereumAccount, address, encodedFunction)
                 .setCallback(new ListenableFutureTask.Callback<String>() {
                     @Override
                     public void onSuccess(String result) {
                         results = result;
                         Log.i("Tokamak App", "callSmartMethod called" + result);
                         promise.resolve(result);
-                        //success
+                        // success
                     }
+
                     @Override
                     public void onFailure(ExecutionException exception) {
-                        //failure
-                        Log.i("Tokamak App", "callSmartMethod failed" );
+                        // failure
+                        Log.i("Tokamak App", "callSmartMethod failed");
                     }
+
                     @Override
                     public void onCancelled(InterruptedException exception) {
-                        //cancelled
+                        // cancelled
                         Log.i("Tokamak App", "call method cancelled");
                     }
                 });
     }
 
-        @ReactMethod
-        private void  callSmartMethod (String method, String address, String input1, String input2 ,Promise promise ){
-            Log.i("Tokamak App", "call method came" );
-            Context context = getReactApplicationContext();
-            EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
-            String encodedFunction = getFunction(method, input1, input2);
-            etherService
-                    .callSmartContractFunction(
-                            ethereumAccount,
-                            address,
-                            encodedFunction
-                    )
-                    .setCallback(new ListenableFutureTask.Callback<String>() {
-                        @Override
-                        public void onSuccess(String result) {
-                            results = result;
-                            Log.i("Tokamak App", "callSmartMethod called" + result);
-                            promise.resolve(result);
-                            //success
-                        }
-                        @Override
-                        public void onFailure(ExecutionException exception) {
-                            //failure
-                            Log.i("Tokamak App", "callSmartMethod failed" );
-                        }
-                        @Override
-                        public void onCancelled(InterruptedException exception) {
-                            //cancelled
-                            Log.i("Tokamak App", "call method cancelled");
-                        }
-                    });
-        }
     @ReactMethod
-    private void callMethod (String method, String address, String user, Promise promise) {
+    private void callSmartMethod(String method, String address, String input1, String input2, Promise promise) {
+        Log.i("Tokamak App", "call method came");
+        Context context = getReactApplicationContext();
+        EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+        String encodedFunction = getFunction(method, input1, input2);
+        etherService.callSmartContractFunction(ethereumAccount, address, encodedFunction)
+                .setCallback(new ListenableFutureTask.Callback<String>() {
+                    @Override
+                    public void onSuccess(String result) {
+                        results = result;
+                        Log.i("Tokamak App", "callSmartMethod called" + result);
+                        promise.resolve(result);
+                        // success
+                    }
+
+                    @Override
+                    public void onFailure(ExecutionException exception) {
+                        // failure
+                        Log.i("Tokamak App", "callSmartMethod failed");
+                    }
+
+                    @Override
+                    public void onCancelled(InterruptedException exception) {
+                        // cancelled
+                        Log.i("Tokamak App", "call method cancelled");
+                    }
+                });
+    }
+
+    @ReactMethod
+    public void getFeeInfo(Callback callBack) {
+        Context context = getReactApplicationContext();
+        EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+        etherService.getFeeInfo().setCallback(new ListenableFutureTask.Callback<EthereumFeeInfo>() {
+            @Override
+            public void onSuccess(EthereumFeeInfo ethereumFeeInfo) {
+                BigDecimal fast = EthereumUtils.convertWeiToEth(ethereumFeeInfo.getFast());
+                Log.i("Tokamak App", "ethereumFeeInfo" + fast);
+                callBack.invoke(ethereumFeeInfo.getFast().floatValue(),ethereumFeeInfo.getNormal().floatValue(),ethereumFeeInfo.getSlow().floatValue());
+            }
+
+            @Override
+            public void onFailure(@NotNull ExecutionException e) {
+                Log.i("Tokamak App", "ethereumFeeInfo error" + e);
+            }
+
+            @Override
+            public void onCancelled(@NotNull InterruptedException e) {
+                Log.i("Tokamak App", "ethereumFeeInfo error" + e);
+            }
+        });
+    }
+
+    @ReactMethod
+    private void callMethod(String method, String address, String user, Promise promise) {
         Context context = getReactApplicationContext();
 
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
         String encodedFunction = getEncodedFunction(method, user);
-        etherService
-                .callSmartContractFunction(
-                        ethereumAccount,
-                        address,
-                        encodedFunction
-                )
+        etherService.callSmartContractFunction(ethereumAccount, address, encodedFunction)
                 .setCallback(new ListenableFutureTask.Callback<String>() {
                     @Override
                     public void onSuccess(String result) {
                         results = result;
 
                         promise.resolve(result);
-                        //success
+                        // success
                     }
+
                     @Override
                     public void onFailure(ExecutionException exception) {
-                        //failure
+                        // failure
                         Log.i("Tokamak App", "call method failed" + method);
                     }
+
                     @Override
                     public void onCancelled(InterruptedException exception) {
-                        //cancelled
+                        // cancelled
                         Log.i("Tokamak App", "call method cancelled");
                     }
                 });
     }
+
     @NotNull
-    public  String getEncodedFunc(String method, String input1, String input2, String input3){
-        List<Type> inputParameters = Arrays.asList(new Address(input1),new Address(input2), new Uint(new BigInteger(input3)));
-        List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
-        );
+    public String getEncodedFunc(String method, String input1, String input2, String input3) {
+        List<Type> inputParameters = Arrays.asList(new Address(input1), new Address(input2),
+                new Uint(new BigInteger(input3)));
+        List outputParameters = Arrays.asList(new TypeReference<Uint>() {
+        });
         Function transferFunction = new Function(method, inputParameters, outputParameters);
         Log.i("Tokamak App", "came to address");
         return FunctionEncoder.encode(transferFunction);
     }
 
     @NotNull
-    public String getFunction (String method, String input1, String input2) {
+    public String getFunction(String method, String input1, String input2) {
 
-        if (input1.length() != 1 && input1.charAt(1) == 'x'){
-            List<Type> inputParameters = Arrays.asList(new Address(input1),new Address(input2));
-            List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
-            );
+        if (input1.length() != 1 && input1.charAt(1) == 'x') {
+            List<Type> inputParameters = Arrays.asList(new Address(input1), new Address(input2));
+            List outputParameters = Arrays.asList(new TypeReference<Uint>() {
+            });
             Function transferFunction = new Function(method, inputParameters, outputParameters);
             Log.i("Tokamak App", "came to address");
             return FunctionEncoder.encode(transferFunction);
-        }
-        else {
+        } else {
             Log.i("Tokamak App", "came to uint");
-            List<Type> inputParameters = Arrays.asList(new Uint(new BigInteger(input1)),new Uint(new BigInteger(input2)) );
-            List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
-            );
+            List<Type> inputParameters = Arrays.asList(new Uint(new BigInteger(input1)),
+                    new Uint(new BigInteger(input2)));
+            List outputParameters = Arrays.asList(new TypeReference<Uint>() {
+            });
             Function transferFunction = new Function(method, inputParameters, outputParameters);
 
             return FunctionEncoder.encode(transferFunction);
         }
     }
+
     @NotNull
-    public String getEncodedFunction(String method, String user){
-        if (user.equals("")){
+    public String getEncodedFunction(String method, String user) {
+        if (user.equals("")) {
             List<Type> inputParameters = Arrays.asList();
-            List outputParameters = Arrays.asList(
-                    new TypeReference<Uint>() {
-                    }
-            );
+            List outputParameters = Arrays.asList(new TypeReference<Uint>() {
+            });
             Function transferFunction = new Function(method, inputParameters, outputParameters);
             return FunctionEncoder.encode(transferFunction);
-        }
-       else if(user.length() != 1 && user.charAt(1) == 'x'){
+        } else if (user.length() != 1 && user.charAt(1) == 'x') {
 
-                List<Type> inputParameters = Arrays.asList(new Address(user));
-                List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
-                );
-                Function transferFunction = new Function(method, inputParameters, outputParameters);
-                Log.i("Tokamak App", "came to address " + method);
-                return FunctionEncoder.encode(transferFunction);
-        }
-       else {
+            List<Type> inputParameters = Arrays.asList(new Address(user));
+            List outputParameters = Arrays.asList(new TypeReference<Uint>() {
+            });
+            Function transferFunction = new Function(method, inputParameters, outputParameters);
+            Log.i("Tokamak App", "came to address " + method);
+            return FunctionEncoder.encode(transferFunction);
+        } else {
 
             Log.i("Tokamak App", "came to uint");
             List<Type> inputParameters = Arrays.asList(new Uint(new BigInteger(user)));
-            List outputParameters = Arrays.asList(new TypeReference<Uint>() {}
-            );
+            List outputParameters = Arrays.asList(new TypeReference<Uint>() {
+            });
             Function transferFunction = new Function(method, inputParameters, outputParameters);
 
             return FunctionEncoder.encode(transferFunction);
         }
     }
 
-    public void setLoaded (Boolean loading) {
+    public void setLoaded(Boolean loading) {
         this.loaded = loading;
     }
 
-    public Boolean getLoaded () {
+    public Boolean getLoaded() {
         return loaded;
     }
 

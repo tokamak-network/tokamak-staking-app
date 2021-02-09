@@ -1,6 +1,6 @@
 <template>
      <view class="button-stake">
-          <text class="text">{{title}}</text>
+          <text :style="{color: fontColor}" class="text">{{title}}</text>
         </view>
 </template>
 <script>
@@ -10,6 +10,10 @@ export default {
             type: String,
             default: ''
         },
+        fontColor: {
+          type: String,
+          default: '#FFFFFF'
+        }
     }
 }
 </script>
@@ -27,7 +31,6 @@ export default {
 }
 
 .text {
-  color: white;
   font-size: 14px;
   font-weight: 700;  
 }

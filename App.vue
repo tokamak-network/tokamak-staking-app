@@ -14,7 +14,14 @@
         :style="{ width: 235, height: 82, margin: 53 }"
         :source="require('./assets/logo.png')"
       />
-      <activity-indicator size="large" color="#FFFFFF" />
+        <touchable-opacity
+          v-if="!loggedIn"
+          class="button-login"
+          :on-press="() => init()"
+        >
+        <text class="button-name">Connect Wallet</text>
+        </touchable-opacity>
+      <activity-indicator v-if="loggedIn" size="large" color="#FFFFFF" />
     </view>
 
     <app-navigator v-else></app-navigator>
@@ -75,36 +82,48 @@ const BottomTabNavigator = createBottomTabNavigator(
 const AppNavigator = createAppContainer(
   createStackNavigator(
     {
-      Login: { screen: LoginScreen },
+      LoginScreen: { screen: LoginScreen },
       BottomTabNavigator: { screen: BottomTabNavigator },
       SelectedOperator: { screen: SelectedOperatorScreen },
       Header: { screen: Header },
     },
     {
-      initialRouteName: "Login",
+      initialRouteName: "LoginScreen",
       headerMode: "none",
     }
   )
 );
 export default {
+  data() {
+    return {
+      loggedIn: false
+    }
+  },
   components: { Root, AppNavigator },
   computed: {
     ...mapState(["loaded", "signIn"]),
   },
-  created() {
-    this.init();
-  },
   methods: {
     init() {
       this.$store.dispatch("signIn");
+      this.loggedIn = true;
     },
   },
 };
 </script>
 <style scoped>
-.test {
-  margin-left: -8px;
-  margin-right: -8px;
+.button-login {
+  width: 130;
+  height: 35;
+  border-width: 1;
+  border-color: #ccd1d3;
+  border-radius: 13;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.button-name {
+  color: #ffffff;
 }
 .statusBar {
   background-color: #d4d7da;

@@ -72,14 +72,15 @@
           <divider></divider>
           </view>
           <view class='modal-fee-total'>
-              <text>Total</text>
-              <view class="modal-fee-amount">
-                  <text class="modal-fee-num">{{total.toFixed(7)}}</text>
+              <text class="modal-fee-text">Total</text>
+              <view class="modal-fee-amount modal-fee-amount-last">
+                  <text class="modal-fee-num">{{total.toFixed(6)}}</text>
                   <text class="modal-fee-unit">ETH</text>
               </view>
           </view>
           <touchable-opacity :on-press="()=>sendCustomValues()">
-          <button title="Next"></button>
+          <button v-if="btnAble" title="Next"></button>
+          <button v-else :style="{backgroundColor: '#e9edf1'}" fontColor="#86929d" title="Next"></button>
           </touchable-opacity>
         </view> 
         <custom-fee v-if="selectState === 'custom' && activeTab === 'customFee'" :selectState=selectState :activeTab=activeTab @propFromChild="childPropReceived" @getCustomValue="setCustomValue"></custom-fee>
@@ -125,6 +126,8 @@ export default {
             this.total = (price/this.Eth)*this.gasLimit;
             this.price = price;
             this.limit = this.gasLimit
+            this.btnNotAble = true
+
         },
         close() {
             this.modalVisible = false
@@ -216,7 +219,7 @@ export default {
     border-width: 1px;
     border-color: #e7ebf2;
     border-radius: 20px;
-    margin-right: 3.1%;
+    margin-right: 10%;
     padding: 5px;
 }
 .modal-fee-radio-dot {
@@ -232,6 +235,9 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: flex-end;
+}
+.modal-fee-amount-last {
+    padding-right: 5%;
 }
 .modal-fee-num {
     font-size: 16px;
@@ -260,5 +266,9 @@ export default {
     justify-content: space-between;
     padding-left: 4.7%;
     padding-right: 4.7%;
+}
+.modal-fee-text {
+    font-size: 16px;
+    color: #3e495c;
 }
 </style>

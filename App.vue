@@ -15,13 +15,13 @@
         :source="require('./assets/logo.png')"
       />
         <touchable-opacity
-          v-if="!loggedIn"
+          v-if="!isLogin"
           class="button-login"
           :on-press="() => init()"
         >
         <text class="button-name">Connect Wallet</text>
         </touchable-opacity>
-      <activity-indicator v-if="loggedIn" size="large" color="#FFFFFF" />
+      <activity-indicator v-if="isLogin" size="large" color="#FFFFFF" />
     </view>
 
     <app-navigator v-else></app-navigator>
@@ -96,24 +96,20 @@ const AppNavigator = createAppContainer(
 export default {
   data() {
     return {
-      loggedIn : false
+      
     }
   },
   components: { Root, AppNavigator },
   computed: {
-    ...mapState(["loaded", "signIn"]),
+    ...mapState(["loaded", "signIn", "isLogin"]),
   },
   created() {
-    this.loggedIn = this.loaded=== false && this.singIn === false ? false : null
   },
   methods: {
     init() {
+      this.$store.dispatch("isLogin");
       this.$store.dispatch("signIn");
-      this.loggedIn = true;
     },
-    initGo() {
-      this.loggedIn = false
-    }
   },
 };
 </script>

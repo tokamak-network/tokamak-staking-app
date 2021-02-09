@@ -32,6 +32,7 @@ Vue.use(Vuex);
 const initialState = {
   loaded: false,
   signIn: false,
+  isLogin: false,
   user: "",
   blockNumber: 0,
   blockTimestamp: 0,
@@ -88,6 +89,9 @@ export default new Vuex.Store({
       Object.keys(initialState).forEach((key) => {
         state[key] = initialState[key];
       });
+    },
+    SET_LOGIN: (state, status) => {
+      state.isLogin = status;
     },
     SIGN_IN: (state, status) => {
       state.signIn = status;
@@ -189,6 +193,9 @@ export default new Vuex.Store({
   actions: {
     logout(context) {
       context.commit('SET_INITIAL_STATE');
+    },
+    async isLogin(context) {
+        context.state.isLogin = true
     },
     async signIn(context) {
       BlockchainModule.initis((init) => {

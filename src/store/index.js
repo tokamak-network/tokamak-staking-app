@@ -182,7 +182,6 @@ export default new Vuex.Store({
     SET_UNCOMMITTED_CURRENT_ROUND_REWARD: (state, reward) => {
       state.uncommittedCurrentRoundReward = reward;
     },
-
     SET_SELECTED_OPERATOR: (state, operator) => {
       state.selectedOperator = operator
     }

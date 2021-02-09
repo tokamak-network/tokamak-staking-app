@@ -96,18 +96,24 @@ const AppNavigator = createAppContainer(
 export default {
   data() {
     return {
-      loggedIn: false
+      loggedIn : false
     }
   },
   components: { Root, AppNavigator },
   computed: {
     ...mapState(["loaded", "signIn"]),
   },
+  created() {
+    this.loggedIn = this.loaded=== false && this.singIn === false ? false : null
+  },
   methods: {
     init() {
       this.$store.dispatch("signIn");
       this.loggedIn = true;
     },
+    initGo() {
+      this.loggedIn = false
+    }
   },
 };
 </script>

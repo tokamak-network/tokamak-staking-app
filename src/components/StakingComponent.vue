@@ -329,10 +329,10 @@
     <select-operator
       :modalVisible="actionSheetVisibility"
       @closeModel="closeModel"
-      @handleModelOutput="handleModelOutput"
+      @handleModelOutput="handleModelOuetput"
     ></select-operator>
     <fee
-      :modalVisible="true"
+      :modalVisible="feeModelVisibility"
       @getCustomValues="getCustomValues"
     ></fee>
     <pending :modalVisible="activeTab === 'Unstake' ? true : false"></pending>
@@ -813,6 +813,8 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 3.9%;
   border-width: 1px;
   border-color: #e7ebf2;
@@ -824,6 +826,7 @@ export default {
 .button-comp {
   display: flex;
   width: 33%;
+  align-items: center;
   justify-content: center;
   align-self: stretch;
   align-items: center;
@@ -839,6 +842,9 @@ export default {
   width: 100%;
   height: 90%;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding-top: 9%;
   border-radius: 5px;
   color: #ffffff;

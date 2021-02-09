@@ -1,12 +1,6 @@
 <template>
    <view  class="login-container">
-              <image class="logo" :style="{width: 235, height: 82, margin: 50}" :source="require('../../assets/logo.png')" />
-   <touchable-opacity
-            class="button-login"
-            :on-press="() => login()"
-          >
-            <text class="button-name">Connect Wallet</text>
-          </touchable-opacity>
+          
     </view>
 </template>
 
@@ -25,9 +19,11 @@ export default {
     //     type: Object
     // }
   },
+  created() {
+    this.login();
+  },
     methods: {
         login () {
-
             this.$store.dispatch('login')
             this.navigation.navigate('Home');
         }

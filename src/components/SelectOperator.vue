@@ -8,11 +8,6 @@
         class="modal-container"
         :style="{ height: windowHeight * 0.428, width: windowWidth }"
       >
-        <scroll-view-indicator
-        :scrollIndicatorStyle='styles'
-     :shouldIndicatorHide='false'
-     :flexibleIndicator='false'
-     :indicatorHeight='30' >
           <view class="modal-content">
             <view class="modal-top">
               <text class="modtal-top-title">Select an operator</text>
@@ -28,11 +23,15 @@
                 ></image>
               </touchable-opacity>
             </view>
-            
             <view class="divider" />
-            <view class="modal-bottom">
-           
-              <view 
+            <view class="scroll-container">
+             <scroll-view-indicator
+                :scrollIndicatorStyle='styles'
+                :shouldIndicatorHide='false'
+                :flexibleIndicator='false'
+                :indicatorHeight='30'
+                >
+             <view 
                 
                 v-for="(operator, index) in operators"
                 :key="index"
@@ -53,11 +52,11 @@
                 <text class="modal-bottom-row-text">{{ operator.name }}</text>
                 </touchable-opacity>
               </view>
+            </scroll-view-indicator>
             </view>
           </view>
-        </scroll-view-indicator>
       </view>
-    </view>
+
   </Modal>
 </template>
 
@@ -124,7 +123,8 @@ export default {
 }
 .modal-container {
   background-color: #ffffff;
-  justify-content: center;
+  display: flex;
+  flex-direction: column;
   top: 57.2%;
   padding-top: 7%;
   padding-left: 5.6%;
@@ -152,6 +152,10 @@ export default {
   height: 1px;
   background-color: #dfe4ee;
   margin-bottom: 4%;
+}
+.scroll-container {
+  width: 100%;
+  height: 100%;
 }
 .modal-bottom {
   display: flex;

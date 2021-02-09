@@ -332,7 +332,7 @@
       @handleModelOutput="handleModelOutput"
     ></select-operator>
     <fee
-      :modalVisible="feeModelVisibility"
+      :modalVisible="true"
       @getCustomValues="getCustomValues"
     ></fee>
     <pending :modalVisible="activeTab === 'Unstake' ? true : false"></pending>

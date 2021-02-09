@@ -65,7 +65,8 @@ export default {
   display: flex;
   flex-direction: column;
   align-self: center;
-   background-color: #FAFBFC;
+  background-color: #FAFBFC;
+  padding-bottom: 15%;
 }
 .page-container {
   

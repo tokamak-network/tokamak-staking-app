@@ -1,5 +1,5 @@
 <template>
-        <view v-if="modalVisible===true" class="modal-container" :style="{width: windowWidth*0.358, height: windowHeight*0.059, marginTop: windowHeight * 0.28}">
+        <view v-if="modalVisible===true" class="modal-container" :style="{width: windowWidth*0.358, height: windowHeight*0.059}">
             <activity-indicator class="modal-indicator" size="small" color="#FFFFFF" />
             <text class="modal-text">Tx Pending</text>
         </view>
@@ -44,9 +44,10 @@ export default {
   border-radius: 20px;
   align-self: center;
   opacity: 0.895;
+  top: 28%;
 }
 .modal-indicator {
-    margin-right: 7.6%;
+    margin-right: 9.4%;
 }
 .modal-text {
     font-size: 14px;

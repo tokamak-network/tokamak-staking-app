@@ -63,12 +63,17 @@
         />
       </view>
       <divider :style="{ marginBottom: '4.5%' }"></divider>
+      <view class="custom-total-container" :class="{'custom-alert' : alert === true}">
       <view class="custom-total">
         <text class="custom-total-text">Fee</text>
         <text class="custom-total-text">{{ price }} Gwei x {{ limit }}</text>
       </view>
       <view class="custom-total-cryto">
         <text class="custom-total-cryto-text">{{((price*limit*0.000000001)).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 }) }} ETH</text>
+      </view>
+      </view>
+      <view class="custom-alert-bottom">
+      <text class="custom-alert-text" :class="{'customer-laert-text-hidden' : alert === false}">Not enough funds</text>
       </view>
       <view class="custom-total-btn-container">
         <touchable-opacity
@@ -102,6 +107,7 @@ export default {
       BackIcon,
       price: 0,
       limit: 0,
+      alert: false
     };
   },
   components: {
@@ -218,6 +224,15 @@ export default {
   font-size: 15px;
   color: #3e495c;
 }
+.custom-total-container {
+  /* margin-bottom: 14.8%; */
+}
+.custom-alert {
+  border-width: 1px;
+  border-color: #e07272;
+  padding: 5%;
+  border-radius: 10px;
+}
 .custom-total {
   display: flex;
   flex-direction: row;
@@ -233,11 +248,23 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
-  margin-bottom: 14.8%;
 }
 .custom-total-cryto-text {
   font-size: 16px;
   color: #2a75e5;
+}
+.custom-alert-bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin-top: 2.5%;
+  margin-bottom: 2.5%;
+}
+.custom-alert-text {
+  color: #e07272;
+}
+.customer-laert-text-hidden {
+  display: none;
 }
 .custom-total-btn-container {
   display: flex;

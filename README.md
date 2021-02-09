@@ -4,6 +4,9 @@
 ```
 npm install 
 ```
+
+## create file local.properties in the android folder and include the following line 
+sdk.dir = /Users/YOUR_NAME/Library/Android/sdk 
 ## Setup local environment 
 ```
 export ANDROID_HOME=~/Library/Android/sdk
@@ -43,4 +46,5 @@ rn-nodeify will create a shim.js in the project root directory
 // make sure you use `import` and not require!  
 import './shim.js'
 // ...the rest of your code
+react-native link
 ```

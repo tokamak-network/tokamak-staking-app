@@ -128,7 +128,7 @@
           </view>
         </touchable-opacity>
       </view>
-      <touchable-opacity :on-press="delegate">
+      <touchable-opacity :on-press="() => handleFeeModel('delegate')">
         <button-main
           title="Stake"
           :style="{ marginBottom: '4.5%' }"
@@ -157,7 +157,7 @@
           <text class="" :style="{ color: '#3e495c' }">TON</text>
         </view>
       </view>
-      <touchable-opacity :on-press="redelegate">
+      <touchable-opacity :on-press="() => handleFeeModel('redelegate')">
         <button-main title="Re-Stake"></button-main>
       </touchable-opacity>
     </view>
@@ -246,7 +246,7 @@
           </view>
         </touchable-opacity>
       </view>
-      <touchable-opacity :on-press="undelegate">
+      <touchable-opacity :on-press="() => handleFeeModel('undelegate')">
         <button-main title="Unstake"></button-main>
       </touchable-opacity>
     </view>
@@ -315,7 +315,7 @@
           </view>
         </touchable-opacity>
       </view>
-      <touchable-opacity :on-press="withdraw">
+      <touchable-opacity :on-press="() => handleFeeModel('withdraw')">
         <button-main title="Withdraw"></button-main>
       </touchable-opacity>
     </view>
@@ -334,8 +334,13 @@
     <fee
       :modalVisible="feeModelVisibility"
       @getCustomValues="getCustomValues"
+      @closeFeeModel="closeFeeModel"
+      :slowPrice="slowPrice"
+      :normalPrice="normalPrice"
+      :fastPrice="fastPrice"
+      :gasLimit="gasLimit"
     ></fee>
-    <pending :modalVisible="activeTab === 'Unstake' ? true : false"></pending>
+    <!-- <pending :modalVisible="activeTab === 'Unstake' ? true : false"></pending> -->
   </view>
 </template>
 
@@ -370,20 +375,23 @@ export default {
       DSRVIcon,
       DXMIcon,
       activeTab: "Stake",
-      amountToDelegate: "",
-      amountToUndelegate: "",
       selectedOperator: this.selectedOperatorName,
       amount: "",
       layer2: this.layer2Address,
-      amountToDelegate: "",
-      amountToUndelegate: "",
+      amountToDelegate: "0",
+      amountToUndelegate: "0",
       alertVisibility: false,
       message: "",
       actionSheetVisibility: false,
       feeModelVisibility: false,
+      selectedFunction: "",
       price: 0,
       limit: 0,
       index: 0,
+      slowPrice: 0,
+      normalPrice: 0,
+      fastPrice: 0,
+      gasLimit: 0,
       //
       styles: {
         valueWrapWidth: 0.889,
@@ -455,6 +463,7 @@ export default {
 
   methods: {
     changeTab(tab) {
+      this.feeModelVisibility = false;
       this.activeTab = tab;
     },
     selectFirstOperator() {
@@ -464,41 +473,33 @@ export default {
       this.alertVisibility = close;
     },
     async delegate() {
-      if (this.amountToDelegate === "") {
-        this.message = "Please input a valid TON amount";
-        this.alertVisibility = true;
-      } else if (_TON(this.amountToDelegate).gt(this.tonBalance)) {
-        this.message = "Please input a valid TON amount";
-        this.alertVisibility = true;
+      const amount = _TON(this.amountToDelegate).toFixed("wei");
+      const data = this.getData();
+      const status = await BlockchainModule.approveAndCall(
+        this.TON,
+        "approveAndCall",
+        this.price.toString(),
+        this.limit.toString(),
+        this.WTON,
+        amount,
+        data
+      );
+      if (status.code === 0) {
+        this.index = 0;
+        ToastAndroid.show("Transaction Successful", ToastAndroid.SHORT);
+        const transaction = {
+          from: this.user,
+          type: "Delegated",
+          amount: amount,
+          transactionHash: status.hash,
+          target: this.operator.layer2,
+        };
+        //  this.$store.dispatch('addPendingTransaction', transaction);
+        this.$store.dispatch("setBalance");
+        this.$store.dispatch("setOperators");
+        this.amountToDelegate = "";
       } else {
-        this.feeModelVisibility = true;
-
-        const amount = _TON(this.amountToDelegate).toFixed("wei");
-        const data = this.getData();
-        const status = await BlockchainModule.approveAndCall(
-          this.TON,
-          "approveAndCall",
-          this.WTON,
-          amount,
-          data
-        );
-        if (status.code === 0) {
-          this.index = 0;
-          ToastAndroid.show("Transaction Successful", ToastAndroid.SHORT);
-          const transaction = {
-            from: this.user,
-            type: "Delegated",
-            amount: amount,
-            transactionHash: status.hash,
-            target: this.operator.layer2,
-          };
-          //  this.$store.dispatch('addPendingTransaction', transaction);
-          this.$store.dispatch("setBalance");
-          this.$store.dispatch("setOperators");
-          this.amountToDelegate = "";
-        } else {
-          ToastAndroid.show("Transaction Unsuccessful", ToastAndroid.SHORT);
-        }
+        ToastAndroid.show("Transaction Unsuccessful", ToastAndroid.SHORT);
       }
     },
     marshalString(str) {
@@ -519,21 +520,12 @@ export default {
       return data;
     },
     async undelegate() {
-      if (
-        this.amountToUndelegate === "" ||
-        parseInt(this.amountToUndelegate) === 0
-      ) {
-        this.message = "Please input a valid TON amount";
-        this.alertVisibility = true;
-      }
-      if (_WTON(this.amountToUndelegate).gt(this.operator.userStaked)) {
-        this.message = "Please input a valid TON amount";
-        this.alertVisibility = true;
-      }
       const amount = _WTON(this.amountToUndelegate).toFixed("ray");
       const status = await BlockchainModule.requestWithdrawal(
         this.DepositManager,
         "requestWithdrawal",
+        this.price.toString(),
+        this.limit.toString(),
         this.operator.layer2,
         amount
       );
@@ -557,14 +549,12 @@ export default {
       }
     },
     async redelegate() {
-      if (this.operator.withdrawalRequests.length === 0) {
-        this.message = "Redelegatable amount is 0.";
-        this.alertVisibility = true;
-      }
       const amount = this.redelegatableAmount.toFixed("ray");
       const status = await BlockchainModule.requestWithdrawal(
         this.DepositManager,
         "redepositMulti",
+        this.price.toString(),
+        this.limit.toString(),
         this.operator.layer2,
         this.redelegatableRequests.toString()
       );
@@ -588,20 +578,12 @@ export default {
       }
     },
     async withdraw() {
-      const userWithdrawable = this.operator.userWithdrawable;
-      if (userWithdrawable.isEqual(_WTON.ray("0"))) {
-        this.message = "Withdrawable amount is 0.";
-        this.alertVisibility = true;
-      }
-      const count = this.operator.withdrawableRequests.length;
-      if (count === 0) {
-        this.message = "Withdrawable amount is 0.";
-        this.alertVisibility = true;
-      }
       const amount = _WTON(userWithdrawable).toFixed("ray");
       const status = await BlockchainModule.withdraw(
         this.DepositManager,
         "processRequests",
+        this.price.toString(),
+        this.limit.toString(),
         this.operator.layer2,
         count.toString(),
         true
@@ -657,10 +639,128 @@ export default {
       this.layer2 = root;
       this.selectedOperator = operator.name;
     },
-    getCustomValues(price, limit, func) {
+    closeFeeModel() {
+      this.feeModelVisibility = false;
+    },
+    getCustomValues(price, limit) {
       this.price = price;
       this.limit = limit;
-      console.log(price, limit);
+      if (this.selectedFunction === "delegate") {
+        this.feeModelVisibility = false;
+        this.delegate();
+      }
+      if (this.selectedFunction === "undelegate") {
+        this.feeModelVisibility = false;
+        this.undelegate();
+      }
+      if (this.selectedFunction === "redelegate") {
+        this.feeModelVisibility = false;
+        this.redelegate();
+      }
+      if (this.selectedFunction === "withdraw") {
+        this.feeModelVisibility = false;
+        this.withdraw();
+      }
+    },
+    async handleFeeModel(func) {
+      BlockchainModule.getFeeInfo((fast, normal, slow) => {
+        this.slowPrice = slow;
+        this.normalPrice = normal;
+        this.fastPrice = fast;
+      });
+      if (func === "delegate") {
+        if (
+          this.amountToDelegate === "0" ||
+          parseFloat(this.amountToDelegate) === 0
+        ) {
+          this.message = "Please input a valid TON amount";
+          this.alertVisibility = true;
+        } else if (_TON(this.amountToDelegate).gt(this.tonBalance)) {
+          this.message = "Please input a valid TON amount";
+          this.alertVisibility = true;
+        } else {
+          const amount = _TON(this.amountToDelegate).toFixed("wei");
+          const data = this.getData();
+          const gasValue = await BlockchainModule.esitmatedGasLimitForDelegate(
+            this.TON,
+            "approveAndCall",
+            this.WTON,
+            amount,
+            data
+          );
+          const gasVal = parseInt(gasValue);
+
+          this.gasLimit = gasVal;
+          this.feeModelVisibility = true;
+          this.selectedFunction = "delegate";
+        }
+      } else if (func === "undelegate") {
+        if (
+          this.amountToUndelegate === "0" ||
+          parseInt(this.amountToUndelegate) === 0
+        ) {
+          this.message = "Please input a valid TON amount";
+          this.alertVisibility = true;
+        } else if (
+          _WTON(this.amountToUndelegate).gt(this.operator.userStaked)
+        ) {
+          this.message = "Please input a valid TON amount";
+          this.alertVisibility = true;
+        } else {
+          const amount = _WTON(this.amountToUndelegate).toFixed("ray");
+          const gasValue = await BlockchainModule.esitmatedGasLimitForRequestWithdrawal(
+            this.DepositManager,
+            "requestWithdrawal",
+            this.operator.layer2,
+            amount
+          );
+          const gasVal = parseInt(gasValue);
+
+          this.gasLimit = gasVal;
+          this.feeModelVisibility = true;
+          this.selectedFunction = "undelegate";
+        }
+      } else if (func === "redelegate") {
+        console.log(this.operator.withdrawalRequests.length);
+        if (this.operator.withdrawalRequests.length === 0) {
+          this.message = "Redelegatable amount is 0.";
+          this.alertVisibility = true;
+        } else {
+          const amount = this.redelegatableAmount.toFixed("ray");
+          const gasValue = await BlockchainModule.esitmatedGasLimitForRequestWithdrawal(
+            this.DepositManager,
+            "redepositMulti",
+            this.operator.layer2,
+            this.redelegatableRequests.toString()
+          );
+          const gasVal = parseInt(gasValue);
+          this.gasLimit = gasVal;
+          this.feeModelVisibility = true;
+          this.selectedFunction = "redelegate";
+        }
+      } else if ("withdraw") {
+        const count = this.operator.withdrawableRequests.length;
+        const userWithdrawable = this.operator.userWithdrawable;
+        if (userWithdrawable.isEqual(_WTON.ray("0"))) {
+          this.message = "Withdrawable amount is 0.";
+          this.alertVisibility = true;
+        } else if (count === 0) {
+          this.message = "Withdrawable amount is 0.";
+          this.alertVisibility = true;
+        } else {
+          const gasValue = await BlockchainModule.esitmatedGasLimitForWithdraw(
+            this.DepositManager,
+            "processRequests",
+            this.operator.layer2,
+            count.toString(),
+            true
+          );
+          const gasVal = parseInt(gasValue);
+          this.gasLimit = gasVal;
+          this.feeModelVisibility = true;
+          this.selectedFunction = "withdraw";
+        }
+      }
     },
   },
 };

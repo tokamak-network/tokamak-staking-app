@@ -111,7 +111,8 @@ export default {
            total:0.00,
            price: 0,
            limit:0,
-           Eth: 1000000000000000000
+           Eth: 1000000000000000000,
+           btnAble: false
         }
     },
     props: ['modalVisible', 'slowPrice','normalPrice', 'fastPrice', 'gasLimit' ],
@@ -126,8 +127,7 @@ export default {
             this.total = (price/this.Eth)*this.gasLimit;
             this.price = price;
             this.limit = this.gasLimit
-            this.btnNotAble = true
-
+            this.btnAble = true
         },
         close() {
             this.modalVisible = false

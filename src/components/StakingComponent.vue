@@ -107,13 +107,10 @@
                 height: windowHeight * 0.031,
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
+                opacity:operator.avatar ===''? 0.12: 1
               }"
               :source="
-                selectedOperator === 'test'
-                  ? TokamakIcon
-                  : operator.name === 'test3'
-                  ? DXMIcon
-                  : DSRVIcon
+                operator.avatar ===''? TokamakIcon: DSRVIcon
               "
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
@@ -225,13 +222,10 @@
                 height: windowHeight * 0.031,
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
+                opacity:operator.avatar ===''? 0.12: 1
               }"
               :source="
-                selectedOperator === 'test'
-                  ? TokamakIcon
-                  : operator.name === 'test3'
-                  ? DXMIcon
-                  : DSRVIcon
+                operator.avatar ===''? TokamakIcon: DSRVIcon
               "
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
@@ -294,13 +288,10 @@
                 height: windowHeight * 0.031,
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
+                opacity:operator.avatar ===''? 0.12: 1
               }"
               :source="
-                selectedOperator === 'test'
-                  ? TokamakIcon
-                  : operator.name === 'test3'
-                  ? DXMIcon
-                  : DSRVIcon
+                operator.avatar ===''? TokamakIcon: DSRVIcon
               "
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
@@ -329,7 +320,7 @@
     <select-operator
       :modalVisible="actionSheetVisibility"
       @closeModel="closeModel"
-      @handleModelOutput="handleModelOuetput"
+      @handleModelOutput="handleModelOutput"
     ></select-operator>
     <fee
       :modalVisible="feeModelVisibility"

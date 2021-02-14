@@ -18,7 +18,7 @@
     </view>
     <view class="custom-description">
       <text class="custom-description-text"
-        >You can set the free you want to pay, However, if you set it lower than
+        >You can set the fee you want to pay, However, if you set it lower than
         recommended, the transaction might fail, and you’ll still pay the fee.
       </text>
     </view>
@@ -63,21 +63,36 @@
         />
       </view>
       <divider :style="{ marginBottom: '4.5%' }"></divider>
-      <view class="custom-total-container" :class="{'custom-alert' : alert === true}">
-      <view class="custom-total">
-        <text class="custom-total-text">Fee</text>
-        <text class="custom-total-text">{{ price }} Gwei x {{ limit }}</text>
-      </view>
-      <view class="custom-total-cryto">
-        <text class="custom-total-cryto-text">{{((price*limit*0.000000001)).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 }) }} ETH</text>
-      </view>
+      <view
+        class="custom-total-container"
+        :class="{ 'custom-alert': isEnoughBalance === true }"
+      >
+        <view class="custom-total">
+          <text class="custom-total-text">Fee</text>
+          <text class="custom-total-text">{{ price }} Gwei x {{ limit }}</text>
+        </view>
+        <view class="custom-total-cryto">
+          <text class="custom-total-cryto-text"
+            >{{
+              (price * limit * 0.000000001).toLocaleString(undefined, {
+                maximumFractionDigits: 2,
+                minimumFractionDigits: 2,
+              })
+            }}
+            ETH</text
+          >
+        </view>
       </view>
       <view class="custom-alert-bottom">
-      <text class="custom-alert-text" :class="{'customer-laert-text-hidden' : alert === false}">Not enough funds</text>
+        <text
+          class="custom-alert-text"
+          :class="{ 'customer-laert-text-hidden': isEnoughBalance === false }"
+          >Not enough funds</text
+        >
       </view>
       <view class="custom-total-btn-container">
         <touchable-opacity
-        :on-press="() => closePopup()"
+          :on-press="() => closePopup()"
           class="custom-total-btn-wrap btn-cancel"
           :style="{ width: windowWidth * 0.417, height: windowHeight * 0.062 }"
         >
@@ -101,13 +116,18 @@ import BackIcon from "../../assets/back.png";
 import Divider from "@/components/Divider";
 import ButtonMain from "@/components/ButtonMain";
 import bigInt from "big-integer";
+import { mapState, mapGetters } from "vuex";
+import { createCurrency } from "@makerdao/currency";
+
+const _ETH = createCurrency("ETH");
+
 export default {
   data() {
     return {
       BackIcon,
       price: 0,
       limit: 0,
-      alert: false
+      alert: false,
     };
   },
   components: {
@@ -123,11 +143,17 @@ export default {
     },
   },
   computed: {
+    ...mapState(["ethBalance"]),
     windowWidth() {
       return Dimensions.get("window").width;
     },
     windowHeight() {
       return Dimensions.get("window").height;
+    },
+
+    isEnoughBalance() {
+        return false;
+     
     },
   },
   methods: {
@@ -137,9 +163,9 @@ export default {
       this.$emit("propFromChild", this.activeTab, this.selectState);
     },
     backToSelectFee() {
-         this.selectState = "custom";
-          this.activeTab = "selectFee";
-        this.$emit("getCustomValue", this.price* 1000000000, this.limit);
+      this.selectState = "custom";
+      this.activeTab = "selectFee";
+      this.$emit("getCustomValue", this.price * 1000000000, this.limit);
     },
   },
 };

@@ -79,8 +79,8 @@
               </view>
           </view>
           <touchable-opacity :on-press="()=>sendCustomValues()">
-          <button v-if="btnAble" title="Next"></button>
-          <button v-else :style="{backgroundColor: '#e9edf1'}" fontColor="#86929d" title="Next"></button>
+          <button title="Next"></button>
+          <!-- <button v-else :style="{backgroundColor: '#e9edf1'}" fontColor="#86929d" title="Next"></button> -->
           </touchable-opacity>
         </view> 
         <custom-fee v-if="selectState === 'custom' && activeTab === 'customFee'" :selectState=selectState :activeTab=activeTab @propFromChild="childPropReceived" @getCustomValue="setCustomValue"></custom-fee>
@@ -106,7 +106,7 @@ export default {
     data() {
         return{
            CloseIcon,
-           selectState : "normal",
+           selectState : "",
            activeTab : 'selectFee',
            total:0.00,
            price: 0,

@@ -87,8 +87,13 @@ export default new Vuex.Store({
     SET_INITIAL_STATE: (state) => {
       const initialState = getInitialState();
       Object.keys(initialState).forEach((key) => {
-        state[key] = initialState[key];
+          if(!isEmptyObject(state[key])) {
+            state[key] = initialState[key];
+          }
       });
+      function isEmptyObject(param) {
+        return Object.keys(param).length === 0 && param.constructor === Object;
+      }
     },
     SET_LOGIN: (state, status) => {
       state.isLogin = status;

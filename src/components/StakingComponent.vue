@@ -1008,7 +1008,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 9%;
+  padding-top: 14%;
   border-radius: 5px;
   color: #ffffff;
   background-color: #2a72e5;

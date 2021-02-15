@@ -2,8 +2,10 @@
   <view class="account-wrap">
     <view class="account-top">
       <text class="account-top-title">My Account</text>
-      <text class="account-top-content"
-        >You can check your account and balance.</text
+      <text class="account-top-content" :style="{
+        height: windowHeight * 0.039,
+      }"
+        >You can check your account details here.</text
       >
     </view>
     <view
@@ -13,6 +15,40 @@
       <text class="account-address-title">Account Address</text>
       <text class="account-address-content">{{user| hexSlicer}}</text>
     </view>
+    <view
+      class="button-container"
+      :style="{
+        width: windowWidth * styles.valueWrapWidth,
+      }"
+    >
+      <!-- <animatedView> -->
+      <touchable-opacity
+        class="button-comp"
+        :on-press="() => changeTab('Account')"
+      >
+        <text
+          :class="{
+            selected: activeTab === 'Account',
+            'button-name': activeTab !== 'Account',
+          }"
+          >Account</text
+        >
+      </touchable-opacity>
+       <touchable-opacity
+        class="button-comp"
+        :on-press="() => changeTab('History')"
+      >
+        <text
+          :class="{
+            selected: activeTab === 'History',
+            'button-name': activeTab !== 'History',
+          }"
+          >History</text
+        >
+      </touchable-opacity>
+    </view>
+    
+    <view  v-if="activeTab === 'Account'">
     <view class="account-wallet">
       <view
         class="account-wallet-container"
@@ -56,6 +92,7 @@
       <text class="account-btn-text">Logout</text>
     </view>
    </touchable-opacity>
+    </view>
   </view>
 </template>
 
@@ -64,6 +101,18 @@ import { Dimensions } from "react-native";
 import { mapState } from "vuex";
 
 export default {
+  data() {
+    return {
+       styles: {
+        valueWrapWidth: 0.889,
+        valueWrapHeight: 0.48,
+        valueBalanceFirstHeight: 0.055,
+        valueBalanceSecondMax: 0.22,
+        valueRowThirdheight: 0.062,
+      },
+        activeTab: "Account",
+    }
+  },
   computed: {
     ...mapState(["ethBalance", "tonBalance", "power", "user"]),
     currencyAmount() {
@@ -79,7 +128,11 @@ export default {
   methods: {
       logout () {
           this.$store.dispatch('logout')
-      }
+      },
+       changeTab(tab) {
+      this.feeModelVisibility = false;
+      this.activeTab = tab;
+    },
   }
 };
 </script>
@@ -100,6 +153,7 @@ export default {
   align-items: center;
   padding-top: 5.6%;
   margin-bottom: 10%;
+  
 }
 .account-top-title {
   font-size: 24px;
@@ -162,7 +216,7 @@ export default {
   color: #86929d;
 }
 .account-btn {
-  height: 6.5%;
+  height: 12.5%;
   border-width: 1px;
   border-color: #2a72e5;
   border-radius: 4px;
@@ -175,5 +229,48 @@ export default {
   font-size: 13px;
   color: #2a72e5;
   font-weight: bold;
+}
+.button-container {
+  width: 88.9%;
+  height: 5.6%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3.9%;
+  border-width: 1px;
+  border-color: #e7ebf2;
+  border-radius: 6px;
+  padding-left: 0.9%;
+  padding-right: 0.9%;
+  background-color: #ffffff;
+}
+.button-comp {
+  display: flex;
+  width: 50%;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  align-items: center;
+  position: relative;
+  color: #818992;
+}
+.button-name {
+  color: #818992;
+  font-weight: bold;
+}
+
+.selected {
+  width: 100%;
+  height: 90%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 5%;
+  border-radius: 5px;
+  color: #ffffff;
+  background-color: #2a72e5;
 }
 </style>

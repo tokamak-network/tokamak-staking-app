@@ -20,17 +20,14 @@
           <image
             class="operator-img"
             :source="
-              operator.name === 'test'
-                ? tokamak
-                : operator.name === 'DXM Corp'
-                ? dxm
-                : dsrv
-            "
+                operator.avatar ===''? tokamak: dsrv
+              "
             :style="{
               height: windowHeight * 0.122 * 0.45,
               width: componentWidth * 0.11,
               marginRight: componentWidth * 0.056,
               resizeMode: 'contain',
+              opacity:operator.avatar ===''? 0.12: 1
             }"
           >
           </image>

@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/TokamakLogoSquare.png",
     "splash": {
-      "image": "./assets/TokamakLogo.png",
+      "image": "./assets/TN_logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

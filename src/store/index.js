@@ -138,11 +138,11 @@ export default new Vuex.Store({
       if (!state.pendingTransactions.find(pendingTransaction => pendingTransaction.transactionHash === newPendingTransaction.transactionHash)) {
         state.pendingTransactions.push(newPendingTransaction);
       }
-      setPendingTransactions(state.pendingTransactions);
+      // setPendingTransactions(state.pendingTransactions);
     },
     DELETE_PENDING_TRANSACTION: (state, minedTransaction) => {
       state.pendingTransactions.splice(state.pendingTransactions.map(pendingTransaction => pendingTransaction.transactionHash).indexOf(minedTransaction.transactionHash), 1);
-      setPendingTransactions(state.pendingTransactions);
+      // setPendingTransactions(state.pendingTransactions);
     },
     SET_MANAGERS: (state, managers) => {
       for (const [name, contract] of Object.entries(managers)) {
@@ -256,7 +256,8 @@ export default new Vuex.Store({
     },
     setOperatorsWithRegistry(context, operators) {
       context.commit("SET_OPERATORS", operators);
-    },async setTransactionsAndPendingTransactions (context, transactions) {
+    },
+    async setTransactionsAndPendingTransactions (context, transactions) {
       context.commit('SET_TRANSACTIONS', transactions);
       const pendingTransactions = getPendingTransactions();
       context.commit('SET_PENDING_TRANSACTIONS', pendingTransactions);
@@ -266,6 +267,10 @@ export default new Vuex.Store({
     },
     async deletePendingTransaction (context, transaction) {
       context.commit('DELETE_PENDING_TRANSACTION', transaction);
+    },
+    async checkPendingTransactions (context) {
+      const pendingTransactions = context.state.pendingTransactions;
+
     },
     async setOperators(context, blockNumber) {
       const user = context.state.user;

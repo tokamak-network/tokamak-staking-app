@@ -41,7 +41,7 @@
           autocomplete="off"
           :minLength="1"
           :maxLength="50"
-          keyboardType="numeric"
+          keyboardType="number-pad"
         />
         <text class="custom-gas-input-text">Gwei</text>
       </view>
@@ -59,7 +59,7 @@
           autocomplete="off"
           :minLength="1"
           :maxLength="50"
-          keyboardType="numeric"
+          keyboardType="number-pad"
         />
       </view>
       <divider :style="{ marginBottom: '4.5%' }"></divider>
@@ -74,10 +74,7 @@
         <view class="custom-total-cryto">
           <text class="custom-total-cryto-text"
             >{{
-              (price * limit * 0.000000001).toLocaleString(undefined, {
-                maximumFractionDigits: 2,
-                minimumFractionDigits: 2,
-              })
+              (price * limit * 0.000000001)
             }}
             ETH</text
           >

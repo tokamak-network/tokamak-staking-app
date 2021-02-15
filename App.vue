@@ -7,11 +7,13 @@
     <view
       class="main-view"
       v-if="!loaded"
-      :style="{ flex: 1, justifyContent: 'center', alignItems: 'center' }"
+      :style="{ flex: 1}"
     >
+    <view class="logo-container" 
+     :style="{ height:windowHeight*0.636}">
       <image
         class="logo"
-        :style="{ width: 235, height: 82, margin: 53 }"
+        :style="{ width: 235, height: 82, marginBottom: windowHeight*0.08 }"
         :source="require('./assets/logo.png')"
       />
         <touchable-opacity
@@ -22,15 +24,17 @@
         <text class="button-name">Connect Wallet</text>
         </touchable-opacity>
       <activity-indicator v-if="isLogin" size="large" color="#FFFFFF" />
-    </view>
 
+ 
+      <image
+       :style="{ marginTop: windowHeight*0.33, height:windowHeight*0.063, width: windowWidth* 0.36}"
+        :source="require('./assets/TN_logo.png')"
+      />
+    </view>
+    </view>
+     
     <app-navigator v-else></app-navigator>
 
-    <!-- <footer
-      :color1="signIn ? '#FFFFFF' : '#2a72e5'"
-      :color2="signIn ? '#2a72e5' : '#FFFFFF'"
-      :signedIn="signIn"
-    /> -->
   </root>
 </template>
 
@@ -42,7 +46,6 @@ import {
 } from "vue-native-router";
 import Vue from "vue-native-core";
 import { Root, VueNativeBase } from "native-base";
-import SidebarScreen from "./src/components/Sidebar";
 import OperatorsScreen from "@/screens/OperatorsScreen";
 import HomeScreen from "@/screens/HomeScreen";
 import StakingScreen from "@/screens/StakingScreen";
@@ -51,11 +54,11 @@ import PowertonScreen from "@/screens/PowertonScreen";
 import AccountScreen from "@/screens/AccountScreen";
 import LoginScreen from "@/screens/LoginScreen";
 import Header from "./src/components/Header";
-import Footer from "@/components/Footer";
 import NavBarScreen from "./src/components/NavBar";
 import { NativeModules, Alert } from "react-native";
 import store from "@/store";
 import { mapState } from "vuex";
+import { Dimensions } from 'react-native';
 
 const { BlockchainModule } = NativeModules;
 
@@ -102,6 +105,12 @@ export default {
   components: { Root, AppNavigator },
   computed: {
     ...mapState(["loaded", "signIn", "isLogin"]),
+     windowWidth () {
+      return Dimensions.get('window').width
+    },
+    windowHeight () {
+      return Dimensions.get('window').height
+    }
   },
   created() {
   },
@@ -119,7 +128,7 @@ export default {
   height: 35;
   border-width: 1;
   border-color: #ccd1d3;
-  border-radius: 13;
+  border-radius: 19;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -132,11 +141,13 @@ export default {
   height: 35px;
 }
 .logo-container {
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+ 
 }
 .main-view {
   background-color: #2a72e5;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>

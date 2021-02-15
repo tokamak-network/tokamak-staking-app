@@ -20,17 +20,14 @@
           <image
             class="operator-img"
             :source="
-              operator.name === 'test'
-                ? tokamak
-                : operator.name === 'DXM Corp'
-                ? dxm
-                : dsrv
-            "
+                operator.avatar ===''? tokamak: dsrv
+              "
             :style="{
               height: windowHeight * 0.122 * 0.45,
               width: componentWidth * 0.11,
               marginRight: componentWidth * 0.056,
               resizeMode: 'contain',
+              opacity:operator.avatar ===''? 0.12: 1
             }"
           >
           </image>
@@ -179,9 +176,26 @@
       :layer2="operator.layer2"
       @propFromChild="childPropReceived"
     ></operator-info>
+    <fee
+      :modalVisible="feeModelVisibility"
+      @getCustomValues="getCustomValues"
+      @closeFeeModel="closeFeeModel"
+      :slowPrice="slowPrice"
+      :normalPrice="normalPrice"
+      :fastPrice="fastPrice"
+      :gasLimit="gasLimit"
+    ></fee>
+    <alert
+      :modalVisible="alertVisibility"
+      :width="0.889"
+      :height="0.242"
+      :message="message"
+      @closePopup="closePopUp"
+    ></alert>
   </view>
 </template>
 <script>
+import Fee from "@/components/Fee";
 import ButtonMain from "@/components/ButtonMain";
 import tokamak from "../../assets/tokamak.png";
 import dxm from "../../assets/dxm.png";
@@ -198,6 +212,7 @@ import { createCurrency } from "@makerdao/currency";
 import { ToastAndroid } from "react-native";
 import { Dimensions } from "react-native";
 import OperatorInfo from "@/components/OperatorInfo";
+import Alert from "@/components/Alert";
 
 export default {
   data() {
@@ -208,14 +223,25 @@ export default {
       CloseIcon,
       pressed: false,
       opendNow: null,
-      amountToDelegate: "",
+      amountToDelegate: "0",
       openOper: "",
       openOperatorInfo: false,
+       feeModelVisibility: false,
+        alertVisibility: false,
+      message: "",
+       price: 0,
+      limit: 0,
+       slowPrice: 0,
+      normalPrice: 0,
+      fastPrice: 0,
+      gasLimit: 0,
     };
   },
   components: {
     "button-main": ButtonMain,
     "operator-info": OperatorInfo,
+     fee: Fee,
+     alert: Alert,
   },
   props: {
     layer2: {
@@ -284,6 +310,12 @@ export default {
       this.pressed = false;
       this.$store.dispatch("setOpenOperator", "");
     },
+    closeFeeModel() {
+      this.feeModelVisibility = false;
+    },
+    closePopUp(close) {
+      this.alertVisibility = close;
+    },
     openInformation() {
       this.openOperatorInfo = true;
     },
@@ -291,21 +323,52 @@ export default {
       this.openOperatorInfo = args1;
     },
     async onPressButton() {
+       BlockchainModule.getFeeInfo((fast, normal, slow) => {
+        this.slowPrice = slow;
+        this.normalPrice = normal;
+        this.fastPrice = fast;
+      });
       if (
-        this.amountToDelegate === "" ||
+        this.amountToDelegate === "0" ||
         parseFloat(this.amountToDelegate) === 0
       ) {
-        return alert("Please check your TON amount.");
-        //  ToastAndroid.show("Please check your TON amount.", ToastAndroid.SHORT);
+        this.message = "Please input a valid TON amount";
+          this.alertVisibility = true;
       }
-      if (_TON(this.amountToDelegate).gt(this.tonBalance)) {
-        return alert("Please check your TON amount.");
+     else if (_TON(this.amountToDelegate).gt(this.tonBalance)) {
+       this.message = "Please input a valid TON amount";
+          this.alertVisibility = true;
       }
+      else{ 
+        const amount = _TON(this.amountToDelegate).toFixed("wei");
+          const data = this.getData();
+          const gasValue = await BlockchainModule.esitmatedGasLimitForDelegate(
+            this.TON,
+            "approveAndCall",
+            this.WTON,
+            amount,
+            data
+          );
+          const gasVal = parseInt(gasValue);
+          this.gasLimit = gasVal;
+          this.feeModelVisibility = true;
+      }
+    },
+    getCustomValues(price, limit) {
+      this.price = price;
+      this.limit = limit;
+      
+        this.feeModelVisibility = false;
+        this.delegate();
+    },
+   async delegate( ){
       const amount = _TON(this.amountToDelegate).toFixed("wei");
       const data = this.getData();
       const status = await BlockchainModule.approveAndCall(
         this.TON,
         "approveAndCall",
+        this.price.toString(),
+        this.limit.toString(),
         this.WTON,
         amount,
         data

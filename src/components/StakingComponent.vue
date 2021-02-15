@@ -19,6 +19,18 @@
           >Stake</text
         >
       </touchable-opacity>
+       <touchable-opacity
+        class="button-comp"
+        :on-press="() => changeTab('ReStake')"
+      >
+        <text
+          :class="{
+            selected: activeTab === 'ReStake',
+            'button-name': activeTab !== 'ReStake',
+          }"
+          >Re-Stake</text
+        >
+      </touchable-opacity>
       <!-- </animatedView> -->
       <touchable-opacity
         class="button-comp"
@@ -51,7 +63,7 @@
       class="value-wrap"
       :style="{
         width: windowWidth * styles.valueWrapWidth,
-        height: windowHeight * styles.valueWrapHeight,
+        height: windowHeight * 0.31,
       }"
     >
       <view
@@ -75,8 +87,9 @@
             autocomplete="off"
             minlength="1"
             maxlength="1"
-            keyboardType="numeric"
+            keyboardType="number-pad"
             class="text-input"
+            @onChange="isNumber"
           ></text-input>
           <text class="ton-text">TON</text>
         </view>
@@ -107,14 +120,9 @@
                 height: windowHeight * 0.031,
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
+                opacity: operator.avatar === '' ? 0.12 : 1,
               }"
-              :source="
-                selectedOperator === 'test'
-                  ? TokamakIcon
-                  : operator.name === 'test3'
-                  ? DXMIcon
-                  : DSRVIcon
-              "
+              :source="operator.avatar === '' ? TokamakIcon : DSRVIcon"
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -134,28 +142,70 @@
           :style="{ marginBottom: '4.5%' }"
         ></button-main>
       </touchable-opacity>
-      <divider :style="{ marginBottom: '4.5%' }"></divider>
 
+     
+    </view>
+    <!-- <Re-stale tab> --> 
+       <view
+      v-if="activeTab === 'ReStake'"
+      class="value-wrap"
+      :style="{
+        width: windowWidth * styles.valueWrapWidth,
+        height: windowHeight * 0.31,
+      }"
+    >
       <view
-        class="value-row-border unable-row"
+        class="value-row value-row-first"
+        :style="{ height: windowHeight * styles.valueBalanceFirstHeight }"
+      >
+        <text class="value-row-text">Re-stake Amount : </text>
+      </view>
+      <view
+        class="value-row"
+        :style="{
+          height: windowHeight * styles.valueBalanceFirstHeight,
+          marginBottom: '3%',
+        }"
+      >
+        <text
+          class="withdraw-value-row-input"
+          :style="{ height: windowHeight * styles.valueBalanceFirstHeight }"
+          >{{
+            currencyAmount(operator.userNotWithdrawable)
+          }}</text
+        >
+      </view>
+      <view
+        class="value-row value-row-third value-row-border"
         :style="{
           height: windowHeight * styles.valueRowThirdheight,
-          marginBottom: '4.5%',
-          flexDirection: 'row',
           justifyContent: 'space-between',
         }"
       >
-        <text class="value-row-third-text" :style="{ color: '#3e495c' }"
-          >Re-stake Amount</text
-        >
-        <view class="value-row-thrid-amount">
-          <text class="" :style="{ borderWidth: 0, color: '#3e495c' }">{{
-            currencyAmount(operator.userNotWithdrawable)
-              .toString()
-              .replace("TON", "")
-          }}</text>
-          <text class="" :style="{ color: '#3e495c' }">TON</text>
-        </view>
+        <text class="value-row-third-text">Select an operator </text>
+        <touchable-opacity :on-press="handleBtnPress">
+          <view class="input-icon-container">
+            <image
+              class="value-icon"
+              :style="{
+                height: windowHeight * 0.031,
+                width: windowWidth * 0.056,
+                resizeMode: 'contain',
+                opacity: operator.avatar === '' ? 0.12 : 1,
+              }"
+              :source="operator.avatar === '' ? TokamakIcon : DSRVIcon"
+            ></image>
+            <text class="value-row-thrid-select">{{ selectedOperator }}</text>
+            <image
+              :style="{
+                height: windowHeight * 0.012,
+                width: windowWidth * 0.025,
+                resizeMode: 'contain',
+              }"
+              :source="IconSelect"
+            ></image>
+          </view>
+        </touchable-opacity>
       </view>
       <touchable-opacity :on-press="() => handleFeeModel('redelegate')">
         <button-main title="Re-Stake"></button-main>
@@ -188,12 +238,12 @@
       >
         <view class="value-row-second-input">
           <text-input
-            v-model="amountToUndelegate"
+            v-model.number="amountToUndelegate"
             placeholder="0.00"
             autocomplete="off"
             minlength="1"
             maxlength="1"
-            keyboardType="numeric"
+            keyboardType="number-pad"
             class="text-input"
           ></text-input>
           <text class="ton-text">TON</text>
@@ -225,14 +275,9 @@
                 height: windowHeight * 0.031,
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
+                opacity: operator.avatar === '' ? 0.12 : 1,
               }"
-              :source="
-                selectedOperator === 'test'
-                  ? TokamakIcon
-                  : operator.name === 'test3'
-                  ? DXMIcon
-                  : DSRVIcon
-              "
+              :source="operator.avatar === '' ? TokamakIcon : DSRVIcon"
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -294,14 +339,9 @@
                 height: windowHeight * 0.031,
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
+                opacity: operator.avatar === '' ? 0.12 : 1,
               }"
-              :source="
-                selectedOperator === 'test'
-                  ? TokamakIcon
-                  : operator.name === 'test3'
-                  ? DXMIcon
-                  : DSRVIcon
-              "
+              :source="operator.avatar === '' ? TokamakIcon : DSRVIcon"
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -329,7 +369,7 @@
     <select-operator
       :modalVisible="actionSheetVisibility"
       @closeModel="closeModel"
-      @handleModelOutput="handleModelOuetput"
+      @handleModelOutput="handleModelOutput"
     ></select-operator>
     <fee
       :modalVisible="feeModelVisibility"
@@ -472,6 +512,19 @@ export default {
     closePopUp(close) {
       this.alertVisibility = close;
     },
+    onlyNumber(e) {
+       const key = e.key;
+
+      // If is '.' key, stop it
+      if (key === '.')
+        return e.preventDefault();
+      
+      // OPTIONAL
+      // If is 'e' key, stop it
+      if (key === 'e')
+        return e.preventDefault();
+      
+    },
     async delegate() {
       const amount = _TON(this.amountToDelegate).toFixed("wei");
       const data = this.getData();
@@ -494,7 +547,7 @@ export default {
           transactionHash: status.hash,
           target: this.operator.layer2,
         };
-        //  this.$store.dispatch('addPendingTransaction', transaction);
+         this.$store.dispatch('addPendingTransaction', transaction);
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setOperators");
         this.amountToDelegate = "";
@@ -509,6 +562,16 @@ export default {
     unmarshalString(str) {
       if (str.slice(0, 2) === "0x") return str.slice(2);
       return str;
+    },
+      isNumber (evt) {
+        console.log('hi');
+      evt = (evt) ? evt : window.event;
+      const charCode = (evt.which) ? evt.which : evt.keyCode;
+      if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
+        evt.preventDefault();
+      } else {
+        return true;
+      }
     },
     getData() {
       const data = this.marshalString(
@@ -539,7 +602,7 @@ export default {
           transactionHash: status.hash,
           target: this.operator.layer2,
         };
-        //  this.$store.dispatch('addPendingTransaction', transaction);
+         this.$store.dispatch('addPendingTransaction', transaction);
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setOperators");
         this.amountToUndelegate = "";
@@ -568,7 +631,7 @@ export default {
           transactionHash: status.hash,
           target: this.operator.layer2,
         };
-        //  this.$store.dispatch('addPendingTransaction', transaction);
+         this.$store.dispatch('addPendingTransaction', transaction);
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setOperators");
         this.amountToUndelegate = "";
@@ -598,7 +661,7 @@ export default {
           transactionHash: status.hash,
           target: this.operator.layer2,
         };
-        //  this.$store.dispatch('addPendingTransaction', transaction);
+         this.$store.dispatch('addPendingTransaction', transaction);
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setOperators");
         this.amountToUndelegate = "";
@@ -925,7 +988,7 @@ export default {
 }
 .button-comp {
   display: flex;
-  width: 33%;
+  width: 25%;
   align-items: center;
   justify-content: center;
   align-self: stretch;

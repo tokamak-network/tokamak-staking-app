@@ -27,7 +27,7 @@
 
  
       <image
-       :style="{ marginTop: windowHeight*0.33, height:windowHeight*0.063, width: windowWidth* 0.36}"
+       :style="{ marginTop: windowHeight*0.33, height:40, width: 113}"
         :source="require('./assets/TN_logo.png')"
       />
     </view>

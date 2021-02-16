@@ -22,7 +22,7 @@ export default {
     props: ['title', 'content', 'seenWeb'],
     methods: {
         openURL() {
-            this.seenWeb = !this.seenWeb
+            this.seenWeb = true
             if(this.title === 'Website') {
                 this.uri = 'https://tokamak.network/';
             } else if(this.title === 'Operator Address') {

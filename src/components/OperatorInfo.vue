@@ -8,31 +8,37 @@
             <scroll-view :showsVerticalScrollIndicator="false">
                 <view class="modal-content">
                     <view class="modal-top">
-                        <image :source=TokamakIcon :style="{width: windowWidth*0.097, height: windowHeight*0.028, resizeMode: 'contain'}"></image>
-                        <text class="modtal-top-title">{{operator.name}}</text>
-                        <touchable-opacity :on-press="()=>close()">
-                        <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain', marginLeft: '70%'}"></image>
+                        <touchable-opacity :on-press="seenWeb === true ? ()=>closeWebView() : null">
+                        <image :source="seenWeb === true ? BackIcon : TokamakIcon" :style="{width: windowWidth*0.097, height: windowHeight*0.028, resizeMode: 'contain'}">                        
+                        </image>
+                        </touchable-opacity>
+                        <text v-if="!seenWeb" class="modtal-top-title">{{operator.name}}</text>
+                        <touchable-opacity :style="{marginLeft: 'auto'}" :on-press="()=>close()">
+                        <image :source=CloseIcon :style="{width: windowWidth*0.080, height: windowHeight*0.032, resizeMode: 'contain'}"></image>
                         </touchable-opacity>
                     </view>
-                <view class="divider" />
-                <view>
-                    <operator-info-sub title='Website' :content="operator.website"></operator-info-sub>
-                    <operator-info-sub title='Description' :content="operator.description"></operator-info-sub>
-                    <operator-info-sub title='Operator Address' :content="operator.address"></operator-info-sub>
-                    <operator-info-sub title='Operator Contract' :content="operator.layer2"></operator-info-sub>
-                    <operator-info-sub title='Chain ID' :content="operator.chainId"></operator-info-sub>
-                    <operator-info-sub title='Commit Count' :content="operator.finalizeCount"></operator-info-sub>
-                    <operator-info-sub title='Recent Commit' :content="fromNow(operator.lastFinalizedAt)"></operator-info-sub>
-                    <operator-info-sub title='Running Time' :content="fromNow(operator.deployedAt, true)"></operator-info-sub>
-                    <operator-info-sub title='Commission Rate' :content="`${operator.isCommissionRateNegative === 1 ? '-' : ''}${rateOf(operator.commissionRate)}`"></operator-info-sub>
-                    <operator-info-sub title='Reward' :content="currencyAmount(operator.userReward)"></operator-info-sub>
-                    <operator-info-sub title='Total Staked' :content="currencyAmount(operator.totalStaked)"></operator-info-sub>
-                    <operator-info-sub title='Not Withdrawable' :content="currencyAmount(operator.userNotWithdrawable)"></operator-info-sub>
-                    <operator-info-sub title='Withdrawable' :content="currencyAmount(operator.userWithdrawable)"></operator-info-sub>
-                    <operator-info-sub title='New Commission Rate' :content="`${operator.delayedCommissionRateNegative === 1? '-' : ''}${rateOf(operator.delayedCommissionRate)}`"></operator-info-sub>
-                    <operator-info-sub title='New Commission Rate Changed At' :content="operator.delayedCommissionBlock"></operator-info-sub>
-                    <operator-info-sub title='Withdrawal Delay' :content="`${delay()}${' blocks'}`"></operator-info-sub>
-                </view>
+                    <view class="divider" />
+                    <view v-if="!seenWeb">
+                        <operator-info-sub title='Website' :content="operator.website" :seenWeb="seenWeb" @propFromChild="childPropReceived"></operator-info-sub>
+                        <operator-info-sub title='Description' :content="operator.description"></operator-info-sub>
+                        <operator-info-sub title='Operator Address' :content="operator.address" @propFromChild="childPropReceived"></operator-info-sub>
+                        <operator-info-sub title='Operator Contract' :content="operator.layer2" @propFromChild="childPropReceived"></operator-info-sub>
+                        <operator-info-sub title='Chain ID' :content="operator.chainId"></operator-info-sub>
+                        <operator-info-sub title='Commit Count' :content="operator.finalizeCount"></operator-info-sub>
+                        <operator-info-sub title='Recent Commit' :content="fromNow(operator.lastFinalizedAt)"></operator-info-sub>
+                        <operator-info-sub title='Running Time' :content="fromNow(operator.deployedAt, true)"></operator-info-sub>
+                        <operator-info-sub title='Commission Rate' :content="`${operator.isCommissionRateNegative === 1 ? '-' : ''}${rateOf(operator.commissionRate)}`"></operator-info-sub>
+                        <operator-info-sub title='Reward' :content="currencyAmount(operator.userReward)"></operator-info-sub>
+                        <operator-info-sub title='Total Staked' :content="currencyAmount(operator.totalStaked)"></operator-info-sub>
+                        <operator-info-sub title='Not Withdrawable' :content="currencyAmount(operator.userNotWithdrawable)"></operator-info-sub>
+                        <operator-info-sub title='Withdrawable' :content="currencyAmount(operator.userWithdrawable)"></operator-info-sub>
+                        <operator-info-sub title='New Commission Rate' :content="`${operator.delayedCommissionRateNegative === 1? '-' : ''}${rateOf(operator.delayedCommissionRate)}`"></operator-info-sub>
+                        <operator-info-sub title='New Commission Rate Changed At' :content="operator.delayedCommissionBlock"></operator-info-sub>
+                        <operator-info-sub title='Withdrawal Delay' :content="`${delay()}${' blocks'}`"></operator-info-sub> 
+                    </view>
+                    <view v-else class="web-view-container" :style="{width: windowWidth, height: windowHeight*0.81}">
+                        <web-view :url="uri"></web-view>
+                    </view>
                 </view>
             </scroll-view>
         </view> 
@@ -47,8 +53,10 @@ import {
 } from "react-native";
 import ButtonMain from "@/components/ButtonMain"
 import OperatorInfoSub from "@/components/OperatorInfoSub"
+import WebViewComponent from "@/components/WebViewComponent"
 import TokamakIcon from "../../assets/TokamakLogo.png";
 import CloseIcon from "../../assets/icon-close.png";
+import BackIcon from "../../assets/back-arrow.png";
 import { mapState, mapGetters } from "vuex";
 
 export default {
@@ -56,6 +64,9 @@ export default {
         return{
             TokamakIcon,
             CloseIcon,
+            BackIcon,
+            seenWeb: false,
+            uri: ''
         }
     },
     props: {
@@ -70,7 +81,8 @@ export default {
     },
     components: {
         "button-main": ButtonMain,
-        "operator-info-sub": OperatorInfoSub
+        "operator-info-sub": OperatorInfoSub,
+        "web-view": WebViewComponent
     },
     computed: {
          ...mapState([
@@ -108,19 +120,28 @@ export default {
             this.modalVisible = false
             this.$emit('propFromChild', this.modalVisible)
         },
+        closeWebView() {
+            this.seenWeb = false
+        },
         sendPropToParent() {
             this.$emit('propFromChild', this.modalVisible)
         },
+        childPropReceived(args1, args2) {
+            this.seenWeb = args1
+            this.uri = args2
+            console.log("---result---")
+            console.log(this.uri)
+        },
         delay () {
-      const operatorDelay = this.operator.withdrawalDelay;
-      const globalDelay = this.operator.globalWithdrawalDelay;
-      if(operatorDelay > globalDelay) {
-        return Number(operatorDelay);
-      }
-      else {
-        return Number(globalDelay);
-      }
-    },
+            const operatorDelay = this.operator.withdrawalDelay;
+            const globalDelay = this.operator.globalWithdrawalDelay;
+            if(operatorDelay > globalDelay) {
+                return Number(operatorDelay);
+            }
+            else {
+                return Number(globalDelay);
+            }
+        },
     }
 }
 </script>
@@ -134,7 +155,8 @@ export default {
     justify-content: center;
     border-width: 1px;
     border-color: #ffffff;
-    border-radius: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
 .modal-content {
     display: flex;
@@ -160,5 +182,9 @@ export default {
   height: 1px;
   background-color: #dfe4ee;
   margin-bottom: 5.8%;
+}
+.web-view-container {
+    left: -7.5%;
+    top: -2.6%;
 }
 </style>

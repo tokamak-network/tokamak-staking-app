@@ -2,9 +2,11 @@
   <view class="account-wrap">
     <view class="account-top">
       <text class="account-top-title">My Account</text>
-      <text class="account-top-content" :style="{
-        height: windowHeight * 0.039,
-      }"
+      <text
+        class="account-top-content"
+        :style="{
+          height: windowHeight * 0.039,
+        }"
         >You can check your account details here.</text
       >
     </view>
@@ -13,7 +15,7 @@
       :style="{ marginBottom: windowHeight * 0.033 }"
     >
       <text class="account-address-title">Account Address</text>
-      <text class="account-address-content">{{user| hexSlicer}}</text>
+      <text class="account-address-content">{{ user | hexSlicer }}</text>
     </view>
     <view
       class="button-container"
@@ -34,7 +36,7 @@
           >Account</text
         >
       </touchable-opacity>
-       <touchable-opacity
+      <touchable-opacity
         class="button-comp"
         :on-press="() => changeTab('History')"
       >
@@ -47,51 +49,67 @@
         >
       </touchable-opacity>
     </view>
-    
-    <view  v-if="activeTab === 'Account'">
-    <view class="account-wallet">
-      <view
-        class="account-wallet-container"
-        :style="{
-          height: windowHeight * 0.090,
-          marginBottom: windowHeight * 0.023,
-        }"
-      >
-        <text class="account-wallet-container-text">ETH Balance</text>
-        <text class="account-wallet-container-text-amount">{{currencyAmount(ethBalance).substring(0, currencyAmount(ethBalance).length - 3)}}</text>
-        <text class="account-wallet-container-text-unit">ETH</text>
+
+    <view v-if="activeTab === 'Account'">
+      <view class="account-wallet">
+        <view
+          class="account-wallet-container"
+          :style="{
+            height: windowHeight * 0.109,
+            marginBottom: windowHeight * 0.023,
+          }"
+        >
+          <text class="account-wallet-container-text">ETH Balance</text>
+          <text class="account-wallet-container-text-amount">{{
+            currencyAmount(ethBalance).substring(
+              0,
+              currencyAmount(ethBalance).length - 3
+            )
+          }}</text>
+          <text class="account-wallet-container-text-unit">ETH</text>
+        </view>
+        <view
+          class="account-wallet-container"
+          :style="{
+            height: windowHeight * 0.109,
+            marginBottom: windowHeight * 0.023,
+          }"
+        >
+          <text class="account-wallet-container-text">TON Balance</text>
+          <text class="account-wallet-container-text-amount">{{
+            currencyAmount(tonBalance).substring(
+              0,
+              currencyAmount(tonBalance).length - 3
+            )
+          }}</text>
+          <text class="account-wallet-container-text-unit">TON</text>
+        </view>
+        <view
+          class="account-wallet-container"
+          :style="{
+            height: windowHeight * 0.109,
+            marginBottom: windowHeight * 0.023,
+          }"
+        >
+          <text class="account-wallet-container-text">POWER Balance</text>
+          <text class="account-wallet-container-text-amount">{{
+            currencyAmount(power).substring(0, currencyAmount(power).length - 5)
+          }}</text>
+          <text class="account-wallet-container-text-unit">POWER</text>
+        </view>
       </view>
-      <view
-        class="account-wallet-container"
-        :style="{
-          height: windowHeight * 0.090,
-          marginBottom: windowHeight * 0.023,
-        }"
-      >
-        <text class="account-wallet-container-text">TON Balance</text>
-        <text class="account-wallet-container-text-amount">{{currencyAmount(tonBalance).substring(0, currencyAmount(tonBalance).length - 3)}}</text>
-        <text class="account-wallet-container-text-unit">TON</text>
-      </view>
-      <view
-        class="account-wallet-container"
-        :style="{
-          height: windowHeight * 0.090,
-          marginBottom: windowHeight * 0.023,
-        }"
-      >
-        <text class="account-wallet-container-text">POWER Balance</text>
-        <text class="account-wallet-container-text-amount">{{currencyAmount(power).substring(0, currencyAmount(power).length - 5)}}</text>
-        <text class="account-wallet-container-text-unit">POWER</text>
-      </view>
+      <touchable-opacity :on-press="() => logout()" class="account-btn">
+        <view>
+          <text class="account-btn-text">Logout</text>
+        </view>
+      </touchable-opacity>
     </view>
-   <touchable-opacity
-            :on-press="() => logout()"
-            class="account-btn"
-          >
-    <view >
-      <text class="account-btn-text">Logout</text>
-    </view>
-   </touchable-opacity>
+    <view v-else class="history-table-container" :style="{
+            width: windowWidth 
+          }" >
+
+       <history-table/>
+     
     </view>
   </view>
 </template>
@@ -99,22 +117,26 @@
 <script>
 import { Dimensions } from "react-native";
 import { mapState } from "vuex";
+import HistoryTable from "@/components/HistoryTable";
 
 export default {
+   components: {
+    "history-table": HistoryTable,
+  },
   data() {
     return {
-       styles: {
+      styles: {
         valueWrapWidth: 0.889,
         valueWrapHeight: 0.48,
         valueBalanceFirstHeight: 0.055,
         valueBalanceSecondMax: 0.22,
         valueRowThirdheight: 0.062,
       },
-        activeTab: "Account",
-    }
+      activeTab: "History",
+    };
   },
   computed: {
-    ...mapState(["ethBalance", "tonBalance", "power", "user"]),
+    ...mapState(["ethBalance", "tonBalance", "power", "user", 'transactions']),
     currencyAmount() {
       return (amount) => this.$options.filters.currencyAmount(amount);
     },
@@ -126,14 +148,14 @@ export default {
     },
   },
   methods: {
-      logout () {
-          this.$store.dispatch('logout')
-      },
-       changeTab(tab) {
+    logout() {
+      this.$store.dispatch("logout");
+    },
+    changeTab(tab) {
       this.feeModelVisibility = false;
       this.activeTab = tab;
     },
-  }
+  },
 };
 </script>
 
@@ -153,7 +175,6 @@ export default {
   align-items: center;
   padding-top: 5.6%;
   margin-bottom: 10%;
-  
 }
 .account-top-title {
   font-size: 24px;
@@ -272,5 +293,27 @@ export default {
   border-radius: 5px;
   color: #ffffff;
   background-color: #2a72e5;
+}
+.table-header-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  width: 100%;
+  padding-left: 8px;
+  margin-bottom: 15px;
+}
+.th-name {
+  display: flex;
+  /* justify-content: center; */
+  align-self: stretch;
+  align-items: center;
+}
+.th-text {
+  font-size: 12px;
+  font-weight: bold;
+  color: #555555;
+}
+
+.history-table-container {
 }
 </style>

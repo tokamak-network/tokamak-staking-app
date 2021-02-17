@@ -19,7 +19,7 @@
           >Stake</text
         >
       </touchable-opacity>
-       <touchable-opacity
+      <touchable-opacity
         class="button-comp"
         :on-press="() => changeTab('ReStake')"
       >
@@ -142,11 +142,9 @@
           :style="{ marginBottom: '4.5%' }"
         ></button-main>
       </touchable-opacity>
-
-     
     </view>
-    <!-- <Re-stale tab> --> 
-       <view
+    <!-- <Re-stale tab> -->
+    <view
       v-if="activeTab === 'ReStake'"
       class="value-wrap"
       :style="{
@@ -170,9 +168,7 @@
         <text
           class="withdraw-value-row-input"
           :style="{ height: windowHeight * styles.valueBalanceFirstHeight }"
-          >{{
-            currencyAmount(operator.userNotWithdrawable)
-          }}</text
+          >{{ currencyAmount(operator.userNotWithdrawable) }}</text
         >
       </view>
       <view
@@ -513,17 +509,14 @@ export default {
       this.alertVisibility = close;
     },
     onlyNumber(e) {
-       const key = e.key;
+      const key = e.key;
 
       // If is '.' key, stop it
-      if (key === '.')
-        return e.preventDefault();
-      
+      if (key === ".") return e.preventDefault();
+
       // OPTIONAL
       // If is 'e' key, stop it
-      if (key === 'e')
-        return e.preventDefault();
-      
+      if (key === "e") return e.preventDefault();
     },
     async delegate() {
       const amount = _TON(this.amountToDelegate).toFixed("wei");
@@ -547,7 +540,8 @@ export default {
           transactionHash: status.hash,
           target: this.operator.layer2,
         };
-         this.$store.dispatch('addPendingTransaction', transaction);
+        this.$store.dispatch("addPendingTransaction", transaction);
+        this.$store.dispatch("set");
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setOperators");
         this.amountToDelegate = "";
@@ -563,11 +557,14 @@ export default {
       if (str.slice(0, 2) === "0x") return str.slice(2);
       return str;
     },
-      isNumber (evt) {
-        console.log('hi');
-      evt = (evt) ? evt : window.event;
-      const charCode = (evt.which) ? evt.which : evt.keyCode;
-      if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
+    isNumber(evt) {
+      evt = evt ? evt : window.event;
+      const charCode = evt.which ? evt.which : evt.keyCode;
+      if (
+        charCode > 31 &&
+        (charCode < 48 || charCode > 57) &&
+        charCode !== 46
+      ) {
         evt.preventDefault();
       } else {
         return true;
@@ -602,7 +599,8 @@ export default {
           transactionHash: status.hash,
           target: this.operator.layer2,
         };
-         this.$store.dispatch('addPendingTransaction', transaction);
+        this.$store.dispatch("addPendingTransaction", transaction);
+        this.$store.dispatch("set");
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setOperators");
         this.amountToUndelegate = "";
@@ -631,7 +629,8 @@ export default {
           transactionHash: status.hash,
           target: this.operator.layer2,
         };
-         this.$store.dispatch('addPendingTransaction', transaction);
+        this.$store.dispatch("addPendingTransaction", transaction);
+        this.$store.dispatch("set");
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setOperators");
         this.amountToUndelegate = "";
@@ -641,7 +640,8 @@ export default {
       }
     },
     async withdraw() {
-      const amount = _WTON(userWithdrawable).toFixed("ray");
+      const amount = _WTON(this.operator.userWithdrawable).toFixed("ray");
+      const count = this.operator.withdrawableRequests.length;
       const status = await BlockchainModule.withdraw(
         this.DepositManager,
         "processRequests",
@@ -661,7 +661,8 @@ export default {
           transactionHash: status.hash,
           target: this.operator.layer2,
         };
-         this.$store.dispatch('addPendingTransaction', transaction);
+        this.$store.dispatch("addPendingTransaction", transaction);
+        this.$store.dispatch("set");
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setOperators");
         this.amountToUndelegate = "";
@@ -751,8 +752,10 @@ export default {
             amount,
             data
           );
-          const gasVal = parseInt(gasValue);
 
+          const gasVal = parseInt(gasValue);
+          console.log(amount);
+          console.log(gasVal);
           this.gasLimit = gasVal;
           this.feeModelVisibility = true;
           this.selectedFunction = "delegate";
@@ -778,13 +781,11 @@ export default {
             amount
           );
           const gasVal = parseInt(gasValue);
-
           this.gasLimit = gasVal;
           this.feeModelVisibility = true;
           this.selectedFunction = "undelegate";
         }
       } else if (func === "redelegate") {
-        console.log(this.operator.withdrawalRequests.length);
         if (this.operator.withdrawalRequests.length === 0) {
           this.message = "Redelegatable amount is 0.";
           this.alertVisibility = true;

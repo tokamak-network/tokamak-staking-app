@@ -25,10 +25,8 @@ export default {
             this.seenWeb = true
             if(this.title === 'Website') {
                 this.uri = 'https://tokamak.network/';
-            } else if(this.title === 'Operator Address') {
-                this.uri = getConfig().prefixAddress + this.content;
             } else {
-                this.uri = getConfig().prefixTransactionHash + this.content;
+                this.uri = getConfig().prefixAddress + this.content;
             }
             this.$emit("propFromChild", this.seenWeb, this.uri)
         }

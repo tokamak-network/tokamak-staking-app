@@ -18,11 +18,16 @@
     </view>
     <view class="table-content-container">
       <scroll-view-indicator
-      :scrollIndicatorStyle='styles'
-     :shouldIndicatorHide='false'
-     :flexibleIndicator='false'
-     :indicatorHeight='60' >
-        <view class="list-row" v-for="round in orderedRounds" :key="round.index">
+        :scrollIndicatorStyle="styles"
+        :shouldIndicatorHide="false"
+        :flexibleIndicator="false"
+        :indicatorHeight="60"
+      >
+        <view
+          class="list-row"
+          v-for="round in orderedRounds"
+          :key="round.index"
+        >
           <view class="list-item" :style="{ width: '15%' }">
             <text class="list-item-text">{{ round.index }}</text>
           </view>
@@ -50,7 +55,7 @@
 <script>
 import { mapState } from "vuex";
 import ScrollViewIndicator from "react-native-scroll-indicator";
-import { orderBy } from 'lodash';
+import { orderBy } from "lodash";
 export default {
   components: {
     "scroll-view-indicator": ScrollViewIndicator,
@@ -61,7 +66,7 @@ export default {
         backgroundColor: "#5e94ea",
         opacity: 1,
       },
-       orderedRounds: [],
+      orderedRounds: [],
     };
   },
   computed: {
@@ -76,22 +81,9 @@ export default {
       return (amount) => this.$options.filters.currencyAmount(amount);
     },
   },
-  mounted () {
-    this.orderedRounds = orderBy(this.rounds, (round) => round.index, 'desc');
+  mounted() {
+    this.orderedRounds = orderBy(this.rounds, (round) => round.index, "desc");
   },
-  methods: {
-    orderBy (from) {
-      if (this.from === from) {
-        this.order = this.changedOrder();
-      } else {
-        this.from = from;
-        this.order = 'desc';
-      }
-    },
-     changedOrder () {
-      return this.order === 'desc' ? 'asc' : 'desc';
-    },
-  }
 };
 </script>
 <style scoped>

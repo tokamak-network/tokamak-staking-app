@@ -17,7 +17,9 @@ import com.google.gson.Gson;
 import com.samsung.android.sdk.blockchain.*;
 import com.samsung.android.sdk.blockchain.coinservice.TransactionResult;
 import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumTokenInfo;
+import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumTransaction;
 import com.samsung.android.sdk.blockchain.exception.AvailabilityException;
+import com.samsung.android.sdk.blockchain.network.NetworkType;
 import com.samsung.android.sdk.blockchain.wallet.HardwareWallet;
 import com.samsung.android.sdk.blockchain.account.Account;
 import com.samsung.android.sdk.blockchain.account.ethereum.EthereumAccount;
@@ -75,7 +77,9 @@ import org.web3j.protocol.core.methods.request.Filter;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthEstimateGas;
 import org.web3j.protocol.core.methods.response.EthGasPrice;
+import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthLog;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.core.methods.response.EthBlockNumber;
@@ -83,6 +87,7 @@ import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.utils.Bytes;
 import org.web3j.utils.Numeric;
 
+import java8.util.Optional;
 import jnr.ffi.StructLayout;
 
 public class BlockchainModule extends ReactContextBaseJavaModule {
@@ -96,13 +101,8 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
     private EthereumService etherService;
     private BigDecimal balanceInEther;
     private Web3j web3;
-    private BigInteger ethereumGasPriceSlow = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(4)).toBigInteger();
-    private BigInteger ethereumGasPriceNormal = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(10)).toBigInteger();
-    private BigInteger ethereumGasPriceFast = EthereumUtils.convertEthToGwei(BigDecimal.valueOf(20)).toBigInteger();
     public static String rpcUrl = "https://mainnet.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
     public static String rpcUrlRinkeby = "https://rinkeby.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
-    public static String tonAddress = "0x3734E35231abE68818996dC07Be6a8889202DEe9";
-    public static String wtonAddress = "0x9985d94ee25a1eB0459696667f071ECE121ACce6";
     public String results;
 
     BlockchainModule(ReactApplicationContext context) {
@@ -123,12 +123,12 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
                 // Connected
                 web3 = web3j;
             } else {
-                Log.e("Tokamak App", "not connected web3");
+
                 // Show Error
             }
         } catch (Exception e) {
             // Show Error
-            Log.e("Tokamak App", "web3 error" + e);
+
         }
     }
 
@@ -136,8 +136,6 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
     public void getBlockNumber(Promise promise) throws ExecutionException, InterruptedException, IOException {
         EthBlockNumber block = web3.ethBlockNumber().sendAsync().get();
         Integer blockNumber = block.getBlockNumber().intValue();
-
-        // Log.e("Tokamak App", "connected web3" + block.getBlockNumber() );
         EthBlock.Block ethBlock = web3
                 .ethGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(blockNumber)), false).send()
                 .getBlock();
@@ -147,8 +145,6 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getTimeStamp(Integer blockNumber, Promise promise)
             throws ExecutionException, InterruptedException, IOException {
-
-        // Log.e("Tokamak App", "connected web3" + block.getBlockNumber() );
         EthBlock.Block ethBlock = web3
                 .ethGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(blockNumber)), false).send()
                 .getBlock();
@@ -162,7 +158,6 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
         EthFilter filter = new EthFilter(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST, address);
         filter.addSingleTopic(encoded);
         EthLog ethLog = web3.ethGetLogs(filter).sendAsync().get();
-        Log.e("Tokamak App", "getPastEvents" + ethLog.getLogs());
         WritableArray array = new WritableNativeArray();
         for (Object logs : ethLog.getLogs()) {
             JSONObject jo = new JSONObject(g.toJson(logs));
@@ -180,7 +175,6 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
         etherService.estimateGasLimit(ethereumAccount,address, null, null ).setCallback(new ListenableFutureTask.Callback<BigInteger>() {
             @Override
             public void onSuccess(BigInteger bigInteger) {
-                Log.i("Tokamak App", "estimateGasLimit" + bigInteger);
                 promise.resolve(bigInteger.floatValue());
             }
 
@@ -195,31 +189,53 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
             }
         });
     }
-
     @ReactMethod
-    private void requestCurrentGasPrice(Callback callback) throws ExecutionException, InterruptedException {
-        EthGasPrice ethGasPrice = web3.ethGasPrice().sendAsync().get();
-
-        Log.i("Tokamak App", "estimateGasLimit" + ethGasPrice.getGasPrice());
-        callback.invoke(400,300,200);
-
+    private void getTransactionDetails (String txId, Promise promise) throws ExecutionException, InterruptedException {
+        EthGetTransactionReceipt transactionReceipt  = web3.ethGetTransactionReceipt(txId).sendAsync().get();
+        Optional<TransactionReceipt> receipt = transactionReceipt.getTransactionReceipt();
+        if (transactionReceipt.getTransactionReceipt().isPresent() ) {
+            WritableMap infoMap = Arguments.createMap();
+            Log.e("Tokamak App", "getTransactionDetails" + receipt.get().getStatus() );
+            infoMap.putString("status", receipt.get().getStatus());
+            infoMap.putString("blockHash", receipt.get().getBlockHash());
+            infoMap.putInt("blockNumber", receipt.get().getBlockNumber().intValue());
+            infoMap.putString("transactionHash", receipt.get().getTransactionHash());
+            infoMap.putString("transactionIndex", receipt.get().getTransactionIndex().toString());
+            infoMap.putString("from", receipt.get().getFrom());
+            infoMap.putString("to", receipt.get().getTo());
+            infoMap.putString("contractAddress", receipt.get().getContractAddress());
+            infoMap.putInt("cumulativeGasUsed", receipt.get().getCumulativeGasUsed().intValue());
+            infoMap.putInt("gasUsed", receipt.get().getGasUsed().intValue());
+            promise.resolve(infoMap);
+        }
+        else {
+            promise.resolve(null);
+        }
     }
-
-
     @ReactMethod
 private void esitmatedGasLimitForDelegate (String toContractAddress, String function, String input1, String input2, String input3,
                                            Promise promise) throws ExecutionException, InterruptedException, DecoderException {
     String encodedFunction = convertFunction(function, input1, input2, input3);
     EthEstimateGas estimatedLimit = web3.ethEstimateGas(Transaction.createEthCallTransaction(ethereumAccount.getAddress(),toContractAddress, encodedFunction)).sendAsync().get();
-    Log.i("Tokamak App", "esitmatedGasLimitForDelegate" + estimatedLimit.getResult());
-    promise.resolve(estimatedLimit.getResult());
+         Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + estimatedLimit.getResult() );
+        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + toContractAddress );
+        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + function );
+        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + input1 );
+        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + input2 );
+        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + input3 );
+
+        promise.resolve(estimatedLimit.getResult());
 }
     @ReactMethod
     private void esitmatedGasLimitForRequestWithdrawal (String toContractAddress, String function, String input1, String input2,
                                                         Promise promise) throws ExecutionException, InterruptedException, DecoderException {
         String encodedFunction = convertFunctionWithdrawal(function, input1, input2);
         EthEstimateGas estimatedLimit = web3.ethEstimateGas(Transaction.createEthCallTransaction(ethereumAccount.getAddress(),toContractAddress, encodedFunction)).sendAsync().get();
-        Log.i("Tokamak App", "esitmatedGasLimitForDelegate" + estimatedLimit.getResult());
+        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + estimatedLimit.getResult() );
+        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + toContractAddress );
+        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + function );
+        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + input1 );
+        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + input2 );
         promise.resolve(estimatedLimit.getResult());
     }
 
@@ -228,7 +244,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                                                  Promise promise) throws ExecutionException, InterruptedException, DecoderException {
         String encodedFunction = convertWithdraw(function, input1, input2, input3);
         EthEstimateGas estimatedLimit = web3.ethEstimateGas(Transaction.createEthCallTransaction(ethereumAccount.getAddress(),toContractAddress, encodedFunction)).sendAsync().get();
-        Log.i("Tokamak App", "esitmatedGasLimitForDelegate" + estimatedLimit.getResult());
         promise.resolve(estimatedLimit.getResult());
     }
     private static WritableMap convertJsonToMap(JSONObject jsonObject) throws JSONException {
@@ -273,9 +288,7 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                 public void onSuccess(HardwareWallet hardwareWallet) {
                     hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
                     setHardwareWallet(hardwareWallet);
-                    Log.e("Tokamak App", "initialized ");
                     callBack.invoke(true);
-                    // restoreAccs();
                 }
                 @Override
                 public void onFailure(@NotNull ExecutionException e) {
@@ -288,7 +301,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                 }
             });
         } catch (SsdkUnsupportedException e) {
-            Log.e("Tokamak App", "Error message: " + e.getMessage());
         }
     }
 
@@ -304,29 +316,21 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             public void onSuccess(Boolean result) {
                 callBack.invoke(result);
                 if (result) {
-                    Log.e("Tokamak App", "success restore");
-                    // setAccountStatus();
                 } else {
-                    Log.e("Tokamak App", "fail restore");
                 }
             }
 
             @Override
             public void onFailure(ExecutionException e) {
                 Throwable cause = e.getCause();
-                Log.e("onFailure", cause.toString());
                 if (cause instanceof AccountException) {
-                    Log.e("Tokamak App", "restore AccountException");
                 } else if (cause instanceof RootSeedChangedException) {
-                    Log.e("Tokamak App", "restore RootSeedChangedException");
                 } else if (cause instanceof RemoteClientException) {
-                    Log.e("Tokamak App", "restore RemoteClientException");
                 }
             }
 
             @Override
             public void onCancelled(InterruptedException exception) {
-                Log.e("Tokamak App", "onCancelled");
             }
         };
 
@@ -343,7 +347,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             setEthereumAccount((EthereumAccount) accounts.get(0));
             callBack.invoke(account);
         } else {
-            Log.e("Tokamak App", "account empty.");
             generateNewAccount(callBack);
         }
     }
@@ -363,19 +366,14 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             public void onFailure(ExecutionException e) {
 
                 Throwable cause = e.getCause();
-                Log.i("Tokamak App fail", String.valueOf(cause));
                 if (cause instanceof AccountException) {
-                    Log.i("Tokamak App", "AccountException");
                 } else if (cause instanceof RootSeedChangedException) {
-                    Log.i("Tokamak App", "RootSeedChangedException");
                 } else if (cause instanceof RemoteClientException) {
-                    Log.i("Tokamak App", "RemoteClientException");
                 }
             }
 
             @Override
             public void onCancelled(InterruptedException e) {
-                Log.i("Tokamak App", "Account creation cancelled");
             }
         };
 
@@ -406,27 +404,29 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             @Override
             public void onSuccess(BigInteger result) {
                 balanceInEther = EthereumUtils.convertWeiToEth(result);
-                Log.i("Tokamak App", "Balance" + balanceInEther);
                 promise.resolve(balanceInEther.floatValue());
             }
 
             @Override
             public void onFailure(ExecutionException exception) {
-                Log.i("Tokamak App", "Balance fail" + exception);
             }
 
             @Override
             public void onCancelled(InterruptedException exception) {
-                Log.i("Tokamak App", "Balance cancel" + exception);
                 // cancelled
             }
         });
     }
 
     @ReactMethod
+    private void  getNetworkType (Promise promise) {
+       NetworkType networkType = coinNetworkInfo.getNetworkType();
+        promise.resolve(networkType.getType());
+
+    }
+    @ReactMethod
     private void approveAndCall(String toContractAddress, String function, String gasPrice, String gasLimit, String input1, String input2, String input3,
             Promise promise) throws DecoderException {
-        Log.i("Tokamak App", "gasPrice" + new BigInteger(gasPrice));
         hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
@@ -447,12 +447,10 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
 
                 @Override
                 public void onFailure(ExecutionException exception) {
-                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
                 }
 
                 @Override
                 public void onCancelled(InterruptedException exception) {
-                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
                 }
             });
         } catch (AvailabilityException e) {
@@ -464,7 +462,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
     public String convertFunction(String method, String input1, String input2, String input3) throws DecoderException {
 
         byte[] bytes = Hex.decodeHex(input3.toCharArray());
-        Log.i("Tokamak App", "gasPrice" + bytes);
         List<Type> inputParameters = Arrays.asList(new Address(input1), new Uint(new BigInteger(input2)),
                 new DynamicBytes(bytes));
         List outputParameters = Arrays.asList(new TypeReference<Uint>() {
@@ -500,12 +497,10 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
 
                 @Override
                 public void onFailure(ExecutionException exception) {
-                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
                 }
 
                 @Override
                 public void onCancelled(InterruptedException exception) {
-                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
                 }
             });
         } catch (AvailabilityException e) {
@@ -523,7 +518,7 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
 
         return FunctionEncoder.encode(transferFunction);
     }
-    ////
+
 
     @ReactMethod
     private void requestWithdrawal(String toContractAddress, String function,  String gasPrice, String gasLimit,String input1, String input2,
@@ -549,12 +544,10 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
 
                 @Override
                 public void onFailure(ExecutionException exception) {
-                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
                 }
 
                 @Override
                 public void onCancelled(InterruptedException exception) {
-                    Log.i("Tokamak App", "sendSmartContractTransaction" + exception);
                 }
             });
         } catch (AvailabilityException e) {
@@ -576,7 +569,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
     @ReactMethod
     private void callSmartFunc(String method, String address, String input1, String input2, String input3,
             Promise promise) {
-        Log.i("Tokamak App", "callSmartFunc came" + method);
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
         String encodedFunction = getEncodedFunc(method, input1, input2, input3);
@@ -585,28 +577,22 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                     @Override
                     public void onSuccess(String result) {
                         results = result;
-                        Log.i("Tokamak App", "callSmartMethod called" + result);
                         promise.resolve(result);
                         // success
                     }
 
                     @Override
                     public void onFailure(ExecutionException exception) {
-                        // failure
-                        Log.i("Tokamak App", "callSmartMethod failed");
                     }
 
                     @Override
                     public void onCancelled(InterruptedException exception) {
-                        // cancelled
-                        Log.i("Tokamak App", "call method cancelled");
                     }
                 });
     }
 
     @ReactMethod
     private void callSmartMethod(String method, String address, String input1, String input2, Promise promise) {
-        Log.i("Tokamak App", "call method came");
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
         String encodedFunction = getFunction(method, input1, input2);
@@ -615,21 +601,16 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                     @Override
                     public void onSuccess(String result) {
                         results = result;
-                        Log.i("Tokamak App", "callSmartMethod called" + result);
                         promise.resolve(result);
                         // success
                     }
 
                     @Override
                     public void onFailure(ExecutionException exception) {
-                        // failure
-                        Log.i("Tokamak App", "callSmartMethod failed");
                     }
 
                     @Override
                     public void onCancelled(InterruptedException exception) {
-                        // cancelled
-                        Log.i("Tokamak App", "call method cancelled");
                     }
                 });
     }
@@ -642,18 +623,15 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             @Override
             public void onSuccess(EthereumFeeInfo ethereumFeeInfo) {
                 BigDecimal fast = EthereumUtils.convertWeiToEth(ethereumFeeInfo.getFast());
-                Log.i("Tokamak App", "ethereumFeeInfo" + fast);
                 callBack.invoke(ethereumFeeInfo.getFast().floatValue(),ethereumFeeInfo.getNormal().floatValue(),ethereumFeeInfo.getSlow().floatValue());
             }
 
             @Override
             public void onFailure(@NotNull ExecutionException e) {
-                Log.i("Tokamak App", "ethereumFeeInfo error" + e);
             }
 
             @Override
             public void onCancelled(@NotNull InterruptedException e) {
-                Log.i("Tokamak App", "ethereumFeeInfo error" + e);
             }
         });
     }
@@ -676,17 +654,14 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
 
                     @Override
                     public void onFailure(ExecutionException exception) {
-                        // failure
-                        Log.i("Tokamak App", "call method failed" + method);
                     }
 
                     @Override
                     public void onCancelled(InterruptedException exception) {
-                        // cancelled
-                        Log.i("Tokamak App", "call method cancelled");
                     }
                 });
     }
+
 
     @NotNull
     public String getEncodedFunc(String method, String input1, String input2, String input3) {
@@ -695,7 +670,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
         List outputParameters = Arrays.asList(new TypeReference<Uint>() {
         });
         Function transferFunction = new Function(method, inputParameters, outputParameters);
-        Log.i("Tokamak App", "came to address");
         return FunctionEncoder.encode(transferFunction);
     }
 
@@ -707,10 +681,8 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             List outputParameters = Arrays.asList(new TypeReference<Uint>() {
             });
             Function transferFunction = new Function(method, inputParameters, outputParameters);
-            Log.i("Tokamak App", "came to address");
             return FunctionEncoder.encode(transferFunction);
         } else {
-            Log.i("Tokamak App", "came to uint");
             List<Type> inputParameters = Arrays.asList(new Uint(new BigInteger(input1)),
                     new Uint(new BigInteger(input2)));
             List outputParameters = Arrays.asList(new TypeReference<Uint>() {
@@ -735,11 +707,8 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             List outputParameters = Arrays.asList(new TypeReference<Uint>() {
             });
             Function transferFunction = new Function(method, inputParameters, outputParameters);
-            Log.i("Tokamak App", "came to address " + method);
             return FunctionEncoder.encode(transferFunction);
         } else {
-
-            Log.i("Tokamak App", "came to uint");
             List<Type> inputParameters = Arrays.asList(new Uint(new BigInteger(user)));
             List outputParameters = Arrays.asList(new TypeReference<Uint>() {
             });

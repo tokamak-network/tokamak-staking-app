@@ -384,6 +384,8 @@ export default {
           target: this.operator.layer2,
         };
         //  this.$store.dispatch('addPendingTransaction', transaction);
+        this.$store.dispatch("addPendingTransaction", transaction);
+        this.$store.dispatch("set");
         this.$store.dispatch("setBalance");
         this.amountToDelegate = "";
       } else {

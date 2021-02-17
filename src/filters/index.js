@@ -55,6 +55,13 @@ export function nameOfNetwork (networkId) {
   return networkId;
 }
 
+export function networkID (networkName) {
+  if (networkName === 'mainnet') return 1; 
+  if (networkName === 'ropsten') return 3;
+  if (networkName === 'rinkeby') return 4;
+  if (networkName === 'kovan') return 42;
+  return networkName;
+}
 // https://github.com/Onther-Tech/dashboard.tokamak.network/issues/49
 export function currencyAmount (amount) {
   if (amount instanceof Currency) {

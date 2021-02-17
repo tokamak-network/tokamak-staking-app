@@ -41,7 +41,7 @@ npm i --save-dev tradle/rn-nodeify
 # install node core shims and recursively hack package.json files 
 # in ./node_modules to add/update the "browser"/"react-native" field with relevant mappings 
 ./node_modules/.bin/rn-nodeify --hack --install
-rn-nodeify will create a shim.js in the project root directory
+//rn-nodeify will create a shim.js in the project root directory
 // index.ios.js or index.android.js
 // make sure you use `import` and not require!  
 import './shim.js'

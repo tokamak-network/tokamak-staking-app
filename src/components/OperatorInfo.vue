@@ -129,8 +129,6 @@ export default {
         childPropReceived(args1, args2) {
             this.seenWeb = args1
             this.uri = args2
-            console.log("---result---")
-            console.log(this.uri)
         },
         delay () {
             const operatorDelay = this.operator.withdrawalDelay;

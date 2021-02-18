@@ -97,7 +97,7 @@ export default new Vuex.Store({
         }
       });
       function isEmptyObject(param) {
-        return Object.keys(param).length === 0 && param.constructor === Object;
+        return Object.keys(param).length === 0 && param.constructor === Object || param.constructor === Array;
       }
     },
     SET_LOGIN: (state, status) => {

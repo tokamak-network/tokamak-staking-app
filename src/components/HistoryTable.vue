@@ -97,7 +97,6 @@ export default {
    openWebView(args) {
      this.webViewVisible = true;
      this.uri = getConfig().prefixTransactionHash + args;
-     console.log(this.uri)
    }
   }
 };

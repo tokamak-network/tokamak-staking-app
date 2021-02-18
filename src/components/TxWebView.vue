@@ -4,9 +4,9 @@
     :visible=modalVisible
     >
     <view class="modal-background">
+                <view class="modal-content">
         <view class="modal-container" :style="{height: windowHeight*0.91, width: windowWidth, top: windowHeight * 0.09}">
             <scroll-view :showsVerticalScrollIndicator="false">
-                <view class="modal-content">
                     <view class="modal-top">
                         <text class="modal-top-title">Tx Hash</text>
                         <touchable-opacity :style="{marginLeft: 'auto'}" :on-press="()=>close()">

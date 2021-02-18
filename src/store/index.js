@@ -97,7 +97,10 @@ export default new Vuex.Store({
         }
       });
       function isEmptyObject(param) {
-        return Object.keys(param).length === 0 && param.constructor === Object || param.constructor === Array;
+        return (
+          (Object.keys(param).length === 0 && param.constructor === Object) ||
+          param.constructor === Array
+        );
       }
     },
     SET_LOGIN: (state, status) => {
@@ -150,18 +153,21 @@ export default new Vuex.Store({
       state.pendingTransactions = pendingTransactions;
     },
     ADD_PENDING_TRANSACTION: (state, newPendingTransaction) => {
-      const pending = state.pendingTransactions
+      const pending = state.pendingTransactions;
       if (
         !pending.find(
-          pendingTransaction =>
+          (pendingTransaction) =>
             pendingTransaction.transactionHash ===
             newPendingTransaction.transactionHash
         )
-      ) 
-      {
+      ) {
         state.pendingTransactions.push(newPendingTransaction);
       }
-      setPendingTransactions(state.pendingTransactions, state.user, state.networkId);
+      setPendingTransactions(
+        state.pendingTransactions,
+        state.user,
+        state.networkId
+      );
     },
     DELETE_PENDING_TRANSACTION: (state, minedTransaction) => {
       state.pendingTransactions.splice(
@@ -170,7 +176,11 @@ export default new Vuex.Store({
           .indexOf(minedTransaction.transactionHash),
         1
       );
-      setPendingTransactions(state.pendingTransactions, state.user, state.networkId);
+      setPendingTransactions(
+        state.pendingTransactions,
+        state.user,
+        state.networkId
+      );
     },
     SET_MANAGERS: (state, managers) => {
       for (const [name, contract] of Object.entries(managers)) {
@@ -275,12 +285,12 @@ export default new Vuex.Store({
         context.dispatch("setManagers", managers),
         context.dispatch("setOperatorsWithRegistry", operators),
         context.dispatch("setTransactionsAndPendingTransactions", transactions),
-        context.dispatch("setOperators", blockNumber),
+        context.dispatch("setOperators"),
         context.dispatch("setBalance"),
         context.dispatch("setCurrentRound"),
         context.dispatch("setRounds"),
         context.dispatch("setHistory"),
-        context.dispatch('checkPendingTransactions'),
+        context.dispatch("checkPendingTransactions"),
       ]).catch((err) => {
         // after logout, error can be happened
       });
@@ -299,8 +309,14 @@ export default new Vuex.Store({
     },
     async setTransactionsAndPendingTransactions(context, transactions) {
       context.commit("SET_TRANSACTIONS", transactions);
-      const pendingTransactions = await getPendingTransactions(context.state.user, context.state.networkId);
-      context.commit("SET_PENDING_TRANSACTIONS", JSON.parse(pendingTransactions));
+      const pendingTransactions = await getPendingTransactions(
+        context.state.user,
+        context.state.networkId
+      );
+      context.commit(
+        "SET_PENDING_TRANSACTIONS",
+        JSON.parse(pendingTransactions)
+      );
     },
     async addPendingTransaction(context, transaction) {
       context.commit("ADD_PENDING_TRANSACTION", transaction);
@@ -309,26 +325,31 @@ export default new Vuex.Store({
       context.commit("DELETE_PENDING_TRANSACTION", transaction);
     },
     async checkPendingTransactions(context) {
-      const pendingTransactions = await getPendingTransactions(context.state.user, context.state.networkId);
-     const trans = JSON.parse(pendingTransactions);
-     trans.forEach(async transaction => {
-        const receipt = await BlockchainModule.getTransactionDetails(transaction.transactionHash); 
+      const pendingTransactions = await getPendingTransactions(
+        context.state.user,
+        context.state.networkId
+      );
+      const trans = JSON.parse(pendingTransactions);
+      trans.forEach(async (transaction) => {
+        const receipt = await BlockchainModule.getTransactionDetails(
+          transaction.transactionHash
+        );
         if (receipt) {
-          if (receipt.status === "0x1"){
-            receipt.status = true
-          }
-          else {
-            receipt.status = false
+          if (receipt.status === "0x1") {
+            receipt.status = true;
+          } else {
+            receipt.status = false;
           }
           transaction.receipt = receipt;
           const minedTransaction = await addTransaction(transaction);
-          context.commit('ADD_TRANSACTION', minedTransaction);
-          context.commit('DELETE_PENDING_TRANSACTION', minedTransaction);
+          context.commit("ADD_TRANSACTION", minedTransaction);
+          context.commit("DELETE_PENDING_TRANSACTION", minedTransaction);
         }
-      })
+      });
     },
-    async setOperators(context, blockNumber) {
+    async setOperators(context) {
       const user = context.state.user;
+      const blockNumber = await BlockchainModule.getBlockNumber();
 
       const TON = context.state.TON;
       const WTON = context.state.WTON;
@@ -338,14 +359,15 @@ export default new Vuex.Store({
       const l2Registry = context.state.Layer2Registry;
       const tot = await BlockchainModule.callMethod("tot", SeigManager, "");
       const Tot = toChecksumAddress(tot.substring(0, 2) + tot.substring(26));
-      const [tonTotalSup, totTotalSup, tonBalanceWTON] = await Promise.all([
-        BlockchainModule.callMethod("totalSupply", TON, ""),
-        BlockchainModule.callMethod("totalSupply", Tot, ""),
-        BlockchainModule.callMethod("balanceOf", TON, WTON),
+      const [
+        tonTotalSupply,
+        totTotalSupply,
+        tonBalanceOfWTON,
+      ] = await Promise.all([
+        BlockchainModule.callMethodIntOutput("totalSupply", TON, ""),
+        BlockchainModule.callMethodIntOutput("totalSupply", Tot, ""),
+        BlockchainModule.callMethodIntOutput("balanceOf", TON, WTON),
       ]);
-      const tonTotalSupply = bigInt(parseInt(tonTotalSup)).toString();
-      const totTotalSupply = bigInt(parseInt(totTotalSup)).toString();
-      const tonBalanceOfWTON = bigInt(parseInt(tonBalanceWTON)).toString();
 
       const operators = context.state.operators.slice(0, 5);
       for (let i = 0; i < operators.length; i++) {
@@ -369,14 +391,13 @@ export default new Vuex.Store({
           const Coinage = toChecksumAddress(
             coinage.substring(0, 2) + coinage.substring(26)
           );
-          const [op, currentForks] = await Promise.all([
+          const [op, currentForkNumber] = await Promise.all([
             BlockchainModule.callMethod("operator", layer2, ""),
-            BlockchainModule.callMethod("currentFork", layer2, ""),
+            BlockchainModule.callMethodIntOutput("currentFork", layer2, ""),
           ]);
           const operator = toChecksumAddress(
             op.substring(0, 2) + op.substring(26)
           );
-          const currentForkNumber = bigInt(parseInt(currentForks)).toString();
 
           const getRecentCommit = async (operator, layer2) => {
             const commitTransactions = [];
@@ -506,36 +527,35 @@ export default new Vuex.Store({
           const getDeposit = async (account) => {
             let accountStaked, accountUnstaked;
             if (typeof account === "undefined") {
-              accountStaked = await BlockchainModule.callMethod(
+              accountStaked = await BlockchainModule.callMethodIntOutput(
                 "accStakedLayer2",
                 DepositManager,
                 layer2
               );
-              accountUnstaked = await BlockchainModule.callMethod(
+
+              accountUnstaked = await BlockchainModule.callMethodIntOutput(
                 "accUnstakedLayer2",
                 DepositManager,
                 layer2
               );
             } else {
-              accountStaked = await BlockchainModule.callSmartMethod(
+              accountStaked = await BlockchainModule.callSmartMethodIntOutput(
                 "accStaked",
                 DepositManager,
                 layer2,
                 account
               );
-              accountUnstaked = await BlockchainModule.callSmartMethod(
+
+              accountUnstaked = await BlockchainModule.callSmartMethodIntOutput(
                 "accUnstaked",
                 DepositManager,
                 layer2,
                 account
               );
             }
-            const accStaked = new BN(
-              bigInt(parseInt(accountStaked)).toString()
-            );
-            const accUnstaked = new BN(
-              bigInt(parseInt(accountUnstaked)).toString()
-            );
+            const accStaked = new BN(accountStaked);
+            const accUnstaked = new BN(accountUnstaked);
+
             const deposit = accStaked.sub(accUnstaked);
             if (deposit.cmp(new BN("0")) === -1) {
               // https://github.com/Onther-Tech/plasma-evm-contracts/issues/39
@@ -562,7 +582,6 @@ export default new Vuex.Store({
             );
 
             let index = parseInt(requestIndex);
-
             const pendingRequests = [];
             for (const _ of range(numPendingRequests)) {
               const req = await BlockchainModule.callSmartFunc(
@@ -615,28 +634,39 @@ export default new Vuex.Store({
           const getExpectedSeigs = async () => {
             const [
               isRateNegative,
-              ispaused,
+              isPaused,
               lastSeig,
-              unpaused,
+              unPaused,
               pausedblk,
             ] = await Promise.all([
-              BlockchainModule.callMethod(
+              BlockchainModule.callMethodIntOutput(
                 "isCommissionRateNegative",
                 SeigManager,
                 layer2
               ),
-              BlockchainModule.callMethod("paused", SeigManager, ""),
-              BlockchainModule.callMethod("lastSeigBlock", SeigManager, ""),
-              BlockchainModule.callMethod("unpausedBlock", SeigManager, ""),
-              BlockchainModule.callMethod("pausedBlock", SeigManager, ""),
+              BlockchainModule.callMethodIntOutput("paused", SeigManager, ""),
+              BlockchainModule.callMethodIntOutput(
+                "lastSeigBlock",
+                SeigManager,
+                ""
+              ),
+              BlockchainModule.callMethodIntOutput(
+                "unpausedBlock",
+                SeigManager,
+                ""
+              ),
+              BlockchainModule.callMethodIntOutput(
+                "pausedBlock",
+                SeigManager,
+                ""
+              ),
             ]);
             const isCommissionRateNegative =
-              bigInt(parseInt(isRateNegative)).toString() === "" ? false : true;
-            const paused =
-              bigInt(parseInt(ispaused)).toString() === "" ? false : true;
-            const lastSeigBlock = bigInt(parseInt(lastSeig)).toString();
-            const unpausedBlock = bigInt(parseInt(unpaused)).toString();
-            const pausedBlock = bigInt(parseInt(pausedblk)).toString();
+              isRateNegative === "0" ? false : true;
+            const paused = isPaused === "0" ? false : true;
+            const lastSeigBlock = lastSeig;
+            const unpausedBlock = unPaused;
+            const pausedBlock = pausedblk;
 
             let [
               seigPerBlk,
@@ -647,47 +677,40 @@ export default new Vuex.Store({
               prevCoinageOperatorBal,
               prevCoinageUserBal,
             ] = await Promise.all([
-              BlockchainModule.callMethod("seigPerBlock", SeigManager, ""),
-              BlockchainModule.callMethod(
+              BlockchainModule.callMethodIntOutput(
+                "seigPerBlock",
+                SeigManager,
+                ""
+              ),
+              BlockchainModule.callMethodIntOutput(
                 "commissionRates",
                 SeigManager,
                 layer2
               ),
-              BlockchainModule.callMethod("totalSupply", Tot, ""),
-              BlockchainModule.callMethod("balanceOf", Tot, layer2),
-              BlockchainModule.callMethod("totalSupply", Coinage, ""),
-              BlockchainModule.callMethod("balanceOf", Coinage, operator),
-              BlockchainModule.callMethod("balanceOf", Coinage, user),
+              BlockchainModule.callMethodIntOutput("totalSupply", Tot, ""),
+              BlockchainModule.callMethodIntOutput("balanceOf", Tot, layer2),
+              BlockchainModule.callMethodIntOutput("totalSupply", Coinage, ""),
+              BlockchainModule.callMethodIntOutput(
+                "balanceOf",
+                Coinage,
+                operator
+              ),
+              BlockchainModule.callMethodIntOutput("balanceOf", Coinage, user),
             ]);
 
-            const seigPerBlock = _WTON(
-              bigInt(parseInt(seigPerBlk)).toString(),
-              WTON_UNIT
-            );
-            const commissionRate = _WTON(
-              bigInt(parseInt(commissionRte)).toString(),
-              WTON_UNIT
-            );
-            const prevTotTotalSupply = _WTON(
-              bigInt(parseInt(prevTotTotalSup)).toString(),
-              WTON_UNIT
-            );
-            const prevTotBalance = _WTON(
-              bigInt(parseInt(prevTotBal)).toString(),
-              WTON_UNIT
-            );
+            const seigPerBlock = _WTON(seigPerBlk, WTON_UNIT);
+            const commissionRate = _WTON(commissionRte, WTON_UNIT);
+            const prevTotTotalSupply = _WTON(prevTotTotalSup, WTON_UNIT);
+            const prevTotBalance = _WTON(prevTotBal, WTON_UNIT);
             const prevCoinageTotalSupply = _WTON(
-              bigInt(parseInt(prevCoinageTotalSup)).toString(),
+              prevCoinageTotalSup,
               WTON_UNIT
             );
             const prevCoinageOperatorBalance = _WTON(
-              bigInt(parseInt(prevCoinageOperatorBal)).toString(),
+              prevCoinageOperatorBal,
               WTON_UNIT
             );
-            const prevCoinageUserBalance = _WTON(
-              bigInt(parseInt(prevCoinageUserBal)).toString(),
-              WTON_UNIT
-            );
+            const prevCoinageUserBalance = _WTON(prevCoinageUserBal, WTON_UNIT);
             const prevCoinageUsersBalance = prevCoinageTotalSupply.minus(
               prevCoinageOperatorBalance
             );
@@ -705,6 +728,7 @@ export default new Vuex.Store({
             }
             function increaseTot() {
               const maxSeig = seigPerBlock.times(calcNumSeigBlocks());
+              console.log(totTotalSupply);
               const tos = _WTON(tonTotalSupply, TON_UNIT)
                 .plus(_WTON(totTotalSupply, WTON_UNIT))
                 .minus(_WTON(tonBalanceOfWTON, TON_UNIT));
@@ -746,6 +770,7 @@ export default new Vuex.Store({
               }
 
               if (!isCommissionRateNegative) {
+                console.log('commissionRate', commissionRate);
                 const commissionFromUsers = usersSeigs.times(commissionRate);
 
                 operatorSeigsWithCommissionRate = operatorSeigsWithCommissionRate.plus(
@@ -837,46 +862,70 @@ export default new Vuex.Store({
             getDeposit(),
             getDeposit(operator),
             getDeposit(user),
-            BlockchainModule.callMethod("totalSupply", Coinage, ""),
-            BlockchainModule.callMethod("balanceOf", Coinage, operator),
-            BlockchainModule.callMethod("balanceOf", Coinage, user),
+            BlockchainModule.callMethodIntOutput("totalSupply", Coinage, ""),
+            BlockchainModule.callMethodIntOutput(
+              "balanceOf",
+              Coinage,
+              operator
+            ),
+            BlockchainModule.callMethodIntOutput("balanceOf", Coinage, user),
             getPendingRequests(),
             getExpectedSeigs(),
-            BlockchainModule.callMethod(
+            BlockchainModule.callMethodIntOutput(
               "isCommissionRateNegative",
               SeigManager,
               layer2
             ),
-            BlockchainModule.callMethod("commissionRates", SeigManager, layer2),
-            BlockchainModule.callMethod("powerTONSeigRate", SeigManager, ""),
-            BlockchainModule.callMethod("daoSeigRate", SeigManager, ""),
-            BlockchainModule.callMethod("relativeSeigRate", SeigManager, ""),
-            BlockchainModule.callMethod(
+            BlockchainModule.callMethodIntOutput(
+              "commissionRates",
+              SeigManager,
+              layer2
+            ),
+            BlockchainModule.callMethodIntOutput(
+              "powerTONSeigRate",
+              SeigManager,
+              ""
+            ),
+            BlockchainModule.callMethodIntOutput(
+              "daoSeigRate",
+              SeigManager,
+              ""
+            ),
+            BlockchainModule.callMethodIntOutput(
+              "relativeSeigRate",
+              SeigManager,
+              ""
+            ),
+            BlockchainModule.callMethodIntOutput(
               "delayedCommissionRateNegative",
               SeigManager,
               layer2
             ),
-            BlockchainModule.callMethod(
+            BlockchainModule.callMethodIntOutput(
               "delayedCommissionRate",
               SeigManager,
               layer2
             ),
-            BlockchainModule.callMethod(
+            BlockchainModule.callMethodIntOutput(
               "delayedCommissionBlock",
               SeigManager,
               layer2
             ),
-            BlockchainModule.callMethod(
+            BlockchainModule.callMethodIntOutput(
               "withdrawalDelay",
               DepositManager,
               layer2
             ),
-            BlockchainModule.callMethod(
+            BlockchainModule.callMethodIntOutput(
               "globalWithdrawalDelay",
               DepositManager,
               ""
             ),
-            BlockchainModule.callMethod("minimumAmount", SeigManager, ""),
+            BlockchainModule.callMethodIntOutput(
+              "minimumAmount",
+              SeigManager,
+              ""
+            ),
           ]);
           currentFork = {};
           currentFork.forkedBlock = bigInt(
@@ -987,30 +1036,21 @@ export default new Vuex.Store({
           firstEpoch.NRE.challenged = bigInt(
             parseInt("0x" + firstEpo.substring(1346, 1410))
           ).toString();
-          const totalStaked = bigInt(parseInt(totStaked)).toString();
-          const selfStaked = bigInt(parseInt(selfStake)).toString();
-          const userStaked = bigInt(parseInt(userStake)).toString();
-          const isCommissionRateNegative = bigInt(
-            parseInt(CommissionRateNegative)
-          ).toString();
-          const commissionRate = bigInt(parseInt(commRate)).toString();
-          const powerTONSeigRate = bigInt(parseInt(powerTONSeigRt)).toString();
-          const daoSeigRate = bigInt(parseInt(daoSeigRt)).toString();
-          const relativeSeigRate = bigInt(parseInt(relativeSeigRt)).toString();
-          const delayedCommissionRateNegative = bigInt(
-            parseInt(delayedCommissionRateNeg)
-          ).toString();
-          const delayedCommissionRate = bigInt(
-            parseInt(delayedCommissionRt)
-          ).toString();
-          const delayedCommissionBlock = bigInt(
-            parseInt(delayedCommBlock)
-          ).toString();
-          const withdrawalDelay = bigInt(parseInt(withdrawDelay)).toString();
-          const globalWithdrawalDelay = bigInt(
-            parseInt(globalWithdrawDelay)
-          ).toString();
-          const minimumAmount = bigInt(parseInt(minAmount)).toString();
+
+          const totalStaked = totStaked;
+          const selfStaked = selfStake;
+          const userStaked = userStake;
+          const isCommissionRateNegative = CommissionRateNegative;
+          const commissionRate = commRate;
+          const powerTONSeigRate = powerTONSeigRt;
+          const daoSeigRate = daoSeigRt;
+          const relativeSeigRate = relativeSeigRt;
+          const delayedCommissionRateNegative = delayedCommissionRateNeg;
+          const delayedCommissionRate = delayedCommissionRt;
+          const delayedCommissionBlock = delayedCommBlock;
+          const withdrawalDelay = withdrawDelay;
+          const globalWithdrawalDelay = globalWithdrawDelay;
+          const minimumAmount = minAmount;
 
           const deployedAt = firstEpoch.timestamp;
           const lastFinalizedEpochNumber = currentFork.lastFinalizedEpoch;
@@ -1026,24 +1066,24 @@ export default new Vuex.Store({
             .mul(toBN("1000000000"))
             .add(toBN(totTotalSupply))
             .sub(toBN(tonBalanceOfWTON));
-          const fromBlockNum = await BlockchainModule.callMethod(
+
+          const fromBlockNumber = await BlockchainModule.callMethodIntOutput(
             "lastCommitBlock",
             SeigManager,
             layer2
           );
-          const fromBlockNumber = bigInt(parseInt(fromBlockNum)).toString();
-          const totalStakedAmt = await BlockchainModule.callMethod(
+          const totalStakedAmount = await BlockchainModule.callMethodIntOutput(
             "totalSupply",
             Tot,
             ""
           );
-          const totalStakedAmount = bigInt(parseInt(totalStakedAmt)).toString();
-          const pseigRt = await BlockchainModule.callMethod(
+          const pseigRt = await BlockchainModule.callMethodIntOutput(
             "relativeSeigRate",
             SeigManager,
             ""
           );
-          const pseigRate = bigInt(parseInt(pseigRt)).toString();
+          const pseigRate = pseigRt;
+
           const seigniorage = calculateExpectedSeig(
             new BN(fromBlockNumber),
             new BN(blockNumber),
@@ -1125,21 +1165,22 @@ export default new Vuex.Store({
       const PowerTON = context.state.PowerTON;
 
       const ethBalance = await BlockchainModule.getBalance();
-      const tonBal = await BlockchainModule.callMethod("balanceOf", TON, user);
-      const tonBalance = bigInt(parseInt(tonBal)).toString();
+      const tonBalance = await BlockchainModule.callMethodIntOutput(
+        "balanceOf",
+        TON,
+        user
+      );
 
-      const wtonBal = await BlockchainModule.callMethod(
+      const wtonBalance = await BlockchainModule.callMethodIntOutput(
         "balanceOf",
         WTON,
         user
       );
-      const wtonBalance = bigInt(parseInt(wtonBal)).toString();
-      const powerBal = await BlockchainModule.callMethod(
+      const powerBalance = await BlockchainModule.callMethodIntOutput(
         "powerOf",
         PowerTON,
         user
       );
-      const powerBalance = bigInt(parseInt(powerBal)).toString();
 
       context.commit("SET_ETHBALACE", _ETH.wei(ethBalance.toString()));
       context.commit("SET_TONBALACE", _TON.wei(tonBalance.toString()));
@@ -1150,27 +1191,26 @@ export default new Vuex.Store({
       const user = context.state.user;
       const WTON = context.state.WTON;
       const PowerTON = context.state.PowerTON;
-      const currentRoundIn = await BlockchainModule.callMethod(
+      const currentRoundIndex = await BlockchainModule.callMethodIntOutput(
         "currentRound",
         PowerTON,
         ""
       );
-      const currentRoundIndex = bigInt(parseInt(currentRoundIn)).toString();
       const [round, bal, totDeposits, pow] = await Promise.all([
         BlockchainModule.callMethod("rounds", PowerTON, currentRoundIndex),
-        BlockchainModule.callMethod("balanceOf", WTON, PowerTON),
-        BlockchainModule.callMethod("totalDeposits", PowerTON, ""),
-        BlockchainModule.callMethod("powerOf", PowerTON, user),
+        BlockchainModule.callMethodIntOutput("balanceOf", WTON, PowerTON),
+        BlockchainModule.callMethodIntOutput("totalDeposits", PowerTON, ""),
+        BlockchainModule.callMethodIntOutput("powerOf", PowerTON, user),
       ]);
-      (currentRound = {}),
-        (currentRound.startTime = bigInt(
-          parseInt("0x" + round.substring(2, 66))
-        ).toString());
+      currentRound = {};
+      currentRound.startTime = bigInt(
+        parseInt("0x" + round.substring(2, 66))
+      ).toString();
       currentRound.endTime = parseInt("0x" + round.substring(66, 130));
       currentRound.winner = "0x" + round.substring(218, 258);
-      const balance = bigInt(parseInt(bal)).toString();
-      const totalDeposits = bigInt(parseInt(totDeposits)).toString();
-      const power = bigInt(parseInt(pow)).toString();
+      const balance = bal;
+      const totalDeposits = totDeposits;
+      const power = pow;
       const userPower = _POWER.ray(power);
       const totalPower = _POWER.ray(totalDeposits);
       const reward = new BN(balance);

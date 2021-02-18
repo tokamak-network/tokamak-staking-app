@@ -9,7 +9,7 @@
       <view class="info-row">
         <text class="info-title">Commission Rate</text>
         <text class="info-description"
-          >{{ operator.isCommissionRateNegative === 1 ? "-" : ""
+          >{{ operator.isCommissionRateNegative === '1' ? "-" : ""
           }}{{ rateOf(operator.commissionRate) }}</text
         >
       </view>

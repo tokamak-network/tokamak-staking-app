@@ -98,7 +98,7 @@
         >
           <text class="operator-detail-title">Commission Rate</text>
           <text class="operator-detail-content"
-            >{{ operator.isCommissionRateNegative === 1 ? "-" : ""
+            >{{ operator.isCommissionRateNegative === '1' ? "-" : ""
             }}{{ rateOf(operator.commissionRate) }}</text
           >
         </view>
@@ -276,7 +276,7 @@ export default {
     info() {
       const commission = "Commission Rate: ";
       const committed = "Last Committed: ";
-      const isNeg = this.operator.isCommissionRateNegative === 1 ? "-" : "";
+      const isNeg = this.operator.isCommissionRateNegative === '1' ? "-" : "";
       const rate = isNeg + this.rateOf(this.operator.commissionRate);
       const lastComm = this.fromNow(this.operator.lastFinalizedAt);
       return commission + rate + " " + committed + lastComm;
@@ -384,9 +384,11 @@ export default {
           target: this.operator.layer2,
         };
         //  this.$store.dispatch('addPendingTransaction', transaction);
-        this.$store.dispatch("addPendingTransaction", transaction);
-        this.$store.dispatch("set");
+       this.$store.dispatch("addPendingTransaction", transaction);
+        this.$store.dispatch("setOperators");
         this.$store.dispatch("setBalance");
+        this.$store.dispatch("setRounds");
+        this.$store.dispatch("checkPendingTransactions");
         this.amountToDelegate = "";
       } else {
         ToastAndroid.show("Transaction Unsuccessful", ToastAndroid.SHORT);

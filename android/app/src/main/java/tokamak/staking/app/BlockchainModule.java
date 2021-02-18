@@ -616,6 +616,31 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
     }
 
     @ReactMethod
+    private void callSmartMethodIntOutput(String method, String address, String input1, String input2, Promise promise) {
+        Context context = getReactApplicationContext();
+        EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+        String encodedFunction = getFunction(method, input1, input2);
+        etherService.callSmartContractFunction(ethereumAccount, address, encodedFunction)
+                .setCallback(new ListenableFutureTask.Callback<String>() {
+                    @Override
+                    public void onSuccess(String result) {
+                        results = result;
+                        BigInteger resultInt = new BigInteger(result.substring(2), 16);
+                        promise.resolve(resultInt.toString());
+                        // success
+                    }
+
+                    @Override
+                    public void onFailure(ExecutionException exception) {
+                    }
+
+                    @Override
+                    public void onCancelled(InterruptedException exception) {
+                    }
+                });
+    }
+
+    @ReactMethod
     public void getFeeInfo(Callback callBack) {
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
@@ -647,8 +672,7 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                     @Override
                     public void onSuccess(String result) {
                         results = result;
-
-                        promise.resolve(result);
+                       promise.resolve(result);
                         // success
                     }
 
@@ -662,6 +686,33 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                 });
     }
 
+    @ReactMethod
+    private void callMethodIntOutput(String method, String address, String user, Promise promise) {
+        Context context = getReactApplicationContext();
+
+        EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
+        String encodedFunction = getEncodedFunction(method, user);
+        etherService.callSmartContractFunction(ethereumAccount, address, encodedFunction)
+                .setCallback(new ListenableFutureTask.Callback<String>() {
+                    @Override
+                    public void onSuccess(String result) {
+                        results = result;
+                        BigInteger resultInt = new BigInteger(result.substring(2), 16);
+                        Log.e("Tokamak App", "callMethod"+ resultInt.floatValue());
+                        Log.e("Tokamak App", "callMethod"+ resultInt.intValue());
+                        promise.resolve(resultInt.toString());
+                        // success
+                    }
+
+                    @Override
+                    public void onFailure(ExecutionException exception) {
+                    }
+
+                    @Override
+                    public void onCancelled(InterruptedException exception) {
+                    }
+                });
+    }
 
     @NotNull
     public String getEncodedFunc(String method, String input1, String input2, String input3) {

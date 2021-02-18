@@ -27,7 +27,7 @@
                         <operator-info-sub title='Commit Count' :content="operator.finalizeCount"></operator-info-sub>
                         <operator-info-sub title='Recent Commit' :content="fromNow(operator.lastFinalizedAt)"></operator-info-sub>
                         <operator-info-sub title='Running Time' :content="fromNow(operator.deployedAt, true)"></operator-info-sub>
-                        <operator-info-sub title='Commission Rate' :content="`${operator.isCommissionRateNegative === 1 ? '-' : ''}${rateOf(operator.commissionRate)}`"></operator-info-sub>
+                        <operator-info-sub title='Commission Rate' :content="`${operator.isCommissionRateNegative === '1' ? '-' : ''}${rateOf(operator.commissionRate)}`"></operator-info-sub>
                         <operator-info-sub title='Reward' :content="currencyAmount(operator.userReward)"></operator-info-sub>
                         <operator-info-sub title='Total Staked' :content="currencyAmount(operator.totalStaked)"></operator-info-sub>
                         <operator-info-sub title='Not Withdrawable' :content="currencyAmount(operator.userNotWithdrawable)"></operator-info-sub>

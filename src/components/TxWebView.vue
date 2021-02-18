@@ -4,7 +4,6 @@
     :visible=modalVisible
     >
     <view class="modal-background">
-                <view class="modal-content">
         <view class="modal-container" :style="{height: windowHeight*0.91, width: windowWidth, top: windowHeight * 0.09}">
             <scroll-view :showsVerticalScrollIndicator="false">
                     <view class="modal-top">
@@ -17,7 +16,6 @@
                     <view class="web-view-container" :style="{width: windowWidth, height: windowHeight*0.80}">
                         <web-view :url="uri"></web-view>
                     </view>
-                </view>
             </scroll-view>
         </view> 
     </view>
@@ -92,6 +90,7 @@ export default {
     align-items: center;
     padding-top: 4%;
     margin-bottom: 4%;
+    padding-right: 5.6%;
 }
 .modal-top-title {
     margin-left: 5%;
@@ -106,7 +105,6 @@ export default {
   margin-bottom: 5.8%;
 }
 .web-view-container {
-    left: -7.5%;
     top: -2.6%;
 }
 </style>

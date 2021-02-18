@@ -2,8 +2,8 @@
   <view class="winner-table-container">
     <view class="table-header-container">
       <view class="th-name" :style="{ width: '25%' }">
-        <text class="th-text">Tx Hash</text></view
-      >
+        <text class="th-text">Tx Hash</text>
+        </view>
       <view class="th-name" :style="{ width: '25%' }">
         <text class="th-text">Type</text></view
       >
@@ -24,7 +24,9 @@
      :indicatorHeight='60' >
         <view class="list-row" v-for="transaction in orderedHistory" :key="transaction.transactionHash">
           <view class="list-item" :style="{ width: '25%' }">
-            <text class="list-item-text">{{ transaction.transactionHash| hexSlicer  }}</text>
+          <touchable-opacity :on-press="()=>openWebView(transaction.transactionHash)">
+              <text class="list-item-text list-item-text-tx">{{ transaction.transactionHash| hexSlicer  }}</text>
+          </touchable-opacity>
           </view>
           <view class="list-item" :style="{ width: '25%', marginLeft: '2%' }">
             <text class="list-item-text">{{ transaction.type }}</text>
@@ -40,15 +42,19 @@
         </view>
       </scroll-view-indicator>
     </view>
+    <tx-web-view :modalVisible="webViewVisible" :uri="uri" @propFromChild="childPropReceived"></tx-web-view>
   </view>
 </template>
 <script>
 import { mapState } from "vuex";
 import ScrollViewIndicator from "react-native-scroll-indicator";
 import { orderBy } from 'lodash';
+import TxWebView from "@/components/TxWebView"
+import { getConfig } from "../../config.js"
 export default {
   components: {
     "scroll-view-indicator": ScrollViewIndicator,
+    "tx-web-view": TxWebView
   },
   data() {
     return {
@@ -58,7 +64,9 @@ export default {
       },
        orderedHistory: [],
        from: 'blockNumber',
-      order: 'desc',
+       order: 'desc',
+       webViewVisible: false,
+       uri: ''
     };
   },
   computed: {
@@ -83,7 +91,14 @@ export default {
     this.orderedHistory = orderBy(this.transactions, (transaction) => transaction.blockNumber, [this.order]);
   },
   methods: {
-   
+   childPropReceived(args1) {
+     this.webViewVisible = args1;
+   },
+   openWebView(args) {
+     this.webViewVisible = true;
+     this.uri = getConfig().prefixTransactionHash + args;
+     console.log(this.uri)
+   }
   }
 };
 </script>
@@ -138,5 +153,8 @@ export default {
 }
 .list-item-text {
   font-size: 11px;
+}
+.list-item-text-tx {
+  text-decoration-line: underline;
 }
 </style>

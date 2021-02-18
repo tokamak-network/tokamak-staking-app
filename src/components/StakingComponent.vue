@@ -532,7 +532,10 @@ export default {
       );
       if (status.code === 0) {
         this.index = 0;
-        ToastAndroid.show("Transaction successfully added to queue", ToastAndroid.SHORT);
+        ToastAndroid.show(
+          "Transaction successfully added to queue",
+          ToastAndroid.SHORT
+        );
         const transaction = {
           from: this.user,
           type: "Delegated",
@@ -540,7 +543,7 @@ export default {
           transactionHash: status.hash,
           target: this.operator.layer2,
         };
-       this.$store.dispatch("addPendingTransaction", transaction);
+        this.$store.dispatch("addPendingTransaction", transaction);
         this.$store.dispatch("setOperators");
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setRounds");
@@ -593,7 +596,10 @@ export default {
       );
       if (status.code === 0) {
         this.index = 0;
-        ToastAndroid.show("Transaction successfully added to queue", ToastAndroid.SHORT);
+        ToastAndroid.show(
+          "Transaction successfully added to queue",
+          ToastAndroid.SHORT
+        );
         const transaction = {
           from: this.user,
           type: "Undelegated",
@@ -601,9 +607,10 @@ export default {
           transactionHash: status.hash,
           target: this.operator.layer2,
         };
-       this.$store.dispatch("addPendingTransaction", transaction);
+        this.$store.dispatch("addPendingTransaction", transaction);
         this.$store.dispatch("setOperators");
         this.$store.dispatch("setBalance");
+        this.$store.dispatch("setCurrentRound");
         this.$store.dispatch("setRounds");
         this.$store.dispatch("checkPendingTransactions");
         this.amountToUndelegate = "";
@@ -624,7 +631,10 @@ export default {
       );
       if (status.code === 0) {
         this.index = 0;
-        ToastAndroid.show("Transaction successfully added to queue", ToastAndroid.SHORT);
+        ToastAndroid.show(
+          "Transaction successfully added to queue",
+          ToastAndroid.SHORT
+        );
         const transaction = {
           from: this.user,
           type: "Redelegated",
@@ -632,10 +642,12 @@ export default {
           transactionHash: status.hash,
           target: this.operator.layer2,
         };
-       this.$store.dispatch("addPendingTransaction", transaction);
+        this.$store.dispatch("addPendingTransaction", transaction);
         this.$store.dispatch("setOperators");
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setRounds");
+        this.$store.dispatch("setCurrentRound");
+
         this.$store.dispatch("checkPendingTransactions");
         this.amountToUndelegate = "";
         this.index = 0;
@@ -657,7 +669,10 @@ export default {
       );
       if (status.code === 0) {
         this.index = 0;
-        ToastAndroid.show("Transaction successfully added to queue", ToastAndroid.SHORT);
+        ToastAndroid.show(
+          "Transaction successfully added to queue",
+          ToastAndroid.SHORT
+        );
         const transaction = {
           from: this.user,
           type: "Withdrawn",
@@ -669,6 +684,7 @@ export default {
         this.$store.dispatch("setOperators");
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setRounds");
+        this.$store.dispatch("setCurrentRound");
         this.$store.dispatch("checkPendingTransactions");
         this.amountToUndelegate = "";
         this.index = 0;

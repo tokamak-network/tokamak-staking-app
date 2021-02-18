@@ -19,15 +19,13 @@
         <view>
           <image
             class="operator-img"
-            :source="
-                operator.avatar ===''? tokamak: dsrv
-              "
+            :source="operator.avatar === '' ? tokamak : dsrv"
             :style="{
               height: windowHeight * 0.122 * 0.45,
               width: componentWidth * 0.11,
               marginRight: componentWidth * 0.056,
               resizeMode: 'contain',
-              opacity:operator.avatar ===''? 0.12: 1
+              opacity: operator.avatar === '' ? 0.12 : 1,
             }"
           >
           </image>
@@ -98,7 +96,7 @@
         >
           <text class="operator-detail-title">Commission Rate</text>
           <text class="operator-detail-content"
-            >{{ operator.isCommissionRateNegative === '1' ? "-" : ""
+            >{{ operator.isCommissionRateNegative === "1" ? "-" : ""
             }}{{ rateOf(operator.commissionRate) }}</text
           >
         </view>
@@ -143,10 +141,7 @@
             width: componentWidth * 0.875,
           }"
         >
-          <text
-            class="info-title"
-            >Amount</text
-          >
+          <text class="info-title">Amount</text>
           <text-input
             class="value-input"
             v-model="amountToDelegate"
@@ -155,13 +150,9 @@
             :minLength="1"
             :maxLength="50"
             keyboardType="numeric"
-            :style="{ width: componentWidth * 0.6,
-             }"
+            :style="{ width: componentWidth * 0.6 }"
           />
-          <text
-            class="info-title"
-            >TON</text
-          >
+          <text class="info-title">TON</text>
         </view>
         <touchable-opacity :on-press="onPressButton">
           <button-main
@@ -226,12 +217,12 @@ export default {
       amountToDelegate: "0",
       openOper: "",
       openOperatorInfo: false,
-       feeModelVisibility: false,
-        alertVisibility: false,
+      feeModelVisibility: false,
+      alertVisibility: false,
       message: "",
-       price: 0,
+      price: 0,
       limit: 0,
-       slowPrice: 0,
+      slowPrice: 0,
       normalPrice: 0,
       fastPrice: 0,
       gasLimit: 0,
@@ -240,8 +231,8 @@ export default {
   components: {
     "button-main": ButtonMain,
     "operator-info": OperatorInfo,
-     fee: Fee,
-     alert: Alert,
+    fee: Fee,
+    alert: Alert,
   },
   props: {
     layer2: {
@@ -276,7 +267,7 @@ export default {
     info() {
       const commission = "Commission Rate: ";
       const committed = "Last Committed: ";
-      const isNeg = this.operator.isCommissionRateNegative === '1' ? "-" : "";
+      const isNeg = this.operator.isCommissionRateNegative === "1" ? "-" : "";
       const rate = isNeg + this.rateOf(this.operator.commissionRate);
       const lastComm = this.fromNow(this.operator.lastFinalizedAt);
       return commission + rate + " " + committed + lastComm;
@@ -323,7 +314,7 @@ export default {
       this.openOperatorInfo = args1;
     },
     async onPressButton() {
-       BlockchainModule.getFeeInfo((fast, normal, slow) => {
+      BlockchainModule.getFeeInfo((fast, normal, slow) => {
         this.slowPrice = slow;
         this.normalPrice = normal;
         this.fastPrice = fast;
@@ -333,35 +324,33 @@ export default {
         parseFloat(this.amountToDelegate) === 0
       ) {
         this.message = "Please input a valid TON amount";
-          this.alertVisibility = true;
-      }
-     else if (_TON(this.amountToDelegate).gt(this.tonBalance)) {
-       this.message = "Please input a valid TON amount";
-          this.alertVisibility = true;
-      }
-      else{ 
+        this.alertVisibility = true;
+      } else if (_TON(this.amountToDelegate).gt(this.tonBalance)) {
+        this.message = "Please input a valid TON amount";
+        this.alertVisibility = true;
+      } else {
         const amount = _TON(this.amountToDelegate).toFixed("wei");
-          const data = this.getData();
-          const gasValue = await BlockchainModule.esitmatedGasLimitForDelegate(
-            this.TON,
-            "approveAndCall",
-            this.WTON,
-            amount,
-            data
-          );
-          const gasVal = parseInt(gasValue);
-          this.gasLimit = gasVal;
-          this.feeModelVisibility = true;
+        const data = this.getData();
+        const gasValue = await BlockchainModule.esitmatedGasLimitForDelegate(
+          this.TON,
+          "approveAndCall",
+          this.WTON,
+          amount,
+          data
+        );
+        const gasVal = parseInt(gasValue);
+        this.gasLimit = gasVal;
+        this.feeModelVisibility = true;
       }
     },
     getCustomValues(price, limit) {
       this.price = price;
       this.limit = limit;
-      
-        this.feeModelVisibility = false;
-        this.delegate();
+
+      this.feeModelVisibility = false;
+      this.delegate();
     },
-   async delegate( ){
+    async delegate() {
       const amount = _TON(this.amountToDelegate).toFixed("wei");
       const data = this.getData();
       const status = await BlockchainModule.approveAndCall(
@@ -384,10 +373,11 @@ export default {
           target: this.operator.layer2,
         };
         //  this.$store.dispatch('addPendingTransaction', transaction);
-       this.$store.dispatch("addPendingTransaction", transaction);
+        this.$store.dispatch("addPendingTransaction", transaction);
         this.$store.dispatch("setOperators");
         this.$store.dispatch("setBalance");
         this.$store.dispatch("setRounds");
+        this.$store.dispatch("setCurrentRound");
         this.$store.dispatch("checkPendingTransactions");
         this.amountToDelegate = "";
       } else {

@@ -72,10 +72,11 @@
           <text class="custom-total-text">{{ price }} Gwei x {{ limit }}</text>
         </view>
         <view class="custom-total-cryto">
-          <text class="custom-total-cryto-text"
-            >{{
+          <text class="custom-total-cryto-text">{{
               (price * limit * 0.000000001)
-            }}
+            }}</text>
+          <text class="custom-total-cryto-text"
+            >
             ETH</text
           >
         </view>

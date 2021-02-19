@@ -2,12 +2,13 @@
     <Modal
     :transparent='true'
     :visible=modalVisible
+     :onRequestClose="()=>close()"
     >
     <view class="modal-background">
         <view class="modal-container" :style="{height: windowHeight*0.91, width: windowWidth, top: windowHeight * 0.09}">
             <scroll-view :showsVerticalScrollIndicator="false">
                     <view class="modal-top">
-                        <text class="modal-top-title">Tx Hash</text>
+                        <text class="modal-top-title">Tx Hashes</text>
                         <touchable-opacity :style="{marginLeft: 'auto'}" :on-press="()=>close()">
                         <image :source=CloseIcon :style="{width: windowWidth*0.067, height: windowHeight*0.038, resizeMode: 'contain'}"></image>
                         </touchable-opacity>

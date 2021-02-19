@@ -292,6 +292,7 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                 }
                 @Override
                 public void onFailure(@NotNull ExecutionException e) {
+                    callBack.invoke(false);
                     e.printStackTrace();
                 }
 
@@ -315,9 +316,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             @Override
             public void onSuccess(Boolean result) {
                 callBack.invoke(result);
-                if (result) {
-                } else {
-                }
             }
 
             @Override

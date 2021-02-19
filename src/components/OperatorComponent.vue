@@ -291,6 +291,9 @@ export default {
     componentWidth() {
       return Dimensions.get("window").width * 0.889;
     },
+    hexSlicer() {
+      return (address) => this.$options.filters.hexSlicer(address);
+    },
   },
   methods: {
     openOperator() {
@@ -364,7 +367,9 @@ export default {
       );
       if (status.code === 0) {
         this.index = 0;
-        ToastAndroid.show("Transaction Successful", ToastAndroid.SHORT);
+        ToastAndroid.show(
+           "Transaction " + `${this.hexSlicer(status.hash)  }` + "successfully added to queue" ,
+          ToastAndroid.LONG);
         const transaction = {
           from: this.user,
           type: "Withdrawn",

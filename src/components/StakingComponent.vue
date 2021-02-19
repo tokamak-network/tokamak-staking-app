@@ -495,6 +495,9 @@ export default {
     windowHeight() {
       return Dimensions.get("window").height;
     },
+    hexSlicer() {
+      return (address) => this.$options.filters.hexSlicer(address);
+    },
   },
 
   methods: {
@@ -533,8 +536,8 @@ export default {
       if (status.code === 0) {
         this.index = 0;
         ToastAndroid.show(
-          "Transaction successfully added to queue",
-          ToastAndroid.SHORT
+          "Transaction " + `${this.hexSlicer(status.hash)  }` + "successfully added to queue" ,
+          ToastAndroid.LONG
         );
         const transaction = {
           from: this.user,
@@ -595,8 +598,8 @@ export default {
       if (status.code === 0) {
         this.index = 0;
         ToastAndroid.show(
-          "Transaction successfully added to queue",
-          ToastAndroid.SHORT
+           "Transaction " + `${this.hexSlicer(status.hash)  }` + "successfully added to queue" ,
+          ToastAndroid.LONG
         );
         const transaction = {
           from: this.user,
@@ -612,7 +615,8 @@ export default {
         this.amountToUndelegate = "";
         this.index = 0;
       } else {
-        ToastAndroid.show("Transaction Unsuccessful", ToastAndroid.SHORT);
+        "Transaction " + `${this.hexSlicer(status.hash)  }` + "successfully added to queue" ,
+          ToastAndroid.LONG
       }
     },
     async redelegate() {
@@ -628,8 +632,8 @@ export default {
       if (status.code === 0) {
         this.index = 0;
         ToastAndroid.show(
-          "Transaction successfully added to queue",
-          ToastAndroid.SHORT
+          "Transaction " + `${this.hexSlicer(status.hash)  }` + "successfully added to queue" ,
+          ToastAndroid.LONG
         );
         const transaction = {
           from: this.user,

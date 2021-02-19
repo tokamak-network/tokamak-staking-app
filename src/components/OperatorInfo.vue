@@ -2,6 +2,8 @@
     <Modal
     :transparent='true'
     :visible=modalVisible
+        :onRequestClose="()=>close()"
+
     >
     <view class="modal-background">
         <view class="modal-container" :style="{height: windowHeight*0.91, width: windowWidth, top: windowHeight * 0.09}">

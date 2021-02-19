@@ -1,7 +1,7 @@
 import { cloneDeep, isEqual, range, uniq, orderBy } from "lodash";
 import Vue from "vue-native-core";
 import Vuex from "vuex";
-import { NativeModules } from "react-native";
+import { NativeModules , ToastAndroid, BackHandler } from "react-native";
 const { BlockchainModule } = NativeModules;
 import { createCurrency } from "@makerdao/currency";
 import web3EthABI from "web3-eth-abi";
@@ -243,16 +243,24 @@ export default new Vuex.Store({
         if ((init = true)) {
           context.dispatch("setUser");
         }
+        else{
+          ToastAndroid.show("Please login to Samsung Blockchain Keystore first", ToastAndroid.LONG);
+          BackHandler.exitApp();
+        }
       });
       await BlockchainModule.connect();
     },
     async setUser(context) {
       BlockchainModule.restoreAccs((result) => {
-        if ((result = true)) {
+        if (result = true) {
           BlockchainModule.setAccountStatus((account) => {
             context.commit("SET_USER", account);
             context.dispatch("setEthBalance");
           });
+        }
+        else {
+          ToastAndroid.show("Please create an account first", ToastAndroid.LONG);
+          BackHandler.exitApp();
         }
       });
     },
@@ -769,7 +777,6 @@ export default new Vuex.Store({
               }
 
               if (!isCommissionRateNegative) {
-                console.log('commissionRate', commissionRate);
                 const commissionFromUsers = usersSeigs.times(commissionRate);
 
                 operatorSeigsWithCommissionRate = operatorSeigsWithCommissionRate.plus(

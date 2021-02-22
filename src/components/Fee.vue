@@ -83,7 +83,7 @@
           <!-- <button v-else :style="{backgroundColor: '#e9edf1'}" fontColor="#86929d" title="Next"></button> -->
           </touchable-opacity>
         </view> 
-        <custom-fee v-if="selectState === 'custom' && activeTab === 'customFee'" :selectState=selectState :activeTab=activeTab @propFromChild="childPropReceived" @getCustomValue="setCustomValue"></custom-fee>
+        <custom-fee v-if="selectState === 'custom' && activeTab === 'customFee'" :selectState=selectState :activeTab=activeTab @propFromChild="childPropReceived" @getCustomValue="setCustomValue" :gasLimit="gasLimit"></custom-fee>
     </view>
     </Modal>
 </template>

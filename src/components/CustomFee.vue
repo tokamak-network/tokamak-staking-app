@@ -47,6 +47,9 @@
       </view>
       <view class="custom-gas-price" :style="{ marginBottom: '3%' }">
         <text class="custom-gas-title">Gas limit</text>
+         <text class="custom-gas-text"
+          >Recommended gas limit: {{ Math.floor(gasLimit * 1.2)  }}</text
+        >
       </view>
       <view
         class="custom-gas-input-container"
@@ -139,6 +142,9 @@ export default {
     selectState: {
       type: String,
     },
+    gasLimit:{
+      type:Number
+    }
   },
   computed: {
     ...mapState(["ethBalance"]),

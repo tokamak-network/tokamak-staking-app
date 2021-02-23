@@ -24,7 +24,7 @@ export default {
         openURL() {
             this.seenWeb = true
             if(this.title === 'Website') {
-                this.uri = 'https://tokamak.network/';
+                this.uri = this.content;
             } else {
                 this.uri = getConfig().prefixAddress + this.content;
             }

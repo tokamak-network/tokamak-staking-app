@@ -20,7 +20,7 @@ const config = {
 };
 
 export function getConfig () {
-    return config.rinkeby;
+    return config.mainnet;
 }
 
 export function getLink (type) {

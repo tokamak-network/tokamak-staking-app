@@ -42,9 +42,9 @@
                     width: windowWidth * 0.083,
                     height: windowHeight * 0.047,
                     resizeMode: 'contain',
-                    opacity:operator.avatar === ''?0.12: 1
+                    opacity:0.12
                   }"
-                  :source="operator.avatar === ''? TokamakIcon : DSRVIcon"
+                  :source="TokamakIcon"
                 ></image>
                 <text class="modal-bottom-row-text">{{ operator.name }}</text>
                 </touchable-opacity>

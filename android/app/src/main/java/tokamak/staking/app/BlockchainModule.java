@@ -101,8 +101,7 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
     private EthereumService etherService;
     private BigDecimal balanceInEther;
     private Web3j web3;
-    public static String rpcUrl = "https://mainnet.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
-    public static String rpcUrlRinkeby = "https://rinkeby.infura.io/v3/aed1b36728cf43aeaf8ce6f29e8e2727";
+    public static String rpcUrl = "https://mainnet.infura.io/v3/e4b3b2781dd34bc4817a1221b8a3b50a";
     public String results;
 
     BlockchainModule(ReactApplicationContext context) {
@@ -195,7 +194,6 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
         Optional<TransactionReceipt> receipt = transactionReceipt.getTransactionReceipt();
         if (transactionReceipt.getTransactionReceipt().isPresent() ) {
             WritableMap infoMap = Arguments.createMap();
-            Log.e("Tokamak App", "getTransactionDetails" + receipt.get().getStatus() );
             infoMap.putString("status", receipt.get().getStatus());
             infoMap.putString("blockHash", receipt.get().getBlockHash());
             infoMap.putInt("blockNumber", receipt.get().getBlockNumber().intValue());
@@ -217,13 +215,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                                            Promise promise) throws ExecutionException, InterruptedException, DecoderException {
     String encodedFunction = convertFunction(function, input1, input2, input3);
     EthEstimateGas estimatedLimit = web3.ethEstimateGas(Transaction.createEthCallTransaction(ethereumAccount.getAddress(),toContractAddress, encodedFunction)).sendAsync().get();
-         Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + estimatedLimit.getResult() );
-        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + toContractAddress );
-        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + function );
-        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + input1 );
-        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + input2 );
-        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + input3 );
-
         promise.resolve(estimatedLimit.getResult());
 }
     @ReactMethod
@@ -231,11 +222,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                                                         Promise promise) throws ExecutionException, InterruptedException, DecoderException {
         String encodedFunction = convertFunctionWithdrawal(function, input1, input2);
         EthEstimateGas estimatedLimit = web3.ethEstimateGas(Transaction.createEthCallTransaction(ethereumAccount.getAddress(),toContractAddress, encodedFunction)).sendAsync().get();
-        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + estimatedLimit.getResult() );
-        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + toContractAddress );
-        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + function );
-        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + input1 );
-        Log.e("Tokamak App", "esitmatedGasLimitForDelegate" + input2 );
         promise.resolve(estimatedLimit.getResult());
     }
 
@@ -274,7 +260,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
     public void initis(Callback callBack) {
         Context context = getReactApplicationContext();
         try {
-            Log.e("Tokamak App", "came to initis");
             mSBlockchain = new SBlockchain();
             mSBlockchain.initialize(context);
             accountManager = mSBlockchain.getAccountManager();
@@ -283,18 +268,16 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             coinNetworkInfo = new CoinNetworkInfo(CoinType.ETH, EthereumNetworkType.MAINNET, rpcUrl);
             setCoinNetworkInfo(coinNetworkInfo);
             ListenableFutureTask<HardwareWallet> connectionTask = mSBlockchain.getHardwareWalletManager()
-                    .connect(HardwareWalletType.SAMSUNG, true);
+                    .connect(HardwareWalletType.SAMSUNG, false);
             connectionTask.setCallback(new ListenableFutureTask.Callback<HardwareWallet>() {
                 @Override
                 public void onSuccess(HardwareWallet hardwareWallet) {
                     hardwareWallet = hardwareWalletManager.getConnectedHardwareWallet();
                     setHardwareWallet(hardwareWallet);
-                    Log.e("Tokamak App", "hardwareWallet"+ hardwareWallet);
                     callBack.invoke(true);
                 }
                 @Override
                 public void onFailure(@NotNull ExecutionException e) {
-                    Log.e("Tokamak App", "hardwareWallet fail"+ e);
                     callBack.invoke(false);
                     e.printStackTrace();
                 }
@@ -302,7 +285,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                 @Override
                 public void onCancelled(@NotNull InterruptedException e)
                 {
-                    Log.e("Tokamak App", "hardwareWallet fail"+ e);
                     e.printStackTrace();
                 }
             });
@@ -320,7 +302,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
         ListenableFutureTask.Callback<Boolean> restoreAccountsCallback = new ListenableFutureTask.Callback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                Log.e("Tokamak App", "restoreAccs"+ result);
                 callBack.invoke(result);
             }
 
@@ -338,21 +319,18 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             }
         };
 
-        accountManager.restoreAccounts(hardwareWallet, false, coinNetworkInfo).setCallback(restoreAccountsCallback);
+        accountManager.restoreAccounts(hardwareWallet, true, coinNetworkInfo).setCallback(restoreAccountsCallback);
     }
 
     @ReactMethod
     private void setAccountStatus(Callback callBack) {
         List<Account> accounts = accountManager.getAccounts(hardwareWallet.getWalletId(), CoinType.ETH,
-                EthereumNetworkType.RINKEBY);
-        Log.e("Tokamak App", "setAccountStatus"+ accounts);
+                EthereumNetworkType.MAINNET);
         if (!accounts.isEmpty()) {
-            Log.e("Tokamak App", "setAccountStatus"+ accounts.get(0).getAddress());
             String account = accounts.get(0).getAddress();
             setEthereumAccount((EthereumAccount) accounts.get(0));
             callBack.invoke(account);
         } else {
-            Log.e("Tokamak App", "setAccountStatus"+" account empty");
             generateNewAccount(callBack);
         }
     }
@@ -366,8 +344,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             @Override
             public void onSuccess(Account account)
             {
-                Log.e("Tokamak App", "generateNewAccount"+ account.getAddress());
-
                 setAccountStatus(callBack);
             }
 
@@ -413,8 +389,7 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             @Override
             public void onSuccess(BigInteger result) {
                 balanceInEther = EthereumUtils.convertWeiToEth(result);
-                Log.e("Tokamak App", "getBalance"+ balanceInEther.floatValue());
-                promise.resolve(balanceInEther.floatValue());
+                promise.resolve(result.floatValue());
             }
 
             @Override
@@ -610,7 +585,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                 .setCallback(new ListenableFutureTask.Callback<String>() {
                     @Override
                     public void onSuccess(String result) {
-                        Log.e("Tokamak App", "callSmartMethod"+ result);
                         results = result;
                         promise.resolve(result);
                         // success
@@ -635,7 +609,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                 .setCallback(new ListenableFutureTask.Callback<String>() {
                     @Override
                     public void onSuccess(String result) {
-                        Log.e("Tokamak App", "callSmartMethodIntOutput"+ result);
                         results = result;
                         BigInteger resultInt = new BigInteger(result.substring(2), 16);
                         promise.resolve(resultInt.toString());
@@ -683,8 +656,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                 .setCallback(new ListenableFutureTask.Callback<String>() {
                     @Override
                     public void onSuccess(String result) {
-                        Log.e("Tokamak App", "callMethod"+ result);
-
                         results = result;
                        promise.resolve(result);
                         // success
@@ -712,8 +683,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                     public void onSuccess(String result) {
                         results = result;
                         BigInteger resultInt = new BigInteger(result.substring(2), 16);
-                        Log.e("Tokamak App", "callMethod"+ resultInt.floatValue());
-                        Log.e("Tokamak App", "callMethod"+ resultInt.intValue());
                         promise.resolve(resultInt.toString());
                         // success
                     }

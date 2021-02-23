@@ -245,7 +245,6 @@ export default new Vuex.Store({
         }
         else{
           ToastAndroid.show("Please login to Samsung Blockchain Keystore first", ToastAndroid.LONG);
-          BackHandler.exitApp();
         }
       });
       await BlockchainModule.connect();
@@ -260,7 +259,6 @@ export default new Vuex.Store({
         }
         else {
           ToastAndroid.show("Please create an account first", ToastAndroid.LONG);
-          BackHandler.exitApp();
         }
       });
     },

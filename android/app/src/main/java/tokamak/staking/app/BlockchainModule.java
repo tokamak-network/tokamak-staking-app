@@ -389,7 +389,7 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             @Override
             public void onSuccess(BigInteger result) {
                 balanceInEther = EthereumUtils.convertWeiToEth(result);
-                promise.resolve(balanceInEther.floatValue());
+                promise.resolve(result.floatValue());
             }
 
             @Override

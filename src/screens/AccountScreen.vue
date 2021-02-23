@@ -132,7 +132,7 @@ export default {
         valueBalanceSecondMax: 0.22,
         valueRowThirdheight: 0.062,
       },
-      activeTab: "History",
+      activeTab: "Account",
     };
   },
   computed: {

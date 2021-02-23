@@ -120,9 +120,9 @@
                 height: windowHeight * 0.031,
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
-                opacity: operator.avatar === '' ? 0.12 : 1,
+                opacity: 0.12,
               }"
-              :source="operator.avatar === '' ? TokamakIcon : DSRVIcon"
+              :source="TokamakIcon"
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -187,9 +187,9 @@
                 height: windowHeight * 0.031,
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
-                opacity: operator.avatar === '' ? 0.12 : 1,
+                opacity:0.12,
               }"
-              :source="operator.avatar === '' ? TokamakIcon : DSRVIcon"
+              :source="TokamakIcon"
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -271,9 +271,9 @@
                 height: windowHeight * 0.031,
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
-                opacity: operator.avatar === '' ? 0.12 : 1,
+                opacity:0.12,
               }"
-              :source="operator.avatar === '' ? TokamakIcon : DSRVIcon"
+              :source="TokamakIcon"
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image
@@ -335,9 +335,9 @@
                 height: windowHeight * 0.031,
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
-                opacity: operator.avatar === '' ? 0.12 : 1,
+                opacity:0.12,
               }"
-              :source="operator.avatar === '' ? TokamakIcon : DSRVIcon"
+              :source="TokamakIcon"
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image

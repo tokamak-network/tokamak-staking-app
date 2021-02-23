@@ -240,7 +240,6 @@ export default new Vuex.Store({
     },
     async signIn(context) {
       BlockchainModule.initis((init) => {
-        console.log("init", init);
         if ((init = true)) {
           context.dispatch("setUser");
         }
@@ -253,10 +252,8 @@ export default new Vuex.Store({
     },
     async setUser(context) {
       BlockchainModule.restoreAccs((result) => {
-        console.log('result',result);
         if (result = true) {
           BlockchainModule.setAccountStatus((account) => {
-            console.log('account', account);
             context.commit("SET_USER", account);
             context.dispatch("setEthBalance");
           });
@@ -269,7 +266,6 @@ export default new Vuex.Store({
     },
     async setEthBalance(context) {
       const ethBalance = await BlockchainModule.getBalance();
-      console.log('ethBalance', ethBalance);
       context.commit("SET_ETHBALACE", _ETH.wei(ethBalance.toString()));
       context.dispatch("set");
     },
@@ -740,7 +736,6 @@ export default new Vuex.Store({
             }
             function increaseTot() {
               const maxSeig = seigPerBlock.times(calcNumSeigBlocks());
-              console.log(totTotalSupply);
               const tos = _WTON(tonTotalSupply, TON_UNIT)
                 .plus(_WTON(totTotalSupply, WTON_UNIT))
                 .minus(_WTON(tonBalanceOfWTON, TON_UNIT));

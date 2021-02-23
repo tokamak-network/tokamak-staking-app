@@ -120,9 +120,9 @@
                 height: windowHeight * 0.031,
                 width: windowWidth * 0.056,
                 resizeMode: 'contain',
-                opacity:  0.12,
+                opacity: operator.avatar === '' ? 0.12 : 1,
               }"
-              :source="TokamakIcon"
+              :source="operator.avatar === '' ? TokamakIcon : DSRVIcon"
             ></image>
             <text class="value-row-thrid-select">{{ selectedOperator }}</text>
             <image

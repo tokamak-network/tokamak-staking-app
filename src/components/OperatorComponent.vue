@@ -19,13 +19,13 @@
         <view>
           <image
             class="operator-img"
-            :source="tokamak"
+            :source="operator.avatar === '' ? tokamak : dsrv"
             :style="{
               height: windowHeight * 0.122 * 0.45,
               width: componentWidth * 0.11,
               marginRight: componentWidth * 0.056,
               resizeMode: 'contain',
-              opacity: 0.12,
+              opacity: operator.avatar === '' ? 0.12 : 1,
             }"
           >
           </image>

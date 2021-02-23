@@ -740,6 +740,7 @@ export default new Vuex.Store({
             }
             function increaseTot() {
               const maxSeig = seigPerBlock.times(calcNumSeigBlocks());
+              console.log(totTotalSupply);
               const tos = _WTON(tonTotalSupply, TON_UNIT)
                 .plus(_WTON(totTotalSupply, WTON_UNIT))
                 .minus(_WTON(tonBalanceOfWTON, TON_UNIT));

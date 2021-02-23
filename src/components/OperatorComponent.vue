@@ -381,6 +381,8 @@ export default {
         this.$store.dispatch("addPendingTransaction", transaction);
         this.$store.dispatch("setOperators");
         this.$store.dispatch("setBalance");
+        this.$store.dispatch("setRounds");
+        this.$store.dispatch("setCurrentRound");
         this.$store.dispatch("checkPendingTransactions");
         this.amountToDelegate = "";
       } else {

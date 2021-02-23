@@ -549,6 +549,8 @@ export default {
         this.$store.dispatch("addPendingTransaction", transaction);
         this.$store.dispatch("setOperators");
         this.$store.dispatch("setBalance");
+        this.$store.dispatch("setRounds");
+        this.$store.dispatch("setCurrentRound");
         this.$store.dispatch("checkPendingTransactions");
         this.amountToDelegate = "";
       } else {
@@ -611,6 +613,8 @@ export default {
         this.$store.dispatch("addPendingTransaction", transaction);
         this.$store.dispatch("setOperators");
         this.$store.dispatch("setBalance");
+        this.$store.dispatch("setCurrentRound");
+        this.$store.dispatch("setRounds");
         this.$store.dispatch("checkPendingTransactions");
         this.amountToUndelegate = "";
         this.index = 0;
@@ -645,6 +649,9 @@ export default {
         this.$store.dispatch("addPendingTransaction", transaction);
         this.$store.dispatch("setOperators");
         this.$store.dispatch("setBalance");
+        this.$store.dispatch("setRounds");
+        this.$store.dispatch("setCurrentRound");
+
         this.$store.dispatch("checkPendingTransactions");
         this.amountToUndelegate = "";
         this.index = 0;
@@ -680,6 +687,8 @@ export default {
         this.$store.dispatch("addPendingTransaction", transaction);
         this.$store.dispatch("setOperators");
         this.$store.dispatch("setBalance");
+        this.$store.dispatch("setRounds");
+        this.$store.dispatch("setCurrentRound");
         this.$store.dispatch("checkPendingTransactions");
         this.amountToUndelegate = "";
         this.index = 0;

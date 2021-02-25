@@ -14,6 +14,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.google.gson.Gson;
+import com.samsung.android.sdk.coldwallet.ScwService;
 import com.samsung.android.sdk.blockchain.*;
 import com.samsung.android.sdk.blockchain.coinservice.TransactionResult;
 import com.samsung.android.sdk.blockchain.coinservice.ethereum.EthereumTokenInfo;
@@ -92,6 +93,7 @@ import jnr.ffi.StructLayout;
 
 public class BlockchainModule extends ReactContextBaseJavaModule {
     public EthereumAccount ethereumAccount;
+    private ScwService mScwService;
     private SBlockchain mSBlockchain;
     private HardwareWalletManager hardwareWalletManager;
     private AccountManager accountManager;
@@ -132,6 +134,17 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void isSBKSupported(Promise promise){
+        mScwService = ScwService.getInstance();
+        if (mScwService == null) {
+            promise.resolve(false);
+        }
+        else {
+            promise.resolve(true);
+        }
+    }
+
+    @ReactMethod
     public void getBlockNumber(Promise promise) throws ExecutionException, InterruptedException, IOException {
         EthBlockNumber block = web3.ethBlockNumber().sendAsync().get();
         Integer blockNumber = block.getBlockNumber().intValue();
@@ -167,8 +180,6 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
     }
     @ReactMethod
     private void estimateGasLimit(String address, Promise promise) throws ExecutionException, InterruptedException {
-
-
         Context context = getReactApplicationContext();
         EthereumService etherService = (EthereumService) CoinServiceFactory.getCoinService(context, coinNetworkInfo);
         etherService.estimateGasLimit(ethereumAccount,address, null, null ).setCallback(new ListenableFutureTask.Callback<BigInteger>() {
@@ -176,15 +187,11 @@ public class BlockchainModule extends ReactContextBaseJavaModule {
             public void onSuccess(BigInteger bigInteger) {
                 promise.resolve(bigInteger.floatValue());
             }
-
             @Override
             public void onFailure(@NotNull ExecutionException e) {
-
             }
-
             @Override
             public void onCancelled(@NotNull InterruptedException e) {
-
             }
         });
     }
@@ -263,7 +270,6 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
             mSBlockchain = new SBlockchain();
             mSBlockchain.initialize(context);
             accountManager = mSBlockchain.getAccountManager();
-
             hardwareWalletManager = mSBlockchain.getHardwareWalletManager();
             coinNetworkInfo = new CoinNetworkInfo(CoinType.ETH, EthereumNetworkType.MAINNET, rpcUrl);
             setCoinNetworkInfo(coinNetworkInfo);
@@ -289,6 +295,7 @@ private void esitmatedGasLimitForDelegate (String toContractAddress, String func
                 }
             });
         } catch (SsdkUnsupportedException e) {
+            callBack.invoke(false);
         }
     }
 

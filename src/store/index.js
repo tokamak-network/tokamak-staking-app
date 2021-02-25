@@ -239,7 +239,12 @@ export default new Vuex.Store({
       context.state.isLogin = true;
     },
     async signIn(context) {
-      BlockchainModule.initis((init) => {
+      const isSupported = await BlockchainModule.isSBKSupported();
+      if (isSupported === false) {
+        ToastAndroid.show("Your device does not support Samsung Blockchain Keystore", ToastAndroid.LONG);
+        BackHandler.exitApp();
+      }
+      else{ BlockchainModule.initis((init) => {
         if ((init = true)) {
           context.dispatch("setUser");
         }
@@ -247,7 +252,8 @@ export default new Vuex.Store({
           ToastAndroid.show("Please login to Samsung Blockchain Keystore first", ToastAndroid.LONG);
         }
       });
-      await BlockchainModule.connect();
+      await BlockchainModule.connect();}
+     
     },
     async setUser(context) {
       BlockchainModule.restoreAccs((result) => {

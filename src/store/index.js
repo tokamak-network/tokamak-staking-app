@@ -15,6 +15,8 @@ import {
   getHistory,
   getTransactions,
   addTransaction,
+  getCandidateCreateEvent,
+  getCandidates,
 } from "@/api";
 import numeral from "numeral";
 import { calculateExpectedSeig } from "tokamak-staking-lib";
@@ -70,19 +72,9 @@ const initialState = {
 
   // not yet committed
   uncommittedCurrentRoundReward: _WTON("0"),
-  powerTONbalance: {
-    value: 100,
-    symbol: " Power",
-  },
-  stakedAmount: {
-    value: 6.77,
-    symbol: " TON",
-  },
-  rewards: {
-    value: 30,
-    symbol: " TON",
-  },
   selectedOperator: "",
+  CommitteeProxy: {},
+  candidates: [],
 };
 const getInitialState = () => initialState;
 
@@ -186,6 +178,12 @@ export default new Vuex.Store({
       for (const [name, contract] of Object.entries(managers)) {
         state[name] = contract;
       }
+    },
+    SET_COMMITTEE_PROXY: (state, committeeProxyContract) => {
+      state.CommitteeProxy = committeeProxyContract;
+    },
+    SET_CANDIDATES: (state, candidates) => {
+      state.candidates = candidates;
     },
     UPDATE_OPERATOR: (state, newOperator) => {
       const index = state.operators.indexOf(prevOperator);
@@ -381,7 +379,10 @@ export default new Vuex.Store({
         BlockchainModule.callMethodIntOutput("balanceOf", TON, WTON),
       ]);
 
-      const operators = context.state.operators.slice(0, 5);
+      const operators = context.state.operators;
+      const candidates = await getCandidates();
+      const events = await getCandidateCreateEvent();
+      const candidateContractCreated = events.filter(event => event.eventName === 'CandidateContractCreated');
       for (let i = 0; i < operators.length; i++) {
         const result = await BlockchainModule.callMethod(
           "layer2s",
@@ -841,8 +842,6 @@ export default new Vuex.Store({
             };
           };
           const [
-            currentfork,
-            firstEpo,
             totalDeposit,
             selfDeposit,
             userDeposit,
@@ -863,12 +862,6 @@ export default new Vuex.Store({
             globalWithdrawDelay,
             minAmount,
           ] = await Promise.all([
-            BlockchainModule.callMethod(
-              "forks",
-              layer2,
-              currentForkNumber.toString()
-            ),
-            BlockchainModule.callSmartMethod("getEpoch", layer2, "0", "0"),
             getDeposit(),
             getDeposit(operator),
             getDeposit(user),
@@ -937,116 +930,6 @@ export default new Vuex.Store({
               ""
             ),
           ]);
-          currentFork = {};
-          currentFork.forkedBlock = bigInt(
-            parseInt("0x" + currentfork.substring(2, 66))
-          ).toString();
-          currentFork.firstEpoch = bigInt(
-            parseInt("0x" + currentfork.substring(66, 130))
-          ).toString();
-          currentFork.lastEpoch = bigInt(
-            parseInt("0x" + currentfork.substring(130, 194))
-          ).toString();
-          currentFork.firstBlock = bigInt(
-            parseInt("0x" + currentfork.substring(194, 258))
-          ).toString();
-          currentFork.lastBlock = bigInt(
-            parseInt("0x" + currentfork.substring(258, 322))
-          ).toString();
-          currentFork.lastFinalizedEpoch = bigInt(
-            parseInt("0x" + currentfork.substring(322, 386))
-          ).toString();
-          currentFork.lastFinalizedBlock = bigInt(
-            parseInt("0x" + currentfork.substring(386, 450))
-          ).toString();
-          currentFork.timestamp = bigInt(
-            parseInt("0x" + currentfork.substring(450, 514))
-          ).toString();
-          currentFork.firstEnterEpoch = bigInt(
-            parseInt("0x" + currentfork.substring(514, 578))
-          ).toString();
-          currentFork.lastEnterEpoch = bigInt(
-            parseInt("0x" + currentfork.substring(578, 642))
-          ).toString();
-          currentFork.nextBlockToRebase = bigInt(
-            parseInt("0x" + currentfork.substring(642, 706))
-          ).toString();
-          currentFork.rebased = bigInt(
-            parseInt("0x" + currentfork.substring(706, 770))
-          ).toString();
-
-          const isEmpty = bigInt(
-            parseInt("0x" + firstEpo.substring(194, 258))
-          ).toString();
-          const initialized = bigInt(
-            parseInt("0x" + firstEpo.substring(258, 322))
-          ).toString();
-          const isRequest = bigInt(
-            parseInt("0x" + firstEpo.substring(322, 386))
-          ).toString();
-          const userActivated = bigInt(
-            parseInt("0x" + firstEpo.substring(386, 450))
-          ).toString();
-          const rebase = bigInt(
-            parseInt("0x" + firstEpo.substring(450, 514))
-          ).toString();
-
-          const firstEpoch = {};
-          firstEpoch.startBlockNumber = bigInt(
-            parseInt("0x" + firstEpo.substring(2, 66))
-          ).toString();
-          firstEpoch.endBlockNumber = bigInt(
-            parseInt("0x" + firstEpo.substring(66, 130))
-          ).toString();
-          firstEpoch.timestamp = bigInt(
-            parseInt("0x" + firstEpo.substring(130, 194))
-          ).toString();
-          firstEpoch.isEmpty = isEmpty === "0" ? false : true;
-          firstEpoch.initialized = initialized === "0" ? false : true;
-          firstEpoch.isRequest = isRequest === "0" ? false : true;
-          firstEpoch.userActivated = userActivated === "0" ? false : true;
-          firstEpoch.rebase = rebase === "0" ? false : true;
-          firstEpoch.RE = {};
-          firstEpoch.RE.requestStart = bigInt(
-            parseInt("0x" + firstEpo.substring(514, 578))
-          ).toString();
-          firstEpoch.RE.requestEnd = bigInt(
-            parseInt("0x" + firstEpo.substring(578, 642))
-          ).toString();
-          firstEpoch.RE.firstRequestBlockId = bigInt(
-            parseInt("0x" + firstEpo.substring(642, 706))
-          ).toString();
-          firstEpoch.RE.numEnter = bigInt(
-            parseInt("0x" + firstEpo.substring(706, 770))
-          ).toString();
-          firstEpoch.RE.nextEnterEpoch = bigInt(
-            parseInt("0x" + firstEpo.substring(770, 834))
-          ).toString();
-          firstEpoch.RE.nextEpoch = bigInt(
-            parseInt("0x" + firstEpo.substring(834, 898))
-          ).toString();
-          firstEpoch.NRE = {};
-          firstEpoch.NRE.epochStateRoot = "0x" + firstEpo.substring(898, 962);
-          firstEpoch.NRE.epochTransactionsRoot =
-            "0x" + firstEpo.substring(962, 1026);
-          firstEpoch.NRE.epochReceiptsRoot =
-            "0x" + firstEpo.substring(1026, 1090);
-          firstEpoch.NRE.submittedAt = bigInt(
-            parseInt("0x" + firstEpo.substring(1090, 1154))
-          ).toString();
-          firstEpoch.NRE.finalizedAt = bigInt(
-            parseInt("0x" + firstEpo.substring(1154, 1218))
-          ).toString();
-          firstEpoch.NRE.finalized = bigInt(
-            parseInt("0x" + firstEpo.substring(1218, 1282))
-          ).toString();
-          firstEpoch.NRE.challenging = bigInt(
-            parseInt("0x" + firstEpo.substring(1282, 1346))
-          ).toString();
-          firstEpoch.NRE.challenged = bigInt(
-            parseInt("0x" + firstEpo.substring(1346, 1410))
-          ).toString();
-
           const totalStaked = totStaked;
           const selfStaked = selfStake;
           const userStaked = userStake;
@@ -1061,17 +944,34 @@ export default new Vuex.Store({
           const withdrawalDelay = withdrawDelay;
           const globalWithdrawalDelay = globalWithdrawDelay;
           const minimumAmount = minAmount;
-
-          const deployedAt = firstEpoch.timestamp;
-          const lastFinalizedEpochNumber = currentFork.lastFinalizedEpoch;
-          const lastFinalizedBlockNumber = currentFork.lastFinalizedBlock;
-          const finalizeCount = parseInt(lastFinalizedEpochNumber) + 1;
-          const lastFinalizedAt = await getLastFinalizedAt(
-            lastFinalizedEpochNumber,
-            lastFinalizedBlockNumber
-          );
           const lastFinalized = await getRecentCommit(operator, layer2);
+          const isCandidate = candidates.find(candidate => candidate.layer2 === layer2.toLowerCase());
 
+          if (isCandidate.kind === 'candidate') {
+            const candi = candidateContractCreated.filter(candidate => candidate.data.candidateContract.toLowerCase() === layer2);
+            const blockTimestamp = await BlockchainModule.getTimeStamp(candi[0].txInfo.blockNumber);
+            operatorFromLayer2.deployedAt = blockTimestamp;
+            operatorFromLayer2.lastFinalizedAt = lastFinalized[0] === '0' ? blockTimestamp : lastFinalized[0];
+          } else if (isCandidate.kind !== 'candidate' || isCandidate.kind === '' || isCandidate.kind === 'layer2') {
+            const [
+              firstEpo,
+            ] = await Promise.all([
+              BlockchainModule.callSmartMethod("getEpoch", layer2, "0", "0"),
+            ]);
+          const firstEpoch = {};
+          firstEpoch.startBlockNumber = bigInt(
+            parseInt("0x" + firstEpo.substring(2, 66))
+          ).toString();
+          firstEpoch.endBlockNumber = bigInt(
+            parseInt("0x" + firstEpo.substring(66, 130))
+          ).toString();
+          const deployedAt = bigInt(
+            parseInt("0x" + firstEpo.substring(130, 194))
+          ).toString();
+          // const deployedAt = firstEpoch.timestamp;
+          operatorFromLayer2.deployedAt = deployedAt;
+          operatorFromLayer2.lastFinalizedAt = lastFinalized[0] === '0' ? deployedAt : lastFinalized[0];
+        }
           const tos = toBN(tonTotalSupply)
             .mul(toBN("1000000000"))
             .add(toBN(totTotalSupply))
@@ -1116,10 +1016,10 @@ export default new Vuex.Store({
           const userWithdrawable = getUserWithdrawable(withdrawableRequests);
           operatorFromLayer2.address = operator;
           // operatorFromLayer2.lastFinalizedAt = lastFinalizedAt;
-          operatorFromLayer2.lastFinalizedAt =
-            lastFinalized[0] === "0" ? lastFinalizedAt : lastFinalized[0];
+          // operatorFromLayer2.lastFinalizedAt =
+          //   lastFinalized[0] === "0" ? lastFinalizedAt : lastFinalized[0];
           operatorFromLayer2.finalizeCount = lastFinalized[1];
-          operatorFromLayer2.deployedAt = deployedAt;
+          // operatorFromLayer2.deployedAt = deployedAt;
           operatorFromLayer2.totalDeposit = _WTON(totalDeposit, WTON_UNIT);
           operatorFromLayer2.totalStaked = _WTON(totalStaked, WTON_UNIT);
           operatorFromLayer2.selfDeposit = _WTON(selfDeposit, WTON_UNIT);

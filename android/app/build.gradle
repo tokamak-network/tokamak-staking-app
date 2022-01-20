@@ -211,7 +211,7 @@ dependencies {
     }
     implementation name: 'SamsungBlockchainSDK-developers_release_1.1.00', ext: 'aar'
     implementation name:'KeystoreSDK-release_v1.4.1', ext: 'aar'
-    implementation 'com.samsung.android.sdk.coldwallet:KeystoreSDK-release_v1.4.1@aar'
+   implementation 'com.samsung.android.sdk.coldwallet:KeystoreSDK-release_v1.4.1@aar'
     // network
     implementation 'com.squareup.retrofit2:retrofit:2.6.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
